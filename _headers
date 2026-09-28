@@ -1,0 +1,10 @@
+# Cloudflare Pages — cabeçalhos
+# HTML sempre fresco (as páginas são autocontidas, então isso cobre tudo)
+/*
+  Cache-Control: no-cache
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Ambiente interno fora dos buscadores
+/interno/*
+  X-Robots-Tag: noindex, nofollow
