@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    # TROQUE "usuario" pelo seu usuário do cPanel (veja em cPanel > Informações Gerais > Diretório inicial)
+    - export DEPLOYPATH=/home/usuario/public_html/
+    - /bin/mkdir -p $DEPLOYPATH/interno
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp interno/index.html $DEPLOYPATH/interno/
+    - /bin/cp -f .htaccess $DEPLOYPATH 2>/dev/null || true
