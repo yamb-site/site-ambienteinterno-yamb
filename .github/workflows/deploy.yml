@@ -1,12 +1,15 @@
-name: Deploy para cPanel (FTP)
+name: Publicar no servidor (DirectAdmin via FTP)
 
-# Alternativa ao Git Version Control do cPanel.
-# Use ESTE arquivo OU o .cpanel.yml — não os dois.
-# Antes de usar, crie os secrets no GitHub:
+# Antes do primeiro uso, crie os secrets no GitHub:
 # Settings > Secrets and variables > Actions > New repository secret
-#   FTP_SERVER    ex: ftp.yamb.com.br
-#   FTP_USERNAME  usuário FTP criado no cPanel
+#   FTP_SERVER    ex: ftp.yamb.com.br  (ou o IP do servidor)
+#   FTP_USERNAME  usuário FTP criado no DirectAdmin
 #   FTP_PASSWORD  senha desse usuário
+#
+# Conta FTP criada no DirectAdmin com tipo "Domínio" (raiz uma pasta acima
+# de public_html), então o destino é public_html/.
+# Se o deploy cair na pasta errada, troque a linha server-dir abaixo por
+# domains/yamb.com.br/public_html/
 
 on:
   push:
@@ -24,10 +27,10 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
           local-dir: ./
           server-dir: public_html/
           exclude: |
             **/.git*
             **/.git*/**
             **/README.md
-            **/.cpanel.yml
