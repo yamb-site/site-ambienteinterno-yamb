@@ -30,7 +30,7 @@ Memória do **YA - SEO** entre conversas. Mais recente primeiro.
 - Agências citadas: DIVIA (páginas próprias "agência de marketing digital em Aracaju"), Negócios Locais, Trends Propaganda, Wxw.digital, HB Marketing, Kapsula, Arcos, Moove, Mídia Forma, 3x, Caixa Criativa, IA Soluções Digitais.
 - Referência de preço (nacional, Cronoshare): identidade visual R$ 2.000–20.000; só logotipo R$ 800–2.500.
 
-## 2026-10-28 — fase 1 (prévia em https://seo-fase1.site-yamb.pages.dev, aguardando OK do dono)
+## 2026-10-28 — fase 1 (publicada em site-yamb.pages.dev com OK do dono)
 
 - Dono confirmou: Aracaju, SE, atendimento presencial; serviços = 4 frentes do site.
 - Endereços próprios: `/servicos/`, `/processo/`, `/equipe/`, `/contato/` (gerados pelo `otimizar.py`, lista `PAGINAS`), cada um com título, descrição, canonical, Open Graph, um `<h1>` (primeiro título da tela) e `@graph` (ProfessionalService em Aracaju/SE com catálogo dos 4 serviços, WebSite, WebPage, BreadcrumbList).
