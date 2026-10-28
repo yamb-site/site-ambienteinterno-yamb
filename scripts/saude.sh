@@ -65,9 +65,9 @@ for base in "${BASES[@]}"; do
   done
 
   # Arquivos internos do repositório não podem aparecer
-  for p in /README.md /CLAUDE.md /.claude/agents/ya-guardiao.md /.github/workflows/saude.yml /MANUTENCAO.md /SEO.md /.claude/agents/ya-seo.md; do
+  for p in /README.md /CLAUDE.md /.claude/agents/ya-guardiao.md /.github/workflows/saude.yml /MANUTENCAO.md /SEO.md /TRAFEGO.md /.claude/agents/ya-seo.md; do
     body=$(curl -sL --max-time 30 "$base$p" | head -c 3000)
-    grep -qE 'ya-guardiao|ya-manutencao|ya-seo|YA - SEO|name: |^# YAMB —' <<<"$body" && falha "$p está público"
+    grep -qE 'ya-guardiao|ya-manutencao|ya-seo|ya-trafego|YA - SEO|YA - Tráfego|name: |^# YAMB —' <<<"$body" && falha "$p está público"
   done
 
   # Versão otimizada no ar (scripts/otimizar.py) e exportação original escondida

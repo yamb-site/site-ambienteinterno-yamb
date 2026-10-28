@@ -9,6 +9,7 @@ Quando o dono começar um pedido com **"YA"** (ex.: "YA, faz um backup", "YA, o 
 | **YA - Guardião** (`ya-guardiao`) | publicar/subir o site, exportação nova, ambiente interno, GitHub, Cloudflare, backup das planilhas (fazer, conferir, restaurar) |
 | **YA - Manutenção** (`ya-manutencao`) | erro, falha, fora do ar, lento, quebrado, revisão técnica, velocidade, acessibilidade, checagem de saúde |
 | **YA - SEO** (`ya-seo`) | SEO, Google, Maps, aparecer nas buscas, palavras-chave, IA citar a YAMB, concorrentes, conteúdo para o site, páginas novas |
+| **YA - Tráfego** (`ya-trafego`) | tráfego pago, anúncios, campanhas, Meta/Facebook/Instagram Ads, Google Ads, painel de tráfego no interno, gasto, leads, CPC, CPL |
 
 - Pedido que toca duas áreas: chame os dois em sequência (ex.: exportação nova → Guardião publica, Manutenção confere).
 - Pedido que nenhum YA cobre: diga ao dono, em uma frase, que não há um YA para isso e proponha criar um novo (nome "YA - <área>", arquivo `.claude/agents/ya-<area>.md`, mesmo formato dos outros). Só crie com o OK dele.
@@ -21,4 +22,4 @@ Quando o dono começar um pedido com **"YA"** (ex.: "YA, faz um backup", "YA, o 
 - OneDrive: às vezes trava arquivos do `.git` por alguns segundos ("Operation timed out"). Espere e tente de novo; não apague nada do `.git`.
 - Publicar = push em `main` nos dois remotes: `pages` (HTTPS com o `gh`) e `origin`.
 - Se o interno trocar de planilha ou script, atualize também o `backup.sh` do `yamb-backup`.
-- Registros: `MANUTENCAO.md` (YA - Manutenção) e `SEO.md` (YA - SEO).
+- Registros: `MANUTENCAO.md` (YA - Manutenção), `SEO.md` (YA - SEO) e `TRAFEGO.md` (YA - Tráfego — sem tokens nem dados de clientes; o repositório é público).
