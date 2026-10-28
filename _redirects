@@ -1,2 +1,4 @@
 # Cloudflare Pages — não expor arquivos do repositório
 /README.md  /  301
+/CLAUDE.md  /  301
+/.claude/*  /  301
