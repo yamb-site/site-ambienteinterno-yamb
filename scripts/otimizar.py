@@ -334,6 +334,12 @@ def main():
             interno = raiz_renderizada(chrome_dump(base + "/", tela, perfil))
             if len(interno) < 2000:
                 sys.exit("Fotografia da página veio vazia (tela %s)." % chave)
+            # A maior imagem da fotografia (a da abertura) é o maior elemento da tela: prioridade alta.
+            imgs = [(int(w.group(1)), m.start()) for m in re.finditer(r"<img\b[^>]*>", interno)
+                    for w in [re.search(r"width:\s*(\d+)px", m.group(0))] if w]
+            if imgs:
+                pos = max(imgs)[1]
+                interno = interno[:pos] + '<img fetchpriority="high"' + interno[pos + 4:]
             fotos.append('<div class="yamb-foto yamb-foto-%s">%s</div>' % (chave, interno))
             css.append("@media not all and %s{.yamb-foto-%s{display:none}}" % (FAIXAS[chave], chave))
         html = html.replace('<div id="root"></div>', '<div id="root">%s</div>' % "".join(fotos), 1)
