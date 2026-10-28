@@ -6,6 +6,8 @@ workers_dev = true
 [vars]
 GRAPH_VERSION = "v25.0"
 ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev"
+# Chave pública do push (a privada fica no cofre: VAPID_PRIVATE_JWK)
+VAPID_PUBLIC = "BJdCUQPFq4hH0jjQqjwoC_T6j7CYH2bXdk0-2NNF9Sip2jj-xsKqscjBbJxEpjij7Q1aVoNmuoXMNTmLVVN9YQ4"
 
 # Segredos (nunca aqui): npx wrangler secret put META_TOKEN · npx wrangler secret put PAINEL_SENHA
 
@@ -15,3 +17,7 @@ binding = "YAMB_TRAFEGO"
 id = "e19d2510d2d14e7ba4e0e3372e8f95ee"
 
 # Segredo extra para aplicar sugestões: npx wrangler secret put META_TOKEN_GERENCIAR (token com ads_management)
+
+# Checagem automática das sugestões: de hora em hora (o Worker só avisa nas horas escolhidas nos Ajustes)
+[triggers]
+crons = ["0 * * * *"]

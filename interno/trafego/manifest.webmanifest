@@ -1,0 +1,13 @@
+{
+  "name": "YAMB · Painel de Tráfego",
+  "short_name": "YAMB Tráfego",
+  "start_url": "/interno/trafego/",
+  "scope": "/interno/trafego/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/interno/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

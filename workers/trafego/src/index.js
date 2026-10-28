@@ -1,3 +1,5 @@
+import { buildPushHTTPRequest } from "@pushforge/builder";
+
 // YAMB — serviço intermediário do Painel de Tráfego (Cloudflare Worker).
 // Lê campanhas e desempenho na Marketing API do Meta com o token guardado como segredo
 // e entrega ao painel /interno/trafego/ só para quem envia a senha do painel.
@@ -14,6 +16,10 @@
 //   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
 //   POST /decidir  {id, decisao, autor}   aceitar (aplica no Meta) ou recusar uma sugestão
 //   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
+//   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
+//   GET/POST /config                      ajustes: regras ligadas/desligadas, limites, notificações
+//   POST /push/inscrever · /push/sair · /push/teste   notificações no celular (Web Push, sem serviço de terceiros)
+//   Agendado (cron, de hora em hora): checa sugestões e manda push nas horas configuradas
 //
 // Escrita no Meta: SÓ por /decidir e /desfazer, com o segredo separado META_TOKEN_GERENCIAR (ads_management),
 // só nas ações listadas em ACOES, e sempre conferindo o estado atual da campanha antes de mudar.
@@ -25,6 +31,9 @@ const CAMPOS_CONJUNTO = "id,name,campaign_id,status,effective_status,daily_budge
 const CAMPOS_ANUNCIO = "id,name,adset_id,campaign_id,status,effective_status,creative{id,title,body,thumbnail_url,image_url,object_type,call_to_action_type}";
 const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,timezone_name,disable_reason";
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
+const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES", "PAUSED", "ADSET_PAUSED", "CAMPAIGN_PAUSED"]);
+const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
+const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
 const RESULTADOS = [
   ["onsite_conversion.messaging_conversation_started_7d", "Conversas iniciadas"],
@@ -51,7 +60,7 @@ export default {
   async fetch(request, env, ctx) {
     const cors = corsHeaders(request, env);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-    const escrita = request.method === "POST" && ["/decidir", "/desfazer"].includes(new URL(request.url).pathname);
+    const escrita = request.method === "POST" && ROTAS_ESCRITA.includes(new URL(request.url).pathname);
     if (request.method !== "GET" && !escrita) return json({ erro: "Só leitura." }, 405, cors);
 
     if (!(await senhaOk(request.headers.get("X-Painel-Senha") || "", env.PAINEL_SENHA))) {
@@ -64,22 +73,29 @@ export default {
     try {
       if (url.pathname === "/token") return json(await statusToken(env), 200, cors);
       if (url.pathname === "/sugestoes") return json(await listarSugestoes(env, ctx, periodo), 200, cors);
+      if (url.pathname === "/config" && !escrita) return json({ config: await lerConfig(env), vapid: env.VAPID_PUBLIC || null, inscritos: await contarInscritos(env) }, 200, cors);
       if (escrita) {
         const corpo = await request.json().catch(() => ({}));
-        if (url.pathname === "/decidir") return json(await decidir(env, ctx, corpo), 200, cors);
-        return json(await desfazer(env, corpo), 200, cors);
+        const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo), "/editar": () => editar(env, ctx, corpo),
+          "/config": () => salvarConfig(env, corpo), "/push/inscrever": () => inscrever(env, corpo), "/push/sair": () => sairPush(env, corpo), "/push/teste": () => pushTeste(env) };
+        return json(await rotas[url.pathname](), 200, cors);
       }
       if (url.pathname === "/contas") return json(await comCache(ctx, "contas", () => contas(env)), 200, cors);
-      if (url.pathname === "/painel") return json(await comCache(ctx, "painel3:" + periodo, () => painel(env, periodo)), 200, cors);
+      if (url.pathname === "/painel") return json(await comCache(ctx, "painel4:" + periodo, () => painel(env, periodo)), 200, cors);
       if (url.pathname === "/cliente") {
         const id = url.searchParams.get("id") || "";
         if (!/^act_\d+$/.test(id)) return json({ erro: "Conta inválida." }, 400, cors);
-        return json(await comCache(ctx, "cliente2:" + id + ":" + periodo, () => cliente(env, id, periodo)), 200, cors);
+        return json(await comCache(ctx, "cliente3:" + id + ":" + periodo, () => cliente(env, id, periodo)), 200, cors);
       }
       return json({ erro: "Endereço desconhecido.", enderecos: ["/painel?periodo=last_7d", "/cliente?id=act_...", "/contas", "/token"] }, 404, cors);
     } catch (e) {
       return json({ erro: String(e.message || e) }, 502, cors);
     }
+  },
+
+  // Checagem automática (cron de hora em hora, ver wrangler.toml).
+  async scheduled(evento, env, ctx) {
+    ctx.waitUntil(checagemAgendada(env, ctx).catch((e) => console.log("checagem falhou:", e.message)));
   },
 };
 
@@ -169,13 +185,14 @@ async function painel(env, periodo) {
     rel(`${c.id}/insights`, { level: "campaign", time_range: faixa(r.atual), fields: "campaign_id,campaign_name,objective," + METRICAS, limit: "500" }),
     rel(`${c.id}/insights`, { level: "account", time_range: faixa(r.anterior), fields: METRICAS }),
     rel(`${c.id}/insights`, { level: "account", time_range: faixa(r.atual), fields: METRICAS, breakdowns: "publisher_platform" }),
+    rel(`${c.id}/insights`, { level: "campaign", time_range: faixa(r.anterior), fields: "campaign_id,spend,actions", limit: "500" }),
   ]);
   const resp = await lote(env, consultas);
   const porConta = ativas.map((c, i) => {
-    const [camp, ins, ant, plat] = resp.slice(i * 4, i * 4 + 4);
-    const erro = [camp, ins, ant, plat].find((x) => x.erro);
-    if (erro) return { ...c, erro: erro.erro, campanhas: [], totais: somar([]), anterior: null, plataformas: [] };
-    return montarConta(c, camp.data, ins.data, ant.data, plat.data);
+    const [camp, ins, ant, plat, insAnt] = resp.slice(i * 5, i * 5 + 5);
+    const erro = [camp, ins, ant, plat, insAnt].find((x) => x.erro);
+    if (erro) return { ...c, erro: erro.erro, campanhas: [], totais: somar([]), anterior: null, plataformas: [], saude: null };
+    return montarConta(c, camp.data, ins.data, ant.data, plat.data, insAnt.data, r.dias);
   });
   const campanhas = porConta.flatMap((c) => c.campanhas);
   return {
@@ -189,20 +206,42 @@ async function painel(env, periodo) {
   };
 }
 
-function montarConta(conta, campanhas, ins, anterior, plat) {
+function montarConta(conta, campanhas, ins, anterior, plat, insAnt, dias) {
   const lista = juntarCampanhas(campanhas, ins, conta);
-  return {
-    ...conta, campanhas: lista, totais: somar(lista), ativas: lista.filter((k) => k.ativaAgora).length,
+  const ant = Object.fromEntries((insAnt || []).map((i) => [i.campaign_id, metricas(i)]));
+  for (const k of lista) { const a = ant[k.id]; k.anterior = a ? { gasto: a.gasto, resultados: a.resultados, custoPorResultado: a.custoPorResultado } : null; }
+  const c = {
+    ...conta, campanhas: lista, totais: somar(lista), ativas: lista.filter((k) => k.ativaAgora).length, dias: dias || 7,
     anterior: anterior[0] ? metricas(anterior[0]) : metricas({}),
     plataformas: plat.map((p) => ({ nome: NOMES_PLATAFORMA[p.publisher_platform] || p.publisher_platform, ...metricas(p) })),
   };
+  c.saude = saude(c);
+  return c;
+}
+
+// Nota de saúde da conta (0–100): começa em 100 e perde pontos pelo que está ruim no período.
+function saude(c) {
+  let nota = 100; const motivos = [];
+  const t = c.totais, a = c.anterior || {};
+  const tira = (p, m) => { nota -= p; motivos.push(m); };
+  if (t.gasto > 0 && !t.resultados) tira(40, "Investimento sem nenhum resultado no período");
+  if (a.custoPorResultado && t.custoPorResultado && t.custoPorResultado > a.custoPorResultado * 1.3) tira(20, `Custo por resultado subiu ${Math.round((t.custoPorResultado / a.custoPorResultado - 1) * 100)}%`);
+  if (a.resultados >= 5 && t.resultados < a.resultados * 0.7) tira(15, `Resultados caíram ${Math.round((1 - t.resultados / a.resultados) * 100)}%`);
+  const altos = c.campanhas.reduce((n, k) => n + k.alertas.filter((x) => x.nivel === "alto").length, 0);
+  const medios = c.campanhas.reduce((n, k) => n + k.alertas.filter((x) => x.nivel === "medio").length, 0);
+  if (altos) tira(Math.min(30, altos * 15), `${altos} alerta(s) urgente(s)`);
+  if (medios) tira(Math.min(20, medios * 7), `${medios} alerta(s) de atenção`);
+  if (t.impressoes > 2000 && t.ctr != null && t.ctr < 0.6) tira(10, "CTR geral baixo");
+  if (!c.ativas) tira(0, "Sem campanhas ativas");
+  nota = Math.max(0, Math.min(100, Math.round(nota)));
+  return { nota, rotulo: !c.ativas && !t.gasto ? "Sem veiculação" : nota >= 80 ? "Saudável" : nota >= 60 ? "Atenção" : "Crítica", motivos };
 }
 
 // Campanhas ativas agora + campanhas que gastaram no período e já não estão ativas
 // (pausadas ou encerradas). Assim o total bate com o do Gerenciador de Anúncios.
 function juntarCampanhas(campanhas, ins, conta) {
   const porId = Object.fromEntries(ins.map((i) => [i.campaign_id, i]));
-  const lista = campanhas.map((c) => ({ ...linhaCampanha(c, porId[c.id] || {}, conta), ativaAgora: true }));
+  const lista = campanhas.map((c) => ({ ...linhaCampanha(c, porId[c.id] || {}, conta), ativaAgora: NO_AR.has(c.effective_status), statusConfig: c.status }));
   const vistas = new Set(campanhas.map((c) => c.id));
   for (const i of ins) {
     if (vistas.has(i.campaign_id) || !num(i.spend)) continue;
@@ -241,9 +280,9 @@ async function cliente(env, id, periodo) {
   const info = await pegar(env, id, { fields: CAMPOS_CONTA });
   const conta = { id: info.id, nome: info.name, empresa: info.business_name || null, moeda: info.currency, fuso: info.timezone_name || null, status: STATUS_CONTA[info.account_status] || String(info.account_status) };
   const [campanhas, conjuntos, anuncios, insCamp, insConj, insAnun, anterior, diario, idadeGenero, posicionamentos, regioes] = await Promise.all([
-    todasPaginas(env, `${id}/campaigns`, { fields: CAMPOS_CAMPANHA, effective_status: ATIVOS }),
-    todasPaginas(env, `${id}/adsets`, { fields: CAMPOS_CONJUNTO, effective_status: ATIVOS }),
-    todasPaginas(env, `${id}/ads`, { fields: CAMPOS_ANUNCIO, effective_status: ATIVOS }, 5),
+    todasPaginas(env, `${id}/campaigns`, { fields: CAMPOS_CAMPANHA, effective_status: ATIVOS_E_PAUSADOS }),
+    todasPaginas(env, `${id}/adsets`, { fields: CAMPOS_CONJUNTO, effective_status: ATIVOS_E_PAUSADOS }),
+    todasPaginas(env, `${id}/ads`, { fields: CAMPOS_ANUNCIO, effective_status: ATIVOS_E_PAUSADOS }, 5),
     insights(env, id, { level: "campaign", time_range: tr, fields: "campaign_id,campaign_name,objective," + METRICAS }),
     insights(env, id, { level: "adset", time_range: tr, fields: "adset_id," + METRICAS }),
     insights(env, id, { level: "ad", time_range: tr, fields: "ad_id," + METRICAS }, 5),
@@ -263,7 +302,7 @@ async function cliente(env, id, periodo) {
     const m = metricas(ij[s.id] || {});
     const t = s.targeting || {};
     return {
-      id: s.id, nome: s.name, campanha: nomeCamp[s.campaign_id] || null, campanhaId: s.campaign_id, status: s.effective_status,
+      id: s.id, nome: s.name, campanha: nomeCamp[s.campaign_id] || null, campanhaId: s.campaign_id, status: s.effective_status, statusConfig: s.status, ativaAgora: NO_AR.has(s.effective_status),
       otimizacao: s.optimization_goal || null, orcamentoDiario: centavos(s.daily_budget), orcamentoTotal: centavos(s.lifetime_budget),
       publico: resumoPublico(t), ...m, alertas: alertas(s, m, null),
     };
@@ -272,15 +311,17 @@ async function cliente(env, id, periodo) {
     const m = metricas(ia[a.id] || {});
     const cr = a.creative || {};
     return {
-      id: a.id, nome: a.name, conjunto: nomeConj[a.adset_id] || null, campanha: nomeCamp[a.campaign_id] || null, status: a.effective_status,
+      id: a.id, nome: a.name, conjunto: nomeConj[a.adset_id] || null, campanha: nomeCamp[a.campaign_id] || null, status: a.effective_status, statusConfig: a.status, ativaAgora: NO_AR.has(a.effective_status),
       titulo: cr.title || null, texto: cr.body ? cr.body.slice(0, 240) : null, miniatura: cr.thumbnail_url || cr.image_url || null,
       tipo: cr.object_type || null, botao: cr.call_to_action_type || null, ...m, alertas: alertas(a, m, null),
     };
-  }).sort((a, b) => b.gasto - a.gasto);
+  }).sort((a, b) => (b.ativaAgora - a.ativaAgora) || (b.gasto - a.gasto));
+  conjs.sort((a, b) => (b.ativaAgora - a.ativaAgora) || (b.gasto - a.gasto));
+  camps.sort((a, b) => (b.ativaAgora - a.ativaAgora) || (b.gasto - a.gasto));
 
   return {
-    atualizado: new Date().toISOString(), periodo, intervalo: r, conta,
-    totais: somar(camps), ativas: camps.filter((k) => k.ativaAgora).length, anterior: anterior[0] ? metricas(anterior[0]) : metricas({}),
+    atualizado: new Date().toISOString(), periodo, intervalo: r, conta, podeEditar: !!env.META_TOKEN_GERENCIAR,
+    totais: somar(camps.filter((k) => k.gasto > 0 || k.ativaAgora)), ativas: camps.filter((k) => k.ativaAgora).length, anterior: anterior[0] ? metricas(anterior[0]) : metricas({}),
     categorias: agrupar(camps, (k) => k.categoria),
     campanhas: camps, conjuntos: conjs, anuncios: anuns,
     diario: diario.map((d) => ({ dia: d.date_start, ...metricas(d) })).sort((a, b) => a.dia.localeCompare(b.dia)),
@@ -409,7 +450,52 @@ const ACOES = { pausar: "Pausar campanha", orcamento: "Ajustar orçamento diári
 const LIMITE_AJUSTE = 0.2; // nunca muda orçamento mais de 20% de uma vez
 const DIAS_RECUSA = 7;
 
-function regras(conta) {
+const PADRAO = {
+  regras: {
+    pausar: { ativa: true, rotulo: "Pausar campanha sem resultado", minimo: 30 },
+    orcamentoMais: { ativa: true, rotulo: "Aumentar orçamento da mais eficiente" },
+    orcamentoMenos: { ativa: true, rotulo: "Reduzir orçamento de campanha cara" },
+    piora: { ativa: true, rotulo: "Custo por resultado subiu", percentual: 30 },
+    semEntrega: { ativa: true, rotulo: "Campanha ativa sem entrega" },
+    subutilizado: { ativa: true, rotulo: "Entrega abaixo do orçamento" },
+    criativo: { ativa: true, rotulo: "Público cansado (frequência alta)", frequencia: 4 },
+    ctr: { ativa: true, rotulo: "CTR baixo", minimo: 0.6 },
+    problema: { ativa: true, rotulo: "Problema apontado pelo Meta" },
+    fim: { ativa: true, rotulo: "Orçamento total no fim" },
+  },
+  notificacoes: { ativo: true, horas: [8, 13, 18], nivelMinimo: "medio" },
+};
+
+async function lerConfig(env) {
+  const salvo = env.YAMB_TRAFEGO ? await env.YAMB_TRAFEGO.get("config", "json") : null;
+  const c = JSON.parse(JSON.stringify(PADRAO));
+  if (salvo) {
+    for (const [k, v] of Object.entries(salvo.regras || {})) if (c.regras[k]) Object.assign(c.regras[k], v, { rotulo: c.regras[k].rotulo });
+    Object.assign(c.notificacoes, salvo.notificacoes || {});
+  }
+  return c;
+}
+
+async function salvarConfig(env, corpo) {
+  const autor = limpaAutor(corpo.autor);
+  if (!autor) return { erro: "Informe quem está mudando os ajustes." };
+  const atual = await lerConfig(env), novo = corpo.config || {};
+  for (const [k, v] of Object.entries(novo.regras || {})) {
+    if (!atual.regras[k]) continue;
+    atual.regras[k].ativa = !!v.ativa;
+    for (const campo of ["minimo", "percentual", "frequencia"]) if (campo in atual.regras[k] && isFinite(Number(v[campo])) && Number(v[campo]) > 0) atual.regras[k][campo] = Number(v[campo]);
+  }
+  const n = novo.notificacoes || {};
+  if ("ativo" in n) atual.notificacoes.ativo = !!n.ativo;
+  if (Array.isArray(n.horas)) atual.notificacoes.horas = [...new Set(n.horas.map(Number).filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b);
+  if (["alto", "medio", "baixo"].includes(n.nivelMinimo)) atual.notificacoes.nivelMinimo = n.nivelMinimo;
+  await env.YAMB_TRAFEGO.put("config", JSON.stringify(atual));
+  await registrar(env, { estado: "ajustes", autor, sugestao: { titulo: "Ajustes do painel alterados" } });
+  return { ok: true, config: atual };
+}
+
+function regras(conta, cfg) {
+  const R = (cfg || PADRAO).regras;
   const s = [];
   const m = conta.moeda;
   const comResultado = conta.campanhas.filter((k) => k.ativaAgora && k.resultados > 0);
@@ -417,8 +503,8 @@ function regras(conta) {
   for (const k of conta.campanhas) {
     if (!k.ativaAgora) continue;
     const base = { contaId: conta.id, conta: conta.nome, campanhaId: k.id, campanha: k.nome, moeda: m };
-    const limitePausa = cprConta ? Math.max(30, cprConta * 2) : 50;
-    if (k.gasto >= limitePausa && !k.resultados) {
+    const limitePausa = cprConta ? Math.max(R.pausar.minimo, cprConta * 2) : Math.max(R.pausar.minimo, 50);
+    if (R.pausar.ativa && k.gasto >= limitePausa && !k.resultados) {
       s.push({ ...base, id: "pausar:" + k.id, tipo: "pausar", nivel: "alto",
         titulo: "Pausar campanha sem resultado",
         motivo: `Investiu ${dinheiro(k.gasto, m)} no período sem nenhum resultado${cprConta ? ` (a média da conta é ${dinheiro(cprConta, m)} por resultado)` : ""}.`,
@@ -427,14 +513,14 @@ function regras(conta) {
       continue;
     }
     if (k.orcamentoDiario && cprConta && comResultado.length >= 2) {
-      if (k.resultados >= 5 && k.custoPorResultado <= cprConta * 0.7 && k.frequencia < 3) {
+      if (R.orcamentoMais.ativa && k.resultados >= 5 && k.custoPorResultado <= cprConta * 0.7 && k.frequencia < 3) {
         const para = Math.round(k.orcamentoDiario * (1 + LIMITE_AJUSTE));
         if (para > k.orcamentoDiario) s.push({ ...base, id: "orcamento-mais:" + k.id, tipo: "orcamento", nivel: "baixo",
           titulo: "Aumentar orçamento da campanha mais eficiente",
           motivo: `${N(k.resultados)} resultados a ${dinheiro(k.custoPorResultado, m)} cada, ${Math.round((1 - k.custoPorResultado / cprConta) * 100)}% abaixo da média da conta (${dinheiro(cprConta, m)}), e o público ainda não está saturado (frequência ${k.frequencia.toFixed(1)}).`,
           acao: { tipo: "orcamento", de: k.orcamentoDiario, para },
           impacto: `Mais ${dinheiro(para - k.orcamentoDiario, m)}/dia onde cada resultado sai mais barato.` });
-      } else if (k.resultados > 0 && k.custoPorResultado >= cprConta * 1.8 && k.gasto >= 50) {
+      } else if (R.orcamentoMenos.ativa && k.resultados > 0 && k.custoPorResultado >= cprConta * 1.8 && k.gasto >= 50) {
         const para = Math.max(1, Math.round(k.orcamentoDiario * (1 - LIMITE_AJUSTE)));
         if (para < k.orcamentoDiario) s.push({ ...base, id: "orcamento-menos:" + k.id, tipo: "orcamento", nivel: "medio",
           titulo: "Reduzir orçamento de campanha cara",
@@ -443,18 +529,31 @@ function regras(conta) {
           impacto: `Economiza ${dinheiro(k.orcamentoDiario - para, m)}/dia enquanto a campanha é revisada.` });
       }
     }
-    if (k.frequencia >= 4) s.push({ ...base, id: "criativo:" + k.id, tipo: "tarefa", nivel: "medio",
+    const a = k.anterior;
+    if (R.piora.ativa && a && a.resultados >= 3 && k.resultados >= 3 && k.custoPorResultado > a.custoPorResultado * (1 + R.piora.percentual / 100)) s.push({ ...base, id: "piora:" + k.id, tipo: "tarefa", nivel: "medio",
+      titulo: "Custo por resultado subiu",
+      motivo: `Passou de ${dinheiro(a.custoPorResultado, m)} para ${dinheiro(k.custoPorResultado, m)} por resultado (${Math.round((k.custoPorResultado / a.custoPorResultado - 1) * 100)}% a mais que no período anterior).`,
+      acao: null, impacto: "Ver o que mudou: criativo, público, concorrência ou página de destino." });
+    if (R.semEntrega.ativa && k.status === "ACTIVE" && !k.impressoes && (k.orcamentoDiario || k.orcamentoTotal)) s.push({ ...base, id: "sem-entrega:" + k.id, tipo: "tarefa", nivel: "alto",
+      titulo: "Campanha ativa sem entrega",
+      motivo: "Está ativa mas não teve nenhuma impressão no período: pode haver anúncio reprovado, conjunto pausado, público pequeno demais ou problema de pagamento.",
+      acao: null, impacto: "Conferir no Gerenciador de Anúncios os conjuntos e anúncios dessa campanha." });
+    if (R.subutilizado.ativa && k.orcamentoDiario && conta.dias >= 3 && k.impressoes > 0 && k.gasto < k.orcamentoDiario * conta.dias * 0.5) s.push({ ...base, id: "subutilizado:" + k.id, tipo: "tarefa", nivel: "baixo",
+      titulo: "Entrega abaixo do orçamento",
+      motivo: `Gastou ${dinheiro(k.gasto, m)} de ${dinheiro(k.orcamentoDiario * conta.dias, m)} possíveis (${Math.round(k.gasto / (k.orcamentoDiario * conta.dias) * 100)}%) em ${conta.dias} dias.`,
+      acao: null, impacto: "Público pequeno, lance limitado ou anúncio com pouca qualidade: o dinheiro está parado." });
+    if (R.criativo.ativa && k.frequencia >= R.criativo.frequencia) s.push({ ...base, id: "criativo:" + k.id, tipo: "tarefa", nivel: "medio",
       titulo: "Trocar o criativo (público cansado)",
-      motivo: `Frequência ${k.frequencia.toFixed(1)}: cada pessoa viu o anúncio mais de 4 vezes no período.`,
+      motivo: `Frequência ${k.frequencia.toFixed(1)}: cada pessoa viu o anúncio mais de ${R.criativo.frequencia} vezes no período.`,
       acao: null, impacto: "Criativo novo costuma baixar o custo quando a frequência passa de 4." });
-    if (k.impressoes > 2000 && k.ctr > 0 && k.ctr < 0.6) s.push({ ...base, id: "ctr:" + k.id, tipo: "tarefa", nivel: "medio",
+    if (R.ctr.ativa && k.impressoes > 2000 && k.ctr > 0 && k.ctr < R.ctr.minimo) s.push({ ...base, id: "ctr:" + k.id, tipo: "tarefa", nivel: "medio",
       titulo: "Revisar criativo ou público (CTR baixo)",
       motivo: `CTR de ${k.ctr.toFixed(2).replace(".", ",")}% em ${N(k.impressoes)} impressões: poucas pessoas clicam.`,
       acao: null, impacto: "Testar outra chamada, imagem ou público." });
-    if (k.status === "WITH_ISSUES") s.push({ ...base, id: "problema:" + k.id, tipo: "tarefa", nivel: "alto",
+    if (R.problema.ativa && k.status === "WITH_ISSUES") s.push({ ...base, id: "problema:" + k.id, tipo: "tarefa", nivel: "alto",
       titulo: "Resolver problema apontado pelo Meta", motivo: "A campanha está com problema no Meta (anúncio reprovado, pagamento ou configuração).",
       acao: null, impacto: "Abrir no Gerenciador de Anúncios e ver o aviso." });
-    if (k.orcamentoTotal && k.orcamentoRestante != null && k.orcamentoRestante / k.orcamentoTotal < 0.1) s.push({ ...base, id: "fim:" + k.id, tipo: "tarefa", nivel: "baixo",
+    if (R.fim.ativa && k.orcamentoTotal && k.orcamentoRestante != null && k.orcamentoRestante / k.orcamentoTotal < 0.1) s.push({ ...base, id: "fim:" + k.id, tipo: "tarefa", nivel: "baixo",
       titulo: "Orçamento total quase no fim", motivo: `Restam ${dinheiro(k.orcamentoRestante, m)} de ${dinheiro(k.orcamentoTotal, m)}.`,
       acao: null, impacto: "Decidir com o cliente se renova ou encerra." });
   }
@@ -467,8 +566,9 @@ const N = (v) => new Intl.NumberFormat("pt-BR").format(Math.round(v || 0));
 const PESO = { alto: 0, medio: 1, baixo: 2 };
 
 async function listarSugestoes(env, ctx, periodo) {
-  const g = await comCache(ctx, "painel3:" + periodo, () => painel(env, periodo));
-  const todas = g.contas.flatMap((c) => (c.erro ? [] : regras(c)));
+  const g = await comCache(ctx, "painel4:" + periodo, () => painel(env, periodo));
+  const cfg = await lerConfig(env);
+  const todas = g.contas.flatMap((c) => (c.erro ? [] : regras(c, cfg)));
   const kv = env.YAMB_TRAFEGO;
   const decisoes = kv ? await Promise.all(todas.map((x) => kv.get("dec:" + x.id, "json"))) : [];
   const abertas = todas.filter((x, i) => !decisoes[i]).sort((a, b) => PESO[a.nivel] - PESO[b.nivel]);
@@ -550,13 +650,111 @@ async function desfazer(env, corpo) {
   const chave = String(corpo.registro || "");
   if (!chave.startsWith("log:")) return { erro: "Registro inválido." };
   const reg = await env.YAMB_TRAFEGO.get(chave, "json");
-  if (!reg || reg.estado !== "aplicada") return { erro: "Só dá para desfazer mudanças aplicadas." };
+  if (!reg || !["aplicada", "editada"].includes(reg.estado)) return { erro: "Só dá para desfazer mudanças aplicadas no Meta." };
   if (reg.desfeitoEm) return { erro: "Essa mudança já foi desfeita." };
-  await escrever(env, reg.campanhaId, reg.antes);
+  await escrever(env, reg.objetoId || reg.campanhaId, reg.antes);
   reg.desfeitoEm = new Date().toISOString(); reg.desfeitoPor = autor;
   await env.YAMB_TRAFEGO.put(chave, JSON.stringify(reg));
-  await registrar(env, { estado: "desfeita", autor, sugestao: reg.sugestao, campanhaId: reg.campanhaId, antes: reg.depois, depois: reg.antes });
+  await registrar(env, { estado: "desfeita", autor, sugestao: reg.sugestao, campanhaId: reg.campanhaId, objetoId: reg.objetoId, antes: reg.depois, depois: reg.antes });
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- edição manual
+const NIVEIS = { campanha: "Campanha", conjunto: "Conjunto", anuncio: "Anúncio" };
+async function editar(env, ctx, corpo) {
+  const autor = limpaAutor(corpo.autor);
+  if (!autor) return { erro: "Informe quem está editando." };
+  if (!env.META_TOKEN_GERENCIAR || !env.YAMB_TRAFEGO) return { erro: "A edição ainda não está configurada (falta a chave de gerenciar)." };
+  const objeto = String(corpo.objeto || ""), nivel = corpo.nivel, acao = corpo.acao;
+  if (!/^\d+$/.test(objeto) || !NIVEIS[nivel]) return { erro: "Item inválido." };
+  if (!["ativar", "pausar", "orcamento"].includes(acao)) return { erro: "Ação inválida." };
+  if (acao === "orcamento" && nivel === "anuncio") return { erro: "Anúncio não tem orçamento próprio." };
+  const atual = await pegar(env, objeto, { fields: "id,name,status,effective_status,account_id" + (nivel === "anuncio" ? "" : ",daily_budget") });
+  const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
+  const conta = lista.find((c) => c.id === "act_" + atual.account_id);
+  if (!conta) return { erro: "Esse item não é de uma conta que o painel acompanha." };
+  let antes, depois, descricao;
+  if (acao === "ativar" || acao === "pausar") {
+    const para = acao === "ativar" ? "ACTIVE" : "PAUSED";
+    if (atual.status === para) return { erro: acao === "ativar" ? "Já está ativo." : "Já está pausado." };
+    antes = { status: atual.status }; depois = { status: para };
+    descricao = `${acao === "ativar" ? "Ativou" : "Pausou"} ${NIVEIS[nivel].toLowerCase()}`;
+  } else {
+    const deMinor = Number(atual.daily_budget || 0);
+    if (!deMinor) return { erro: "Esse item não tem orçamento diário próprio (o orçamento fica no outro nível)." };
+    const paraMinor = Math.round(Number(corpo.valor) * 100);
+    if (!(paraMinor >= 100)) return { erro: "Orçamento inválido." };
+    if (paraMinor > deMinor * 3 || paraMinor < deMinor / 3) return { erro: "Mudança grande demais de uma vez (mais de 3 vezes). Faça em etapas." };
+    if (paraMinor === deMinor) return { erro: "O orçamento já é esse." };
+    antes = { daily_budget: String(deMinor) }; depois = { daily_budget: String(paraMinor) };
+    descricao = `Orçamento diário ${dinheiro(deMinor / 100, conta.moeda)} → ${dinheiro(paraMinor / 100, conta.moeda)}`;
+  }
+  await escrever(env, objeto, depois);
+  return { ok: true, registro: await registrar(env, { estado: "editada", autor, objetoId: objeto, antes, depois,
+    sugestao: { titulo: descricao, conta: conta.nome, campanha: `${NIVEIS[nivel]}: ${atual.name}` } }) };
+}
+
+// ---------------------------------------------------------------- notificações no celular (Web Push)
+const hashCurto = async (t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+
+async function inscrever(env, corpo) {
+  const sub = corpo.subscription || {};
+  if (!sub.endpoint || !/^https:\/\//.test(sub.endpoint) || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) return { erro: "Inscrição inválida." };
+  const nome = limpaAutor(corpo.nome) || "Sem nome";
+  await env.YAMB_TRAFEGO.put("push:" + (await hashCurto(sub.endpoint)), JSON.stringify({ subscription: { endpoint: sub.endpoint, keys: sub.keys }, nome, em: new Date().toISOString(), aparelho: String(corpo.aparelho || "").slice(0, 80) }));
+  return { ok: true, inscritos: await contarInscritos(env) };
+}
+async function sairPush(env, corpo) {
+  if (corpo.endpoint) await env.YAMB_TRAFEGO.delete("push:" + (await hashCurto(String(corpo.endpoint))));
+  return { ok: true, inscritos: await contarInscritos(env) };
+}
+async function contarInscritos(env) {
+  if (!env.YAMB_TRAFEGO) return 0;
+  return (await env.YAMB_TRAFEGO.list({ prefix: "push:" })).keys.length;
+}
+
+async function enviarPush(env, mensagem) {
+  if (!env.VAPID_PRIVATE_JWK || !env.YAMB_TRAFEGO) return { enviados: 0, erro: "Push não configurado." };
+  const chaves = (await env.YAMB_TRAFEGO.list({ prefix: "push:" })).keys;
+  let enviados = 0;
+  for (const k of chaves) {
+    const reg = await env.YAMB_TRAFEGO.get(k.name, "json");
+    if (!reg) continue;
+    try {
+      const req = await buildPushHTTPRequest({ privateJWK: env.VAPID_PRIVATE_JWK, subscription: reg.subscription,
+        message: { payload: mensagem, options: { ttl: 6 * 3600, urgency: "high", topic: "yamb-trafego" }, adminContact: "mailto:diretoria@yamb.com.br" } });
+      const r = await fetch(req.endpoint, { method: "POST", headers: req.headers, body: req.body });
+      if (r.status === 404 || r.status === 410) await env.YAMB_TRAFEGO.delete(k.name); // inscrição expirada
+      else if (r.ok) enviados++;
+    } catch (e) { console.log("push falhou:", e.message); }
+  }
+  return { enviados, total: chaves.length };
+}
+
+async function pushTeste(env) {
+  const r = await enviarPush(env, { title: "YAMB · Painel de Tráfego", body: "Notificações ligadas neste aparelho. Você vai receber os alertas de tráfego aqui.", url: "/interno/trafego/#aba=sugestoes", tag: "yamb-teste" });
+  return r.erro ? { erro: r.erro } : { ok: true, ...r };
+}
+
+async function checagemAgendada(env, ctx) {
+  const cfg = await lerConfig(env);
+  const n = cfg.notificacoes;
+  const hora = new Date(Date.now() - 3 * 3600e3).getUTCHours(); // Brasília
+  if (!n.ativo || !n.horas.includes(hora)) return;
+  const { sugestoes } = await listarSugestoes(env, ctx, "last_7d");
+  const limite = PESO[n.nivelMinimo];
+  const relevantes = sugestoes.filter((x) => PESO[x.nivel] <= limite);
+  const novas = [];
+  for (const x of relevantes) if (!(await env.YAMB_TRAFEGO.get("notif:" + x.id))) novas.push(x);
+  if (!novas.length) return;
+  const urgentes = novas.filter((x) => x.nivel === "alto").length;
+  const primeira = novas[0];
+  await enviarPush(env, {
+    title: urgentes ? `YAMB · ${urgentes} alerta${urgentes > 1 ? "s" : ""} urgente${urgentes > 1 ? "s" : ""} no tráfego` : `YAMB · ${novas.length} sugest${novas.length > 1 ? "ões" : "ão"} no tráfego`,
+    body: `${primeira.conta}: ${primeira.titulo.toLowerCase()}.` + (novas.length > 1 ? ` E mais ${novas.length - 1}.` : ""),
+    url: "/interno/trafego/#aba=sugestoes", tag: "yamb-trafego",
+  });
+  for (const x of novas) await env.YAMB_TRAFEGO.put("notif:" + x.id, "1", { expirationTtl: 3 * 86400 });
 }
 
 // ---------------------------------------------------------------- utilidades
