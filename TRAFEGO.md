@@ -2,6 +2,13 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-28 — ajustes, edição, push e novas regras
+- Aba Ajustes: liga/desliga cada regra e muda os limites; horários e nível dos avisos. Salvo no KV (`config`).
+- Edição manual (campanha, conjunto, anúncio): ativar, pausar, orçamento diário (limite de 3× para cima ou para baixo de uma vez), com histórico e Desfazer.
+- Nota de saúde (0–100) por cliente.
+- Regras novas: custo por resultado subiu (vs período anterior), campanha ativa sem entrega, entrega abaixo do orçamento.
+- Push no celular: Web Push próprio (sem serviço de terceiros). Cada pessoa ativa em Ajustes › "Receber neste aparelho" (no iPhone, antes adicionar o painel à Tela de Início). Checagem de hora em hora (cron do Worker); avisa só nas horas marcadas e só o que for novo (não repete por 3 dias).
+
 ## 2026-10-28 — sugestões com aceitar/recusar
 - Aba Sugestões: regras sobre a média de cada conta (pausar campanha sem resultado; +20% de orçamento na mais eficiente; −20% na cara; tarefas: criativo cansado, CTR baixo, problema no Meta, orçamento total no fim).
 - Aceitar aplica no Meta com `META_TOKEN_GERENCIAR` (ads_management), conferindo o estado atual; recusar esconde por 7 dias; histórico com Desfazer no KV `YAMB_TRAFEGO`.
