@@ -248,11 +248,19 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
 .sug .onde{font-size:12.5px;color:var(--muted)} .sug .onde a{text-decoration:none}
 .sug p{margin:10px 0 0;color:var(--soft);font-size:13.5px}
 .sug .imp{color:var(--muted);font-size:12.5px;margin-top:6px}
+.passos{margin:14px 0 0;padding:14px 16px 12px;border-radius:var(--r-md);background:rgba(10,10,10,.45);border:1px solid var(--edge)}
+.passos .over{display:block;font-size:10px;margin-bottom:8px}
+.passos ol{margin:0;padding-left:20px;display:grid;gap:6px;font-size:13.5px;color:var(--soft)}
+.passos li::marker{color:var(--gold);font-weight:600}
+.passos li:first-child{color:var(--text)}
+.modal .passos{background:#fff;border-color:rgba(18,18,18,.08)}
+.modal .passos ol{color:#3b342d} .modal .passos li:first-child{color:var(--ink)}
 .acao{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:6px 12px;border-radius:var(--r-pill);border:1px solid var(--edge-gold);background:rgba(243,172,47,.08);font-size:12.5px;color:var(--gold-l)}
 .acao.tarefa{border-color:var(--edge-2);background:rgba(247,228,206,.05);color:var(--soft)}
 .sug .botoes{display:flex;flex-direction:column;gap:8px;min-width:150px}
 .botao-sec{min-height:40px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--edge-2);background:transparent;color:var(--soft);cursor:pointer;transition:border-color .2s,color .2s}
 .botao-sec:hover{border-color:var(--bad);color:var(--bad)}
+.botao-sec.editar:hover{border-color:var(--edge-gold);color:var(--text)}
 .botao-ouro.p{min-height:40px;margin:0;font-size:13.5px;padding:0 18px}
 .hist{display:grid;gap:0}
 .hist .linha{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(247,228,206,.06);font-size:13px}
@@ -277,8 +285,14 @@ dialog::backdrop{background:rgba(5,5,5,.72);backdrop-filter:blur(6px);-webkit-ba
 .modal .erro{color:#B2391F;font-size:13px;min-height:18px;margin:0 0 10px}
 @media (max-width:620px){.sug{grid-template-columns:auto 1fr}.sug .botoes{grid-column:1/-1;flex-direction:row}.sug .botoes>*{flex:1}}
 
-/* ---------- itens pausados ---------- */
-tr.pausada td{opacity:.62}
+/* ---------- edição ---------- */
+.ctrl{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.mini-btn{min-height:32px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--edge-2);background:rgba(18,18,18,.5);color:var(--soft);cursor:pointer;font-size:12px;white-space:nowrap;transition:border-color .2s,color .2s,background-color .2s}
+.mini-btn:hover{border-color:var(--edge-gold);color:var(--text)}
+.mini-btn.pausar:hover{border-color:var(--bad);color:var(--bad)}
+.mini-btn.ativar{border-color:rgba(134,211,160,.35);color:var(--ok)}
+.mini-btn.ativar:hover{background:rgba(134,211,160,.08)}
+tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
 /* ---------- saúde ---------- */
 .saude{display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:4px 10px 4px 4px;border-radius:var(--r-pill);background:rgba(247,228,206,.06);color:var(--soft);white-space:nowrap}
 .saude b{display:inline-grid;place-items:center;min-width:30px;height:24px;border-radius:var(--r-pill);font-weight:600;font-size:12px;color:var(--ink)}
@@ -401,6 +415,7 @@ tr.pausada td{opacity:.62}
     <h2 id="dlg-titulo"></h2>
     <p id="dlg-texto"></p>
     <div class="mudanca" id="dlg-mudanca" hidden></div>
+    <div id="dlg-valor-caixa" hidden><label for="dlg-valor">Novo orçamento diário (R$)</label><input id="dlg-valor" name="valor" type="number" inputmode="decimal" min="1" step="1"></div>
     <label for="dlg-autor">Seu nome</label>
     <input id="dlg-autor" name="autor" autocomplete="name" required maxlength="60" placeholder="Ex.: Gabriel Santos…">
     <div id="dlg-motivo-caixa" hidden><label for="dlg-motivo">Motivo (opcional)</label><textarea id="dlg-motivo" name="motivo" maxlength="300" placeholder="Ex.: cliente pediu para manter…"></textarea></div>
@@ -696,6 +711,17 @@ tr.pausada td{opacity:.62}
     $('conteudo').innerHTML = h;
   }
 
+  // ------------------------------------------------ edição (ativar, pausar, orçamento)
+  var itens = {};
+  function controles(k, nivel, m, pode) {
+    if (!pode || !k.statusConfig) return '';
+    itens[k.id] = { id: k.id, nome: k.nome, nivel: nivel, orcamentoDiario: k.orcamentoDiario, moeda: m, status: k.statusConfig };
+    var h = k.statusConfig === 'ACTIVE' ? '<button type="button" class="mini-btn pausar" data-editar="' + k.id + '" data-acao="pausar">Pausar</button>' : '<button type="button" class="mini-btn ativar" data-editar="' + k.id + '" data-acao="ativar">Ativar</button>';
+    if (nivel !== 'anuncio' && k.orcamentoDiario) h += '<button type="button" class="mini-btn" data-editar="' + k.id + '" data-acao="orcamento">Orçamento</button>';
+    return '<div class="ctrl">' + h + '</div>';
+  }
+  var NIVEL_NOME = { campanha: 'campanha', conjunto: 'conjunto', anuncio: 'anúncio' };
+
   // ------------------------------------------------ cliente
   var SUBS = [['resumo', 'Resumo'], ['campanhas', 'Campanhas'], ['conjuntos', 'Conjuntos'], ['anuncios', 'Anúncios'], ['publico', 'Público'], ['diario', 'Dia a dia']];
   function telaCliente(d) {
@@ -710,11 +736,11 @@ tr.pausada td{opacity:.62}
     else if (sub === 'campanhas') h += tabela('ccamp', d.campanhas, [
       ['Campanha', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(OBJETIVOS[k.objetivo] || k.objetivo || '') + '</span><span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
-    ].concat(colsMetricas(m)), 'gasto');
+    ].concat(colsMetricas(m), d.podeEditar ? [['Ações', 'acoes', function (k) { return controles(k, 'campanha', m, true); }, { nao: 1 }]] : []), 'gasto');
     else if (sub === 'conjuntos') h += tabela('cconj', d.conjuntos, [
       ['Conjunto', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(k.campanha || '') + '</span>' + (k.publico ? '<span class="sub-l">Público: ' + esc(k.publico) + '</span>' : '') + '<span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + (k.otimizacao ? '<span class="tag">Otimiza: ' + esc(OTIMIZACAO[k.otimizacao] || k.otimizacao) + '</span>' : '') + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
-    ].concat(colsMetricas(m)), 'gasto');
+    ].concat(colsMetricas(m), d.podeEditar ? [['Ações', 'acoes', function (k) { return controles(k, 'conjunto', m, true); }, { nao: 1 }]] : []), 'gasto');
     else if (sub === 'anuncios') h += anunciosCliente(d, m);
     else if (sub === 'publico') h += publicoCliente(d, m);
     else if (sub === 'diario') h += diarioCliente(d, m);
@@ -741,7 +767,7 @@ tr.pausada td{opacity:.62}
         '<div class="c"><h3>' + esc(a.titulo || a.nome) + '</h3>' + (a.titulo ? '<span class="meta">' + esc(a.nome) + '</span>' : '') + (a.texto ? '<p>' + esc(a.texto) + '</p>' : '') +
         '<span class="sub-l">' + esc(a.conjunto || '') + '</span><span class="tag">' + esc(STATUS[a.status] || a.status) + '</span>' + tags(a) +
         '<dl><div><dt>Investido</dt><dd>' + R(a.gasto, m) + '</dd></div><div><dt>Result.</dt><dd>' + N(a.resultados) + '</dd></div><div><dt>Custo</dt><dd>' + R(a.custoPorResultado, m) + '</dd></div>' +
-        '<div><dt>CTR</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt>Freq.</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + '</div></article>';
+        '<div><dt>CTR</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt>Freq.</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + (d.podeEditar ? '<div style="margin-top:12px">' + controles(a, 'anuncio', m, true) + '</div>' : '') + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -791,6 +817,10 @@ tr.pausada td{opacity:.62}
     if (x.acao.tipo === 'pausar') return '<span class="acao">Pausar campanha no Meta</span>';
     return '<span class="acao num">Orçamento ' + R(x.acao.de, x.moeda) + '/dia → <b>' + R(x.acao.para, x.moeda) + '/dia</b></span>';
   }
+  function listaPassos(x) {
+    if (!x.passos || !x.passos.length) return '';
+    return '<div class="passos"><span class="over">' + (x.acao ? 'O que a YA vai fazer' : 'O que fazer') + '</span><ol>' + x.passos.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ol></div>';
+  }
   function telaSugestoes(d, g) {
     var h = '';
     if (!d.podeAplicar) h += '<div class="aviso-chave">As sugestões com mudança no Meta ainda não podem ser aplicadas: falta configurar a chave de gerenciar. Enquanto isso, dá para recusar ou aceitar como tarefa.</div>';
@@ -800,8 +830,9 @@ tr.pausada td{opacity:.62}
       var ok = !x.acao || d.podeAplicar;
       return '<article class="sug vidro"><span class="ponto ' + x.nivel + '" title="' + NIVEL[x.nivel] + '"></span><div>' +
         '<span class="over" style="font-size:10px">A YA sugere</span><h3>' + esc(x.titulo) + '</h3><span class="onde"><a href="' + link({ aba: 'cliente', cliente: x.contaId, sub: 'campanhas' }) + '">' + esc(x.conta) + '</a> · ' + esc(x.campanha) + '</span>' +
-        '<p>' + esc(x.motivo) + '</p><div class="imp">' + esc(x.impacto) + '</div>' + textoAcao(x) + '</div>' +
+        '<p>' + esc(x.motivo) + '</p><div class="imp">' + esc(x.impacto) + '</div>' + textoAcao(x) + listaPassos(x) + '</div>' +
         '<div class="botoes"><button type="button" class="botao-ouro p" data-aceitar="' + esc(x.id) + '"' + (ok ? '' : ' disabled title="Falta configurar a chave de gerenciar"') + '>' + (x.acao ? 'Aceitar e aplicar' : 'Aceitar como tarefa') + '</button>' +
+        (x.acao && x.acao.tipo === 'orcamento' && ok ? '<button type="button" class="botao-sec editar" data-editar-sug="' + esc(x.id) + '">Editar valor</button>' : '') +
         '<button type="button" class="botao-sec" data-recusar="' + esc(x.id) + '">Recusar</button></div></article>';
     }).join('') + '</div>';
     h += '<section class="cartao vidro" style="margin-top:16px"><h2>Decisões recentes<small>' + d.historico.length + '</small></h2><div class="hist corpo">' +
@@ -809,7 +840,7 @@ tr.pausada td{opacity:.62}
         var s = r.sugestao || {};
         var desfazer = (r.estado === 'aplicada' || r.estado === 'editada') && !r.desfeitoEm && d.podeAplicar ? '<button type="button" class="botao-sec" data-desfazer="' + esc(r.registro) + '">Desfazer</button>' : (r.desfeitoEm ? '<span class="meta">Desfeita por ' + esc(r.desfeitoPor) + '</span>' : '');
         return '<div class="linha"><span class="tag ' + (r.estado === 'aplicada' || r.estado === 'editada' ? 'baixo' : r.estado === 'recusada' ? 'alto' : 'medio') + '">' + (ROTULO_ESTADO[r.estado] || r.estado) + '</span>' +
-          '<div><b>' + esc(s.titulo || '') + '</b><span class="sub-l">' + esc(s.conta || '') + ' · ' + esc(s.campanha || '') + ' · ' + (r.estado === 'ajustes' ? esc(r.autor) : r.estado === 'desfeita' ? 'desfeita por ' + esc(r.autor) : 'sugerido pela YA, ' + (r.estado === 'recusada' ? 'recusado' : 'aceito') + ' por ' + esc(r.autor)) + ' · ' + new Date(r.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (r.motivo ? ' · “' + esc(r.motivo) + '”' : '') + '</span></div>' + desfazer + '</div>';
+          '<div><b>' + esc(s.titulo || '') + '</b><span class="sub-l">' + esc(s.conta || '') + ' · ' + esc(s.campanha || '') + ' · ' + (r.estado === 'ajustes' ? esc(r.autor) : r.estado === 'desfeita' ? 'desfeita por ' + esc(r.autor) : r.estado === 'editada' ? 'editado por ' + esc(r.autor) : 'sugerido pela YA, ' + (r.estado === 'recusada' ? 'recusado' : 'aceito') + ' por ' + esc(r.autor) + (r.editado ? ' com valor ajustado para ' + R(r.editado.escolhido) + '/dia (YA sugeriu ' + R(r.editado.sugerido) + ')' : '')) + ' · ' + new Date(r.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (r.motivo ? ' · “' + esc(r.motivo) + '”' : '') + '</span></div>' + desfazer + '</div>';
       }).join('') : '<p class="vazio">Nenhuma decisão ainda.</p>') + '</div></section>';
     $('conteudo').innerHTML = h;
   }
@@ -821,13 +852,36 @@ tr.pausada td{opacity:.62}
     $('dlg-autor').value = lerLocal('yamb-trafego-autor');
     $('dlg-motivo').value = '';
     $('dlg-motivo-caixa').hidden = tipo !== 'recusar';
-    var m = $('dlg-mudanca'); m.hidden = true;
+    var m = $('dlg-mudanca'); m.hidden = true; $('dlg-valor-caixa').hidden = true; m.style.display = '';
     if (tipo === 'recusar') { $('dlg-sobre').textContent = 'Recusar sugestão'; $('dlg-titulo').textContent = x.titulo; $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. Ela some por 7 dias.'; $('dlg-ok').textContent = 'Recusar'; }
+    else if (tipo === 'editar-sug') {
+      $('dlg-sobre').textContent = 'Editar sugestão da YA'; $('dlg-titulo').textContent = x.titulo;
+      $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. A YA sugeriu ' + R(x.acao.para, x.moeda) + '/dia. Ajuste o valor e aplique no Meta.';
+      $('dlg-valor-caixa').hidden = false; $('dlg-valor').value = Math.round(x.acao.para);
+      m.hidden = false; m.innerHTML = '<span>Hoje: <b>' + R(x.acao.de, x.moeda) + '/dia</b></span><span aria-hidden="true">·</span><span>Sugestão da YA: <b>' + R(x.acao.para, x.moeda) + '/dia</b></span>';
+      $('dlg-ok').textContent = 'Aplicar no Meta';
+    }
+    else if (tipo === 'editar') {
+      var it = x.item, n = NIVEL_NOME[it.nivel];
+      $('dlg-sobre').textContent = 'Editar no Meta'; $('dlg-titulo').textContent = it.nome;
+      if (x.acao === 'orcamento') {
+        $('dlg-texto').textContent = 'Muda o orçamento diário d' + (it.nivel === 'campanha' ? 'a ' : 'o ') + n + ' agora no Meta. Fica registrado, com opção de desfazer.';
+        $('dlg-valor-caixa').hidden = false; $('dlg-valor').value = Math.round(it.orcamentoDiario);
+        m.hidden = false; m.innerHTML = '<span>Hoje: <b>' + R(it.orcamentoDiario, it.moeda) + '/dia</b></span>';
+        $('dlg-ok').textContent = 'Salvar no Meta';
+      } else {
+        var ativar = x.acao === 'ativar';
+        $('dlg-texto').textContent = (ativar ? 'Volta a veicular agora no Meta' : 'Para de veicular agora no Meta') + '. Fica registrado, com opção de desfazer.';
+        m.hidden = false; m.innerHTML = ativar ? '<span class="de">Pausad' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span><span aria-hidden="true">→</span><span class="para">Ativ' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span>' : '<span class="de">Ativ' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span><span aria-hidden="true">→</span><span class="para">Pausad' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span>';
+        $('dlg-ok').textContent = ativar ? 'Ativar no Meta' : 'Pausar no Meta';
+      }
+    }
     else if (tipo === 'desfazer') { $('dlg-sobre').textContent = 'Desfazer mudança'; $('dlg-titulo').textContent = (x.sugestao || {}).titulo || 'Desfazer'; $('dlg-texto').textContent = 'A campanha volta como estava antes no Meta.'; $('dlg-ok').textContent = 'Desfazer no Meta'; }
     else {
       $('dlg-sobre').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar como tarefa'; $('dlg-titulo').textContent = x.titulo;
-      $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. ' + (x.acao ? 'A mudança é feita agora no Meta e fica registrada, com opção de desfazer.' : 'Fica registrada como tarefa para a equipe fazer no Gerenciador de Anúncios.');
+      $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. ' + (x.acao ? 'A mudança é feita agora no Meta e fica registrada, com opção de desfazer.' : 'A YA não muda nada no Meta: a equipe segue os passos abaixo no Gerenciador de Anúncios.');
       if (x.acao) { m.hidden = false; m.innerHTML = x.acao.tipo === 'pausar' ? '<span class="de">Ativa</span><span aria-hidden="true">→</span><span class="para">Pausada</span>' : '<span class="de">' + R(x.acao.de, x.moeda) + '/dia</span><span aria-hidden="true">→</span><span class="para">' + R(x.acao.para, x.moeda) + '/dia</span>'; }
+      if (!x.acao && x.passos && x.passos.length) { m.hidden = false; m.innerHTML = listaPassos(x); m.style.display = 'block'; } else { m.style.display = ''; }
       $('dlg-ok').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar';
     }
     dlg.showModal(); $('dlg-autor').focus();
@@ -838,13 +892,19 @@ tr.pausada td{opacity:.62}
     var autor = $('dlg-autor').value.trim(); if (!autor) { $('dlg-erro').textContent = 'Escreva seu nome para registrar quem decidiu.'; $('dlg-autor').focus(); return; }
     gravarLocal('yamb-trafego-autor', autor);
     var bt = $('dlg-ok'), txt = bt.textContent; bt.disabled = true; bt.textContent = 'Aplicando…';
-    var p = pendente, req = p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
+    var p = pendente, req = p.tipo === 'editar' ? enviar('/editar', { objeto: p.x.item.id, nivel: p.x.item.nivel, acao: p.x.acao, valor: Number($('dlg-valor').value), autor: autor })
+      : p.tipo === 'editar-sug' ? enviar('/decidir', { id: p.x.id, decisao: 'aceitar', valor: Number($('dlg-valor').value), autor: autor, periodo: estado.periodo })
+      : p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
       : enviar('/decidir', { id: p.x.id, decisao: p.tipo === 'recusar' ? 'recusar' : 'aceitar', autor: autor, motivo: $('dlg-motivo').value, periodo: estado.periodo });
     req.then(function () { dlg.close(); geral = null; clientes = {}; return carregarSugestoes(true).then(function () { render(); }); })
       .catch(function (e) { $('dlg-erro').textContent = e.message; })
       .then(function () { bt.disabled = false; bt.textContent = txt; });
   });
   $('conteudo').addEventListener('click', function (e) {
+    var ed = e.target.closest('[data-editar]');
+    if (ed) { var it = itens[ed.getAttribute('data-editar')]; if (it) abrirDialogo('editar', { item: it, acao: ed.getAttribute('data-acao') }); return; }
+    var es = e.target.closest('[data-editar-sug]');
+    if (es && sugs) { var xs = sugs.sugestoes.filter(function (q) { return q.id === es.getAttribute('data-editar-sug'); })[0]; if (xs) abrirDialogo('editar-sug', xs); return; }
     var a = e.target.closest('[data-aceitar],[data-recusar],[data-desfazer]'); if (!a || !sugs) return;
     if (a.hasAttribute('data-desfazer')) { var r = sugs.historico.filter(function (h) { return h.registro === a.getAttribute('data-desfazer'); })[0]; if (r) abrirDialogo('desfazer', r); return; }
     var id = a.getAttribute('data-aceitar') || a.getAttribute('data-recusar'), x = sugs.sugestoes.filter(function (s) { return s.id === id; })[0];

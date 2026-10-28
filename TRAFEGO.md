@@ -2,6 +2,10 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-28 — passo a passo e edição de volta
+- Cada sugestão traz "O que fazer" (tarefas) ou "O que a YA vai fazer" (aplicáveis), com o que acompanhar depois.
+- Pedido do dono: botão de edição de volta nas campanhas, conjuntos e anúncios (Pausar/Ativar/Orçamento) e "Editar valor" nas sugestões de orçamento, já preenchido com o valor indicado pela YA. O histórico mostra quando o valor foi ajustado.
+
 ## 2026-10-28 — só a YA sugere
 - Decisão do dono: nenhuma sugestão é feita por pessoas. Removidos a edição manual (ativar/pausar/orçamento) e o ajuste de regras; a equipe só aceita ou recusa. Aba Ajustes virou Avisos (só notificações). Sugestões, histórico e push assinados pela YA.
 

@@ -16,6 +16,7 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 //   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
 //   POST /decidir  {id, decisao, autor}   aceitar (aplica no Meta) ou recusar uma sugestão
 //   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
+//   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
 //   GET/POST /config                      avisos no celular (as regras das sugestões são da YA e não se editam pelo painel)
 //   POST /push/inscrever · /push/sair · /push/teste   notificações no celular (Web Push, sem serviço de terceiros)
 //   Agendado (cron, de hora em hora): checa sugestões e manda push nas horas configuradas
@@ -32,7 +33,7 @@ const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,t
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
 const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES", "PAUSED", "ADSET_PAUSED", "CAMPAIGN_PAUSED"]);
 const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
-const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
+const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
 const RESULTADOS = [
   ["onsite_conversion.messaging_conversation_started_7d", "Conversas iniciadas"],
@@ -75,7 +76,7 @@ export default {
       if (url.pathname === "/config" && !escrita) return json({ config: await lerConfig(env), vapid: env.VAPID_PUBLIC || null, inscritos: await contarInscritos(env) }, 200, cors);
       if (escrita) {
         const corpo = await request.json().catch(() => ({}));
-        const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo),
+        const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo), "/editar": () => editar(env, ctx, corpo),
           "/config": () => salvarConfig(env, corpo), "/push/inscrever": () => inscrever(env, corpo), "/push/sair": () => sairPush(env, corpo), "/push/teste": () => pushTeste(env) };
         return json(await rotas[url.pathname](), 200, cors);
       }
@@ -319,7 +320,7 @@ async function cliente(env, id, periodo) {
   camps.sort((a, b) => (b.ativaAgora - a.ativaAgora) || (b.gasto - a.gasto));
 
   return {
-    atualizado: new Date().toISOString(), periodo, intervalo: r, conta, podeEditar: false,
+    atualizado: new Date().toISOString(), periodo, intervalo: r, conta, podeEditar: !!env.META_TOKEN_GERENCIAR,
     totais: somar(camps.filter((k) => k.gasto > 0 || k.ativaAgora)), ativas: camps.filter((k) => k.ativaAgora).length, anterior: anterior[0] ? metricas(anterior[0]) : metricas({}),
     categorias: agrupar(camps, (k) => k.categoria),
     campanhas: camps, conjuntos: conjs, anuncios: anuns,
@@ -443,7 +444,7 @@ async function statusToken(env) {
 
 // ---------------------------------------------------------------- sugestões
 //
-// A YA sugere; a equipe só aceita ou recusa. Regras fixas (não se editam pelo painel),
+// A YA sugere; a equipe aceita (podendo ajustar o valor do orçamento) ou recusa. Regras fixas (não se editam pelo painel),
 // sobre os números da própria conta (a referência é a média do cliente no período, não um benchmark externo).
 // Ações que o painel pode aplicar no Meta ao aceitar. Qualquer outra sugestão vira tarefa para a equipe.
 const ACOES = { pausar: "Pausar campanha", orcamento: "Ajustar orçamento diário" };
@@ -485,6 +486,64 @@ async function salvarConfig(env, corpo) {
   await env.YAMB_TRAFEGO.put("config", JSON.stringify({ notificacoes: atual.notificacoes }));
   await registrar(env, { estado: "ajustes", autor, sugestao: { titulo: "Avisos no celular alterados" } });
   return { ok: true, config: atual };
+}
+
+// O que fazer em cada sugestão. Nas que a YA aplica, o primeiro passo é o que ela faz; os seguintes, o que acompanhar.
+function passos(x) {
+  const m = x.moeda, de = x.acao && dinheiro(x.acao.de, m), para = x.acao && dinheiro(x.acao.para, m);
+  const p = {
+    "pausar": [
+      "A YA pausa a campanha no Meta assim que você aceitar: o gasto para na hora.",
+      "Com o cliente, revise o que não funcionou: criativo, público ou oferta.",
+      "Para voltar a veicular, use Desfazer no histórico ou peça à YA uma nova versão da campanha.",
+    ],
+    "orcamento-mais": [
+      `A YA sobe o orçamento diário de ${de} para ${para}.`,
+      "Acompanhe os próximos 3 dias: é normal o custo oscilar um pouco enquanto o Meta se ajusta.",
+      "Se o custo por resultado subir mais de 30%, use Desfazer no histórico.",
+    ],
+    "orcamento-menos": [
+      `A YA baixa o orçamento diário de ${de} para ${para}.`,
+      "Enquanto isso, revise os anúncios da campanha: pause o de pior custo e teste um criativo novo.",
+      "Quando o custo voltar para perto da média da conta, a YA sugere aumentar de novo.",
+    ],
+    "piora": [
+      "No Gerenciador de Anúncios, abra a campanha e compare os anúncios: ache o que mais encareceu.",
+      "Veja se a frequência subiu (público cansado) ou se o CTR caiu (criativo perdendo força).",
+      "Teste o caminho do cliente: o link, o formulário ou o WhatsApp precisam estar respondendo.",
+      "Pause o anúncio com pior custo e suba uma variação nova no mesmo conjunto.",
+    ],
+    "sem-entrega": [
+      "No Gerenciador, abra a campanha e procure anúncio \"Reprovado\" ou conjunto pausado.",
+      "Confira a forma de pagamento da conta em Configurações de pagamento.",
+      "Se estiver tudo ativo, o público pode estar pequeno demais: amplie idade, região ou interesses.",
+    ],
+    "subutilizado": [
+      "Amplie o público do conjunto: mais cidades, faixa de idade maior ou público Advantage+.",
+      "Se o conjunto usa limite de custo ou de lance, aumente ou remova o limite.",
+      "Suba um criativo novo: anúncios com pouca relevância recebem menos entrega.",
+    ],
+    "criativo": [
+      "Produza 2 ou 3 criativos novos com a mesma mensagem: outra imagem, um vídeo curto ou um carrossel.",
+      "Suba no mesmo conjunto e pause os criativos antigos com pior resultado.",
+      "Se o público for pequeno, amplie um pouco para as pessoas não verem sempre o mesmo anúncio.",
+    ],
+    "ctr": [
+      "Troque a imagem e a primeira frase: o anúncio precisa prender a atenção nos 2 primeiros segundos.",
+      "Use uma chamada mais direta, por exemplo \"Chame no WhatsApp\" ou \"Peça seu orçamento\".",
+      "Confira o público: amplo demais ou fora do perfil do cliente também derruba o CTR.",
+    ],
+    "problema": [
+      "Abra a campanha no Gerenciador de Anúncios e leia o aviso em vermelho.",
+      "Anúncio reprovado: ajuste o texto ou a imagem conforme o motivo e envie para revisão de novo.",
+      "Problema de pagamento: atualize a forma de pagamento da conta do cliente.",
+    ],
+    "fim": [
+      "Fale com o cliente: renovar, aumentar ou encerrar a campanha.",
+      "Se renovar, ajuste o orçamento total ou a data de término no Gerenciador.",
+    ],
+  };
+  return p[x.id.split(":")[0]] || [];
 }
 
 function regras(conta, cfg) {
@@ -550,6 +609,7 @@ function regras(conta, cfg) {
       titulo: "Orçamento total quase no fim", motivo: `Restam ${dinheiro(k.orcamentoRestante, m)} de ${dinheiro(k.orcamentoTotal, m)}.`,
       acao: null, impacto: "Decidir com o cliente se renova ou encerra." });
   }
+  for (const x of s) x.passos = passos(x);
   return s;
 }
 
@@ -620,20 +680,27 @@ async function decidir(env, ctx, corpo) {
   // Confere o estado atual da campanha antes de mudar.
   const atual = await pegar(env, sug.campanhaId, { fields: "id,name,status,effective_status,daily_budget,account_id" });
   if ("act_" + atual.account_id !== sug.contaId) return { erro: "A campanha não pertence a essa conta." };
-  let antes, depois;
+  let antes, depois, editado = null;
   if (sug.acao.tipo === "pausar") {
     if (atual.status !== "ACTIVE") return { erro: "A campanha já não está ativa." };
     antes = { status: "ACTIVE" }; depois = { status: "PAUSED" };
   } else {
     const deMinor = Number(atual.daily_budget || 0);
     if (Math.round(deMinor / 100) !== Math.round(sug.acao.de)) return { erro: "O orçamento mudou desde a sugestão. Atualize o painel." };
-    const paraMinor = Math.round(sug.acao.para * 100);
-    if (Math.abs(paraMinor - deMinor) > deMinor * LIMITE_AJUSTE + 100) return { erro: "Ajuste acima do limite de 20%." };
+    let paraMinor = Math.round(sug.acao.para * 100);
+    if (corpo.valor != null && corpo.valor !== "") {
+      // A pessoa ajustou o valor sugerido pela YA antes de aceitar.
+      paraMinor = Math.round(Number(corpo.valor) * 100);
+      if (!(paraMinor >= 100)) return { erro: "Orçamento inválido." };
+      if (paraMinor > deMinor * 3 || paraMinor < deMinor / 3) return { erro: "Mudança grande demais de uma vez (mais de 3 vezes). Faça em etapas." };
+      if (paraMinor === deMinor) return { erro: "O orçamento já é esse." };
+      editado = { sugerido: sug.acao.para, escolhido: paraMinor / 100 };
+    } else if (Math.abs(paraMinor - deMinor) > deMinor * LIMITE_AJUSTE + 100) return { erro: "Ajuste acima do limite de 20%." };
     antes = { daily_budget: String(deMinor) }; depois = { daily_budget: String(paraMinor) };
   }
   await escrever(env, sug.campanhaId, depois);
   await env.YAMB_TRAFEGO.put("dec:" + sug.id, JSON.stringify({ estado: "aplicada", autor, em: new Date().toISOString() }), ttl);
-  return { ok: true, registro: await registrar(env, { estado: "aplicada", autor, sugestao: sug, campanhaId: sug.campanhaId, antes, depois }) };
+  return { ok: true, registro: await registrar(env, { estado: "aplicada", autor, sugestao: sug, campanhaId: sug.campanhaId, antes, depois, editado }) };
 }
 
 async function desfazer(env, corpo) {
@@ -650,6 +717,41 @@ async function desfazer(env, corpo) {
   await env.YAMB_TRAFEGO.put(chave, JSON.stringify(reg));
   await registrar(env, { estado: "desfeita", autor, sugestao: reg.sugestao, campanhaId: reg.campanhaId, objetoId: reg.objetoId, antes: reg.depois, depois: reg.antes });
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- edição manual
+const NIVEIS = { campanha: "Campanha", conjunto: "Conjunto", anuncio: "Anúncio" };
+async function editar(env, ctx, corpo) {
+  const autor = limpaAutor(corpo.autor);
+  if (!autor) return { erro: "Informe quem está editando." };
+  if (!env.META_TOKEN_GERENCIAR || !env.YAMB_TRAFEGO) return { erro: "A edição ainda não está configurada (falta a chave de gerenciar)." };
+  const objeto = String(corpo.objeto || ""), nivel = corpo.nivel, acao = corpo.acao;
+  if (!/^\d+$/.test(objeto) || !NIVEIS[nivel]) return { erro: "Item inválido." };
+  if (!["ativar", "pausar", "orcamento"].includes(acao)) return { erro: "Ação inválida." };
+  if (acao === "orcamento" && nivel === "anuncio") return { erro: "Anúncio não tem orçamento próprio." };
+  const atual = await pegar(env, objeto, { fields: "id,name,status,effective_status,account_id" + (nivel === "anuncio" ? "" : ",daily_budget") });
+  const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
+  const conta = lista.find((c) => c.id === "act_" + atual.account_id);
+  if (!conta) return { erro: "Esse item não é de uma conta que o painel acompanha." };
+  let antes, depois, descricao;
+  if (acao === "ativar" || acao === "pausar") {
+    const para = acao === "ativar" ? "ACTIVE" : "PAUSED";
+    if (atual.status === para) return { erro: acao === "ativar" ? "Já está ativo." : "Já está pausado." };
+    antes = { status: atual.status }; depois = { status: para };
+    descricao = `${acao === "ativar" ? "Ativou" : "Pausou"} ${NIVEIS[nivel].toLowerCase()}`;
+  } else {
+    const deMinor = Number(atual.daily_budget || 0);
+    if (!deMinor) return { erro: "Esse item não tem orçamento diário próprio (o orçamento fica no outro nível)." };
+    const paraMinor = Math.round(Number(corpo.valor) * 100);
+    if (!(paraMinor >= 100)) return { erro: "Orçamento inválido." };
+    if (paraMinor > deMinor * 3 || paraMinor < deMinor / 3) return { erro: "Mudança grande demais de uma vez (mais de 3 vezes). Faça em etapas." };
+    if (paraMinor === deMinor) return { erro: "O orçamento já é esse." };
+    antes = { daily_budget: String(deMinor) }; depois = { daily_budget: String(paraMinor) };
+    descricao = `Orçamento diário ${dinheiro(deMinor / 100, conta.moeda)} → ${dinheiro(paraMinor / 100, conta.moeda)}`;
+  }
+  await escrever(env, objeto, depois);
+  return { ok: true, registro: await registrar(env, { estado: "editada", autor, objetoId: objeto, antes, depois,
+    sugestao: { titulo: descricao, conta: conta.nome, campanha: `${NIVEIS[nivel]}: ${atual.name}` } }) };
 }
 
 // ---------------------------------------------------------------- notificações no celular (Web Push)
