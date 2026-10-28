@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Checagem de saúde do site da YAMB. Só lê (GET/HEAD) — não altera nada.
+# Uso: bash scripts/saude.sh [endereço-base ...]
+# Sai com erro se algo essencial falhar (o GitHub avisa por e-mail).
+set -uo pipefail
+
+BASES=("$@")
+# yamb.com.br ainda está no servidor antigo (fora deste repositório); quando o domínio
+# for ligado à Cloudflare Pages, troque o padrão para https://yamb.com.br.
+[ ${#BASES[@]} -eq 0 ] && BASES=(https://site-yamb.pages.dev)
+
+falhas=0
+avisos=0
+falha() { echo "  ❌ $*"; falhas=$((falhas + 1)); }
+aviso() { echo "  ⚠️  $*"; avisos=$((avisos + 1)); }
+ok()    { echo "  ✅ $*"; }
+
+for base in "${BASES[@]}"; do
+  echo "== $base"
+
+  # Páginas: código 200, tamanho mínimo e tempo de resposta
+  for p in / /interno/ /interno/app/ /robots.txt /sitemap.xml /llms.txt; do
+    read -r code size tempo < <(curl -sL -o /dev/null --max-time 60 -w "%{http_code} %{size_download} %{time_total}" "$base$p")
+    minimo=100; case $p in /|/interno/*) minimo=100000 ;; esac
+    if [ "$code" != 200 ]; then falha "$p respondeu $code"
+    elif [ "${size%.*}" -lt "$minimo" ]; then falha "$p veio quase vazio ($size bytes)"
+    elif awk "BEGIN{exit !($tempo > 8)}"; then aviso "$p lento (${tempo}s)"
+    else ok "$p ($code, $((${size%.*} / 1024)) KB, ${tempo}s)"; fi
+  done
+
+  # Imagens e fontes de amostra
+  for a in /assets/logo-yamb-wordmark-gold.png /assets/flower-gold-min.png /assets/fonts/Sora-Regular.ttf; do
+    code=$(curl -s -o /dev/null -I --max-time 30 -w "%{http_code}" "$base$a")
+    [ "$code" = 200 ] || falha "$a respondeu $code"
+  done
+
+  # SEO básico na página inicial
+  home=$(curl -sL --max-time 60 "$base/")
+  grep -q '<title>[^<]\{5,\}' <<<"$home" || falha "página inicial sem <title>"
+  grep -q 'name="description"' <<<"$home" || falha "página inicial sem meta description"
+  grep -q 'rel="canonical"' <<<"$home" || aviso "página inicial sem canonical"
+  grep -q 'application/ld+json' <<<"$home" || aviso "página inicial sem dados estruturados"
+
+  # Interno fora do Google
+  curl -sI --max-time 30 "$base/interno/" | grep -qi 'x-robots-tag: *noindex' \
+    || grep -q 'noindex' <(curl -sL --max-time 60 "$base/interno/" | head -c 20000) \
+    || aviso "/interno/ sem noindex"
+  grep -q 'Disallow: /interno/' <(curl -sL --max-time 30 "$base/robots.txt") || falha "robots.txt não bloqueia /interno/"
+
+  # Robôs de busca com IA liberados
+  robots=$(curl -sL --max-time 30 "$base/robots.txt")
+  for bot in GPTBot ClaudeBot PerplexityBot; do
+    awk -v b="$bot" 'tolower($0) ~ "user-agent: *"tolower(b) {f=1; next} /^user-agent/ {f=0} f && /^Disallow: *\/$/ {exit 1}' <<<"$robots" \
+      || falha "robots.txt bloqueia $bot"
+  done
+
+  # Arquivos internos do repositório não podem aparecer
+  for p in /README.md /CLAUDE.md /.claude/agents/yamb-guardiao.md /.github/workflows/saude.yml /MANUTENCAO.md; do
+    body=$(curl -sL --max-time 30 "$base$p" | head -c 3000)
+    grep -qE 'yamb-guardiao|yamb-manutencao|name: |^# YAMB —' <<<"$body" && falha "$p está público"
+  done
+
+  # HTTPS
+  code=$(curl -s -o /dev/null --max-time 30 -w "%{http_code}" "${base/https:/http:}/")
+  case $code in 301|302|307|308) ok "http redireciona para https" ;; *) aviso "http:// não redireciona para https ($code)" ;; esac
+done
+
+echo
+echo "Resultado: $falhas falha(s), $avisos aviso(s)"
+[ "$falhas" -eq 0 ]

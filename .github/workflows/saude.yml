@@ -1,0 +1,19 @@
+name: Saúde do site
+
+# Todo dia e depois de cada publicação. Se falhar, o GitHub avisa por e-mail.
+on:
+  schedule:
+    - cron: '23 10 * * *'   # 07:23 (horário de Brasília)
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  saude:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Esperar a publicação terminar
+        if: github.event_name == 'push'
+        run: sleep 90
+      - run: bash scripts/saude.sh
