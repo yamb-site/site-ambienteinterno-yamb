@@ -139,7 +139,7 @@ def extrai_fontes(html, arquivos):
         if not (tipo.startswith("font/") or "font" in tipo):
             return m.group(0)
         bruto = base64.b64decode(b64)
-        fonte = TTFont(io.BytesIO(bruto))
+        fonte = TTFont(io.BytesIO(bruto), recalcTimestamp=False)  # mesmo arquivo a cada execução (cache)
         fonte.flavor = "woff2"
         buf = io.BytesIO()
         fonte.save(buf)
