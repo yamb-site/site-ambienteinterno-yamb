@@ -13,6 +13,11 @@ Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). 
 - HTML da página inicial: 2.776 KB → 177 KB. Fontes ttf/otf embutidas → woff2 (≈690 → 236 KB; o navegador só baixa as usadas). Imagens embutidas → arquivos no tamanho medido (742 → 496 KB). Scripts → arquivos com `defer`.
 - "Fotografia" da página pronta no HTML (3 faixas de tela): sem JavaScript, a página antes ficava vazia e agora aparece inteira; título principal (`<h1>`) agora está no HTML para os buscadores.
 - Cache de 1 ano para `assets/otim/*` (nomes mudam quando o conteúdo muda).
+- Imagem da abertura (flor) com `fetchpriority="high"`.
+- **Resultado (Lighthouse celular, 3 medições): desempenho 26 → 78/93/87**, primeiro conteúdo 6,9 s → 0,9–1,3 s, maior elemento 13,2 s → 3,3–5,6 s, bloqueio 3.160 → 30–100 ms, peso 2,3 MB → 0,8 MB. Acessibilidade 89, boas práticas 100, SEO 100 (iguais).
+- O que ainda pesa no maior elemento: a flor da abertura entra com animação; o restante do JavaScript (React + design system + ícones lucide) só reduz na ferramenta de design.
+- Pendente (acessibilidade, muda o visual — precisa de OK): contraste de alguns textos e alvos de toque pequenos.
+- Pendente (arquitetura/SEO): Serviços, Processo, Equipe e Contato não têm endereço próprio (são trocas de tela no mesmo endereço), então o Google só enxerga a página inicial.
 - Conferido: capturas em 1440/900/390 px idênticas ao original (diferença só no redimensionamento do logo, invisível); sem erros no console.
 
 ### 2026-10-28 — configuração inicial
