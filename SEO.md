@@ -39,6 +39,11 @@ Memória do **YA - SEO** entre conversas. Mais recente primeiro.
 - Conferido: página inicial idêntica pixel a pixel à atual (1440 e 390 px); `saude.sh` na prévia sem falhas nem avisos; sem erros no console.
 - Ainda não visível no texto do site: a cidade (Aracaju) — só nos títulos/descrições/dados. Colocar no texto exige mudança na ferramenta de design ou aprovação para editar textos.
 
+## 2026-10-28 — fase 2 (rascunhos em `rascunhos/servicos.md`, aguardando aprovação)
+
+- 4 rascunhos: Branding, Social media, Tráfego pago, Estrutura comercial (290–410 palavras, título ≤ 60 e descrição ≤ 160 caracteres), só com o que o site já afirma.
+- Pendências do dono: 5 `[confirmar]`; se Audiovisual e Sites são serviços (a página inicial lista 6 frentes); se os depoimentos da página inicial são reais (parecem de exemplo: "FOTO OU VÍDEO", Clínica Lumière, Casa Brasa…); onde montar as páginas (ferramenta de design ou otimizador).
+
 ## Progresso do plano (ver `.claude/agents/ya-seo.md`)
 
 - [ ] 1. Base de medição
