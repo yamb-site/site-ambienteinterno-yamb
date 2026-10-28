@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-28 — atualização mais frequente
+- Dados do Meta guardados no Worker por até 5 min (antes 10). O Meta atualiza o desempenho com ~15 min de atraso; 1 min estouraria o limite de chamadas do app (~65 consultas por atualização).
+- Painel aberto se atualiza sozinho a cada 2 min (sem piscar; pula se houver janela aberta, alguém digitando, aba Avisos ou painel em segundo plano).
+- Checagem automática a cada 15 min: urgentes avisam na hora (7h–22h); as demais nas horas marcadas em Avisos.
+
 ## 2026-10-28 — passo a passo e edição de volta
 - Cada sugestão traz "O que fazer" (tarefas) ou "O que a YA vai fazer" (aplicáveis), com o que acompanhar depois.
 - Pedido do dono: botão de edição de volta nas campanhas, conjuntos e anúncios (Pausar/Ativar/Orçamento) e "Editar valor" nas sugestões de orçamento, já preenchido com o valor indicado pela YA. O histórico mostra quando o valor foi ajustado.

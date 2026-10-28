@@ -19,7 +19,7 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 //   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
 //   GET/POST /config                      avisos no celular (as regras das sugestões são da YA e não se editam pelo painel)
 //   POST /push/inscrever · /push/sair · /push/teste   notificações no celular (Web Push, sem serviço de terceiros)
-//   Agendado (cron, de hora em hora): checa sugestões e manda push nas horas configuradas
+//   Agendado (cron, a cada 15 min): urgentes avisam na hora (7h–22h); o resto nas horas configuradas
 //
 // Escrita no Meta: SÓ por /decidir e /desfazer, com o segredo separado META_TOKEN_GERENCIAR (ads_management),
 // só nas ações listadas em ACOES, e sempre conferindo o estado atual da campanha antes de mudar.
@@ -93,7 +93,7 @@ export default {
     }
   },
 
-  // Checagem automática (cron de hora em hora, ver wrangler.toml).
+  // Checagem automática (cron a cada 15 minutos, ver wrangler.toml).
   async scheduled(evento, env, ctx) {
     ctx.waitUntil(checagemAgendada(env, ctx).catch((e) => console.log("checagem falhou:", e.message)));
   },
@@ -799,10 +799,15 @@ async function pushTeste(env) {
 async function checagemAgendada(env, ctx) {
   const cfg = await lerConfig(env);
   const n = cfg.notificacoes;
-  const hora = new Date(Date.now() - 3 * 3600e3).getUTCHours(); // Brasília
-  if (!n.ativo || !n.horas.includes(hora)) return;
+  const agora = new Date(Date.now() - 3 * 3600e3); // Brasília
+  const hora = agora.getUTCHours(), minuto = agora.getUTCMinutes();
+  if (!n.ativo) return;
+  // Roda a cada 15 min. Nas horas marcadas (primeira checagem da hora): tudo a partir do nível escolhido.
+  // Fora delas, entre 7h e 22h: só os urgentes, na hora.
+  const horaMarcada = n.horas.includes(hora) && minuto < 15;
+  if (!horaMarcada && (hora < 7 || hora > 22)) return;
   const { sugestoes } = await listarSugestoes(env, ctx, "last_7d");
-  const limite = PESO[n.nivelMinimo];
+  const limite = horaMarcada ? PESO[n.nivelMinimo] : PESO.alto;
   const relevantes = sugestoes.filter((x) => PESO[x.nivel] <= limite);
   const novas = [];
   for (const x of relevantes) if (!(await env.YAMB_TRAFEGO.get("notif:" + x.id))) novas.push(x);
@@ -819,13 +824,16 @@ async function checagemAgendada(env, ctx) {
 
 // ---------------------------------------------------------------- utilidades
 
+// Dados do Meta guardados por até 5 minutos: o Meta atualiza o desempenho com ~15 min de atraso,
+// e consultar mais vezes só gasta o limite de chamadas do app.
+const CACHE_SEGUNDOS = 300;
 async function comCache(ctx, chave, fn) {
   const cache = caches.default;
   const req = new Request(`https://cache.yamb-trafego/${encodeURIComponent(chave)}`);
   const hit = await cache.match(req);
   if (hit) return hit.json();
   const dados = await fn();
-  ctx.waitUntil(cache.put(req, new Response(JSON.stringify(dados), { headers: { "Cache-Control": "max-age=600" } })));
+  ctx.waitUntil(cache.put(req, new Response(JSON.stringify(dados), { headers: { "Cache-Control": "max-age=" + CACHE_SEGUNDOS } })));
   return dados;
 }
 

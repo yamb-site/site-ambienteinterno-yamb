@@ -18,6 +18,6 @@ id = "e19d2510d2d14e7ba4e0e3372e8f95ee"
 
 # Segredo extra para aplicar sugestões: npx wrangler secret put META_TOKEN_GERENCIAR (token com ads_management)
 
-# Checagem automática das sugestões: de hora em hora (o Worker só avisa nas horas escolhidas nos Ajustes)
+# Checagem automática das sugestões: a cada 15 minutos (urgentes avisam na hora, 7h–22h; o resto nas horas dos Avisos)
 [triggers]
-crons = ["0 * * * *"]
+crons = ["*/15 * * * *"]

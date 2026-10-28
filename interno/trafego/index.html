@@ -405,7 +405,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   </header>
   <nav class="abas" id="abas" aria-label="Seções do painel"></nav>
   <div id="conteudo" tabindex="-1"><p class="carregando">Carregando campanhas…</p></div>
-  <footer class="rodape-painel"><span class="over" style="color:var(--soft)">Viva o processo</span><hr class="regua"><span>Dados do Meta Ads, só leitura · atualizados a cada 10 minutos</span></footer>
+  <footer class="rodape-painel"><span class="over" style="color:var(--soft)">Viva o processo</span><hr class="regua"><span>Dados do Meta Ads · o painel se atualiza sozinho a cada 2 minutos</span></footer>
 </section>
 
 </main>
@@ -566,11 +566,11 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     return pedir('/cliente?id=' + encodeURIComponent(id) + '&periodo=' + estado.periodo).then(function (d) { clientes[k] = d; return d; });
   }
 
-  function render() {
+  function render(silencioso) {
     estado = lerEstado();
     document.querySelectorAll('#periodos [data-p]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === estado.periodo)); });
-    $('conteudo').innerHTML = '<p class="carregando">Carregando…</p>';
-    carregarGeral().then(function (g) {
+    if (!silencioso) $('conteudo').innerHTML = '<p class="carregando">Carregando…</p>';
+    return carregarGeral().then(function (g) {
       desenharAbas(g);
       var iv = g.intervalo;
       $('info').textContent = g.contas.length + ' contas com anúncios ativos · ' + data(iv.atual.since) + (iv.dias > 1 ? ' a ' + data(iv.atual.until) : '') +
@@ -920,8 +920,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var h = '<form id="form-ajustes">';
     var horas = ''; for (var i = 6; i <= 22; i++) horas += '<label><input type="checkbox" name="hora" value="' + i + '"' + (nt.horas.indexOf(i) >= 0 ? ' checked' : '') + '><span>' + i + 'h</span></label>';
     h += '<section class="cartao vidro"><span class="over">Celular</span><h2>Notificações<small>' + d.inscritos + ' aparelho(s) recebendo</small></h2>' +
-      '<div class="regra"><div><span class="nome">Checagem automática da YA</span><span class="meta">A YA confere todas as contas de hora em hora e avisa nas horas marcadas, só quando tem sugestão nova para você aceitar ou recusar.</span></div><label class="chave"><input type="checkbox" name="notif.ativo"' + (nt.ativo ? ' checked' : '') + ' aria-label="Checagem automática"><span></span></label></div>' +
-      '<div class="corpo"><span class="rotulo">Horários dos avisos</span><div class="horas" role="group" aria-label="Horários dos avisos">' + horas + '</div>' +
+      '<div class="regra"><div><span class="nome">Checagem automática da YA</span><span class="meta">A YA confere todas as contas a cada 15 minutos. Urgências (gastando sem resultado, campanha sem entrega, problema no Meta) avisam na hora, das 7h às 22h; as demais sugestões, nos horários marcados abaixo. Só avisa o que for novo.</span></div><label class="chave"><input type="checkbox" name="notif.ativo"' + (nt.ativo ? ' checked' : '') + ' aria-label="Checagem automática"><span></span></label></div>' +
+      '<div class="corpo"><span class="rotulo">Horários das demais sugestões</span><div class="horas" role="group" aria-label="Horários dos avisos">' + horas + '</div>' +
       '<label class="rotulo" for="nivel" style="display:inline-block;margin-top:12px">Avisar a partir de</label> <select class="seletor" id="nivel" name="notif.nivel">' + [['alto', 'Só urgentes'], ['medio', 'Urgentes e atenção'], ['baixo', 'Todas as sugestões']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === nt.nivelMinimo ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
       '<div class="status-push"><button type="button" class="botao-ouro p" id="push-ativar">Receber neste aparelho</button><button type="button" class="botao-sec" id="push-sair">Parar neste aparelho</button><button type="button" class="botao-sec" id="push-teste">Enviar teste</button><span class="meta" id="push-status" role="status" aria-live="polite"></span></div>' +
       '<p class="meta" id="push-ios" hidden>No iPhone: toque em Compartilhar › <b>Adicionar à Tela de Início</b>, abra o painel pelo ícone novo e então toque em “Receber neste aparelho”.</p></div></section>' +
@@ -998,8 +998,22 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       if (aviso) $('info').insertAdjacentHTML('afterend', '<p class="erro" role="status">' + esc(aviso) + '</p>');
     }).catch(function () {});
   }
-  function entrar() { mostrar('painel'); render(); avisoToken(); }
-  function sair(msg) { senha = null; guardar(CHAVE, null); geral = null; clientes = {}; mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = ''; if (matchMedia('(pointer:fine)').matches) $('senha').focus(); }
+  // Painel aberto: atualiza sozinho a cada 2 minutos, sem piscar a tela nem perder a rolagem.
+  // Não atualiza com a janela de confirmação aberta, com alguém digitando, na aba Avisos ou com o painel em segundo plano.
+  var ATUALIZA_MS = 120000, timerAtualiza = null;
+  function atualizarSozinho() {
+    if (document.hidden || $('painel').hidden || dlg.open || estado.aba === 'ajustes') return;
+    var foco = document.activeElement;
+    if (foco && /^(INPUT|SELECT|TEXTAREA)$/.test(foco.tagName)) return;
+    var y = window.scrollY;
+    geral = null; clientes = {}; sugs = null;
+    Promise.resolve(render(true)).then(function () { window.scrollTo(0, y); });
+  }
+  function ligarAtualizacao() { clearInterval(timerAtualiza); timerAtualiza = setInterval(atualizarSozinho, ATUALIZA_MS); }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && !$('painel').hidden && geral && Date.now() - new Date(geral.atualizado) > ATUALIZA_MS) atualizarSozinho(); });
+
+  function entrar() { mostrar('painel'); render(); avisoToken(); ligarAtualizacao(); }
+  function sair(msg) { clearInterval(timerAtualiza); senha = null; guardar(CHAVE, null); geral = null; clientes = {}; mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = ''; if (matchMedia('(pointer:fine)').matches) $('senha').focus(); }
 
   $('form-senha').addEventListener('submit', function (ev) {
     ev.preventDefault();
