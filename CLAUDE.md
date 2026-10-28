@@ -17,7 +17,8 @@ Quando o dono começar um pedido com **"YA"** (ex.: "YA, faz um backup", "YA, o 
 ## Regras do repositório
 
 - Tudo que está aqui é publicado na internet. Nunca coloque planilhas, dados ou senhas neste repositório — dados vão só para o `yamb-backup` (privado).
-- O site é gerado: `fonte/index.html` → `python3 scripts/otimizar.py` → `index.html`. Não edite `index.html` à mão.
+- O site é gerado: `fonte/index.html` → `python3 scripts/otimizar.py` → `index.html`, `servicos/`, `processo/`, `equipe/`, `contato/`, `assets/otim/` e `sitemap.xml`. Não edite esses arquivos à mão.
+- OneDrive: às vezes trava arquivos do `.git` por alguns segundos ("Operation timed out"). Espere e tente de novo; não apague nada do `.git`.
 - Publicar = push em `main` nos dois remotes: `pages` (HTTPS com o `gh`) e `origin`.
 - Se o interno trocar de planilha ou script, atualize também o `backup.sh` do `yamb-backup`.
 - Registros: `MANUTENCAO.md` (YA - Manutenção) e `SEO.md` (YA - SEO).

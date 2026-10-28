@@ -16,6 +16,8 @@ Skills para carregar quando a tarefa pedir: `anthropic-skills:ai-seo` (buscas co
 - Dados estruturados `ProfessionalService` (nome, telefone, e-mail, horário, Instagram, áreas de conhecimento).
 - `robots.txt` liberando GPTBot, ClaudeBot e PerplexityBot e bloqueando `/interno/`; `sitemap.xml`; `llms.txt`.
 - `scripts/otimizar.py` coloca a página pronta (com `<h1>`) no HTML e deixa o site rápido (Lighthouse celular ~87, SEO 100).
+- **Fase 1 (2026-10-28):** endereços próprios `/servicos/`, `/processo/`, `/equipe/`, `/contato/` gerados pelo `otimizar.py` (lista `PAGINAS`: título, descrição, canonical, Open Graph, `<h1>` e `@graph` com `ProfessionalService` em Aracaju/SE + `WebSite` + `WebPage` + `BreadcrumbList`); menu com links reais; `sitemap.xml` gerado; `llms.txt` reescrito. Para mudar título/descrição de uma página, edite `PAGINAS`/`NEGOCIO`/`SERVICOS` no `otimizar.py` e rode de novo.
+- Dados confirmados pelo dono: **Aracaju, SE, atendimento presencial** (sem rua/bairro publicados); serviços = Branding, Conteúdo para redes sociais, Tráfego pago, Estrutura comercial.
 
 ## Onde mexer (e onde não)
 

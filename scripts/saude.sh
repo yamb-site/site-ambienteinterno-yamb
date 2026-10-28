@@ -46,6 +46,8 @@ for base in "${BASES[@]}"; do
     pg=$(curl -sL --max-time 60 "$base$p")
     grep -q "rel=\"canonical\" href=\"https://yamb.com.br$p\"" <<<"$pg" || aviso "$p sem canonical próprio"
     [ "$(grep -o '<h1[ >]' <<<"$pg" | wc -l | tr -d ' ')" -ge 1 ] || aviso "$p sem <h1>"
+    rel=$(grep -oE '(href|src)="[a-z][^":]*"' <<<"$pg" | grep -vE '="(mailto|tel|https?|data)' | sort -u | head -3 | tr '\n' ' ')
+    [ -z "$rel" ] || falha "$p tem endereço relativo (quebra nas páginas internas): $rel"
   done
   [ "$(curl -sL --max-time 30 "$base/sitemap.xml" | grep -c '<loc>')" -ge 5 ] || aviso "sitemap.xml com menos de 5 endereços"
 

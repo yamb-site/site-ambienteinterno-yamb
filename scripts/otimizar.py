@@ -367,6 +367,10 @@ def rotas(fonte_html):
     inicio = html.find(APP_H1, html.find("window.__yambHref(p)"))
     html = (html[:inicio] + "if (window.__yambPaginaH1 !== page) { window.__yambPaginaH1 = page; window.__yambTemH1 = page === 'home'; }\n  "
             + html[inicio:])
+    # O link do ambiente interno vem relativo ("interno/") e quebraria em /servicos/ etc.
+    html, n = re.subn(r'("\.\./internal/index\.html":)"interno/"', r'\1"/interno/"', html)
+    if n == 0 and '"interno/"' in html:
+        sys.exit('Link "interno/" relativo encontrado em formato novo — ajuste a troca para "/interno/".')
     html, links = LINK_GO.subn(lambda m: "href: window.__yambHref(%s),%s" % (m.group(2), m.group(1)), html)
     dados = json.dumps([{k: p[k] for k in ("chave", "caminho", "titulo", "descricao")} for p in PAGINAS], ensure_ascii=False)
     html = html.replace("<head>", "<head>\n" + ROTAS_JS % (dados, SITE), 1)
