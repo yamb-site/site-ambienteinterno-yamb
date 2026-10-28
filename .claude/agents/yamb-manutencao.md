@@ -13,16 +13,32 @@ Para publicar, backup e regras de repositório, siga o agente `yamb-guardiao`. E
 - Pasta: `yamb/` (este repositório). Publica em `https://site-yamb.pages.dev` a cada push em `main` no remote `pages`; `yamb.com.br` ainda está no servidor antigo (ver `yamb-guardiao`).
 - Páginas: `/` (site institucional), `/interno/` e `/interno/app/` (ambiente interno da equipe — **fora do Google**, nunca otimize para busca).
 - Arquivos de busca: `robots.txt`, `sitemap.xml`, `llms.txt`. Cabeçalhos e redirecionamentos: `_headers`, `_redirects` (Cloudflare Pages).
-- Os HTML são **exportações de uma ferramenta de design**, um arquivo autocontido por página (React pré-compilado, imagens em `assets/`). Uma nova exportação substitui o arquivo inteiro.
+- Os HTML são **exportações de uma ferramenta de design**, um arquivo autocontido por página (React pré-compilado, fontes e imagens embutidas). Uma nova exportação substitui o arquivo inteiro.
+
+## Como o site institucional é gerado
+
+`fonte/index.html` = a exportação original, **sem mexer**. `index.html` e `assets/otim/` são **gerados** por `scripts/otimizar.py` (nunca edite à mão — serão sobrescritos):
+
+```bash
+cp <exportação nova>/index.html fonte/index.html   # se o dono mandou uma exportação nova
+python3 scripts/otimizar.py                        # precisa do Google Chrome e: pip install --user pillow fonttools brotli
+```
+
+O script tira fontes, imagens e scripts de dentro do HTML (fontes em woff2, imagens no tamanho medido ×2, scripts com `defer`) e grava uma "fotografia" da página pronta em `#root` para cada faixa de tela (≥1160, 621–1159, ≤620 px), que aparece antes do React carregar. Depois de rodar, confira antes de publicar:
+- capturas do original (`fonte/`) e do otimizado no Chrome em 1440, 900 e 390 px devem ser iguais;
+- sem erros no console;
+- `bash scripts/saude.sh` depois do push.
+
+Se a exportação mudar de estrutura (ex.: deixar de montar em `<div id="root">`, novos itens no menu), ajuste `TELAS`, `FAIXAS` ou `PAGINAS_MENU` no script.
 
 ## Regra mais importante: correções não podem se perder
 
 Toda correção feita direto num HTML exportado some na próxima exportação. Por isso:
 
-1. Prefira corrigir **fora** do HTML quando der: `_headers`, `_redirects`, `robots.txt`, `sitemap.xml`, `llms.txt`, arquivos novos.
-2. Quando precisar mexer no HTML, registre a mudança em `MANUTENCAO.md` (o que, onde, por quê, como reaplicar — de preferência um trecho exato de "antes → depois").
-3. Depois de cada exportação nova, reaplique o que está em `MANUTENCAO.md` e confira.
-4. Melhorias de conteúdo ou visual que precisam ser feitas na ferramenta de design: liste para o dono em vez de editar o HTML.
+1. Prefira corrigir **fora** do HTML: `_headers`, `_redirects`, `robots.txt`, `sitemap.xml`, `llms.txt`, ou **como um passo novo em `scripts/otimizar.py`** (assim toda exportação recebe a correção sozinha).
+2. O que não der para automatizar, registre em `MANUTENCAO.md` (o que, onde, por quê, como reaplicar).
+3. Melhorias de conteúdo ou visual que precisam ser feitas na ferramenta de design: liste para o dono em vez de editar o HTML.
+4. O ambiente interno (`interno/`) não passa pelo otimizador.
 
 ## Limites
 
@@ -57,7 +73,7 @@ Confira: página carrega sem tela branca, menu funciona, botões de contato abre
 ```bash
 npx -y lighthouse https://site-yamb.pages.dev/ --only-categories=performance,accessibility,best-practices,seo --form-factor=mobile --quiet --chrome-flags="--headless" --output=json --output-path=/tmp/lh.json
 ```
-Metas: LCP < 2,5 s, CLS < 0,1, nota ≥ 90. Suspeitos comuns aqui: HTML de vários MB com imagens embutidas, imagens PNG grandes em `assets/` (versões `-min` existem — use-as), fontes `.otf/.ttf` sem `woff2`, cache. Cache longo para `assets/*` em `_headers` é uma correção segura.
+Metas: LCP < 2,5 s, CLS < 0,1, nota ≥ 90. Se `index.html` passar de ~300 KB, o otimizador não rodou na última exportação. O que ainda pesa: os scripts do React, do design system e do pacote de ícones lucide (~1,3 MB sem compressão) — só dá para reduzir na ferramenta de design.
 
 ### 4. Acessibilidade e boas práticas de interface
 Carregue a skill `anthropic-skills:web-design-guidelines` e revise `index.html` contra as regras dela. Prioridades: textos alternativos nas imagens, contraste, foco visível no teclado, botões e links com nome, hierarquia de títulos, `lang="pt-BR"`, respeito a `prefers-reduced-motion`.

@@ -60,6 +60,12 @@ for base in "${BASES[@]}"; do
     grep -qE 'yamb-guardiao|yamb-manutencao|name: |^# YAMB —' <<<"$body" && falha "$p está público"
   done
 
+  # Versão otimizada no ar (scripts/otimizar.py) e exportação original escondida
+  tam=$(curl -s -o /dev/null --max-time 60 -w "%{size_download}" "$base/")
+  [ "${tam%.*}" -lt 400000 ] || aviso "página inicial com $((${tam%.*} / 1024)) KB — o otimizador rodou na última exportação?"
+  code=$(curl -s -o /dev/null --max-time 30 -w "%{http_code}" "$base/fonte/index.html")
+  [ "$code" = 200 ] && falha "/fonte/index.html está público"
+
   # HTTPS
   code=$(curl -s -o /dev/null --max-time 30 -w "%{http_code}" "${base/https:/http:}/")
   case $code in 301|302|307|308) ok "http redireciona para https" ;; *) aviso "http:// não redireciona para https ($code)" ;; esac

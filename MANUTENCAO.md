@@ -4,9 +4,16 @@ Memória do agente `yamb-manutencao` entre revisões. Mais recente primeiro.
 
 ## Correções feitas no HTML exportado (reaplicar a cada exportação nova)
 
-_Nenhuma ainda._
+Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). Nenhuma manual.
 
 ## Revisões
+
+### 2026-10-28 — velocidade
+- `scripts/otimizar.py` criado. A exportação original fica em `fonte/index.html`; o `index.html` publicado é gerado.
+- HTML da página inicial: 2.776 KB → 177 KB. Fontes ttf/otf embutidas → woff2 (≈690 → 236 KB; o navegador só baixa as usadas). Imagens embutidas → arquivos no tamanho medido (742 → 496 KB). Scripts → arquivos com `defer`.
+- "Fotografia" da página pronta no HTML (3 faixas de tela): sem JavaScript, a página antes ficava vazia e agora aparece inteira; título principal (`<h1>`) agora está no HTML para os buscadores.
+- Cache de 1 ano para `assets/otim/*` (nomes mudam quando o conteúdo muda).
+- Conferido: capturas em 1440/900/390 px idênticas ao original (diferença só no redimensionamento do logo, invisível); sem erros no console.
 
 ### 2026-10-28 — configuração inicial
 - Checagem diária automática criada (`scripts/saude.sh` + GitHub Actions *Saúde do site*): site-yamb.pages.dev ok.
