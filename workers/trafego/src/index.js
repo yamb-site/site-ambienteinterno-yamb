@@ -391,9 +391,13 @@ function juntarPlataformas(lista) {
 }
 
 async function statusToken(env) {
-  const d = await pegar(env, "debug_token", { input_token: env.META_TOKEN });
-  const x = d.data || {};
-  return { valido: !!x.is_valid, venceEm: x.expires_at ? new Date(x.expires_at * 1000).toISOString() : "sem vencimento", permissoes: x.scopes || [] };
+  const ver = async (token) => {
+    const x = (await pegar(env, "debug_token", { input_token: token })).data || {};
+    return { valido: !!x.is_valid, venceEm: x.expires_at ? new Date(x.expires_at * 1000).toISOString() : "sem vencimento", permissoes: x.scopes || [] };
+  };
+  const leitura = await ver(env.META_TOKEN);
+  if (env.META_TOKEN_GERENCIAR) leitura.gerenciar = await ver(env.META_TOKEN_GERENCIAR).catch((e) => ({ valido: false, erro: String(e.message || e) }));
+  return leitura;
 }
 
 

@@ -5,7 +5,7 @@ Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados d
 ## 2026-10-28 — sugestões com aceitar/recusar
 - Aba Sugestões: regras sobre a média de cada conta (pausar campanha sem resultado; +20% de orçamento na mais eficiente; −20% na cara; tarefas: criativo cansado, CTR baixo, problema no Meta, orçamento total no fim).
 - Aceitar aplica no Meta com `META_TOKEN_GERENCIAR` (ads_management), conferindo o estado atual; recusar esconde por 7 dias; histórico com Desfazer no KV `YAMB_TRAFEGO`.
-- Pendente: o dono gerar a chave com ads_management e guardar com `npx wrangler secret put META_TOKEN_GERENCIAR` (em workers/trafego).
+- `META_TOKEN_GERENCIAR` configurado em 2026-10-28 (válido até 2026-12-27). Atenção: no Meta as permissões valem por usuário+app, então o `META_TOKEN` (leitura) também passou a ter `ads_management`. A proteção é o código (só escreve via /decidir e /desfazer). Separação real exigiria um segundo app só para gerenciar, ou portfólio da YAMB com usuários do sistema.
 
 ## 2026-10-28 — painel com abas e detalhe por cliente
 - App do Meta "YAMB Painel de Trafego" (ID 1871489147340430), sem portfólio, acesso pelo token pessoal do dono (`ads_read`, 60 dias — renovar antes de vencer; o painel avisa com 10 dias).
