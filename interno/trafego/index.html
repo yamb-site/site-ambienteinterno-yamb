@@ -234,6 +234,44 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
 .rodape-painel{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:36px;color:var(--muted);font-size:12.5px}
 .rodape-painel .regua{flex:1 1 80px;min-width:60px}
 
+/* ---------- sugestões ---------- */
+.sugs{display:grid;gap:12px}
+.sug{display:grid;grid-template-columns:auto 1fr auto;gap:16px 18px;align-items:start;padding:20px 22px}
+.sug .ponto{width:10px;height:10px;border-radius:50%;margin-top:8px}
+.sug .ponto.alto{background:var(--bad);box-shadow:0 0 12px rgba(240,146,124,.6)} .sug .ponto.medio{background:var(--warn);box-shadow:0 0 12px rgba(245,200,111,.5)} .sug .ponto.baixo{background:var(--ok);box-shadow:0 0 12px rgba(134,211,160,.45)}
+.sug h3{font-size:16px;font-weight:500;margin:0 0 4px}
+.sug .onde{font-size:12.5px;color:var(--muted)} .sug .onde a{text-decoration:none}
+.sug p{margin:10px 0 0;color:var(--soft);font-size:13.5px}
+.sug .imp{color:var(--muted);font-size:12.5px;margin-top:6px}
+.acao{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:6px 12px;border-radius:var(--r-pill);border:1px solid var(--edge-gold);background:rgba(243,172,47,.08);font-size:12.5px;color:var(--gold-l)}
+.acao.tarefa{border-color:var(--edge-2);background:rgba(247,228,206,.05);color:var(--soft)}
+.sug .botoes{display:flex;flex-direction:column;gap:8px;min-width:150px}
+.botao-sec{min-height:40px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--edge-2);background:transparent;color:var(--soft);cursor:pointer;transition:border-color .2s,color .2s}
+.botao-sec:hover{border-color:var(--bad);color:var(--bad)}
+.botao-ouro.p{min-height:40px;margin:0;font-size:13.5px;padding:0 18px}
+.hist{display:grid;gap:0}
+.hist .linha{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(247,228,206,.06);font-size:13px}
+.hist .linha:last-child{border-bottom:0}
+.aviso-chave{border:1px dashed var(--edge-gold);border-radius:var(--r-lg);padding:14px 18px;margin-bottom:14px;color:var(--soft);font-size:13.5px;background:rgba(243,172,47,.05)}
+dialog{border:0;padding:0;background:transparent;color:var(--ink);max-width:min(520px,calc(100vw - 32px));width:100%}
+dialog::backdrop{background:rgba(5,5,5,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.modal{background:var(--cream);border-radius:var(--r-xl);padding:28px;box-shadow:var(--sombra);overscroll-behavior:contain}
+.modal .over{color:var(--gold-700,#A86B1B)}
+.modal h2{font-size:22px;font-weight:400;margin:8px 0 12px;color:var(--ink)}
+.modal p{color:#5b5248;font-size:14px;margin:0 0 14px}
+.modal .mudanca{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--r-md);background:#fff;border:1px solid rgba(18,18,18,.08);margin:0 0 16px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.modal .mudanca .de{color:#8b8176;text-decoration:line-through}
+.modal .mudanca .para{font-weight:600}
+.modal label{display:block;font-size:13px;font-weight:500;margin:0 0 6px;color:#2b2622}
+.modal input,.modal textarea{width:100%;border-radius:var(--r-md);border:1px solid rgba(18,18,18,.14);background:#fff;color:var(--ink);padding:12px 14px;font:inherit;margin-bottom:14px}
+.modal textarea{min-height:70px;resize:vertical}
+.modal input:focus,.modal textarea:focus{outline:0;border-color:var(--gold-d);box-shadow:0 0 0 4px rgba(224,154,36,.18)}
+.modal .linha-botoes{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.modal .cancelar{min-height:46px;padding:0 20px;border-radius:var(--r-pill);border:1px solid rgba(18,18,18,.16);background:transparent;cursor:pointer;color:var(--ink)}
+.modal .botao-ouro{width:auto;margin:0;padding:0 24px;min-height:46px}
+.modal .erro{color:#B2391F;font-size:13px;min-height:18px;margin:0 0 10px}
+@media (max-width:620px){.sug{grid-template-columns:auto 1fr}.sug .botoes{grid-column:1/-1;flex-direction:row}.sug .botoes>*{flex:1}}
+
 @media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:900px){
   #entrar{grid-template-columns:1fr;gap:0}
@@ -321,18 +359,37 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
 </section>
 
 </main>
+<dialog id="dialogo" aria-labelledby="dlg-titulo">
+  <form method="dialog" class="modal" id="dlg-form">
+    <span class="over" id="dlg-sobre">Confirmar</span>
+    <h2 id="dlg-titulo"></h2>
+    <p id="dlg-texto"></p>
+    <div class="mudanca" id="dlg-mudanca" hidden></div>
+    <label for="dlg-autor">Seu nome</label>
+    <input id="dlg-autor" name="autor" autocomplete="name" required maxlength="60" placeholder="Ex.: Gabriel Santos…">
+    <div id="dlg-motivo-caixa" hidden><label for="dlg-motivo">Motivo (opcional)</label><textarea id="dlg-motivo" name="motivo" maxlength="300" placeholder="Ex.: cliente pediu para manter…"></textarea></div>
+    <p class="erro" id="dlg-erro" role="alert" aria-live="polite"></p>
+    <div class="linha-botoes"><button type="button" class="cancelar" id="dlg-cancelar">Cancelar</button><button type="submit" class="botao-ouro" id="dlg-ok">Confirmar</button></div>
+  </form>
+</dialog>
 <script>
 (function () {
   'use strict';
   var API = 'https://yamb-trafego.gabrielsocialm21.workers.dev';
   var CHAVE = 'yamb-trafego-senha';
   var $ = function (id) { return document.getElementById(id); };
-  var geral = null, clientes = {}, estado = {};
+  var geral = null, clientes = {}, estado = {}, sugs = null;
 
   // ------------------------------------------------ armazenamento e rede
   function guardar(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) {} }
   function ler(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
   var senha = ler(CHAVE);
+  function enviar(rota, corpo) {
+    return fetch(API + rota, { method: 'POST', headers: { 'X-Painel-Senha': senha || '', 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.erro) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; }); });
+  }
+  function lerLocal(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function gravarLocal(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function pedir(rota) {
     return fetch(API + rota, { headers: { 'X-Painel-Senha': senha || '' } }).then(function (r) {
       return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; });
@@ -448,6 +505,10 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
     if (geral && geral.periodo === p) return Promise.resolve(geral);
     return pedir('/painel?periodo=' + p).then(function (d) { geral = d; return d; });
   }
+  function carregarSugestoes(forcar) {
+    if (sugs && sugs.periodo === estado.periodo && !forcar) return Promise.resolve(sugs);
+    return pedir('/sugestoes?periodo=' + estado.periodo).then(function (d) { sugs = d; return d; });
+  }
   function carregarCliente(id) {
     var k = id + ':' + estado.periodo;
     if (clientes[k]) return Promise.resolve(clientes[k]);
@@ -464,7 +525,9 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
       $('info').textContent = g.contas.length + ' contas com anúncios ativos · ' + data(iv.atual.since) + (iv.dias > 1 ? ' a ' + data(iv.atual.until) : '') +
         ' · comparado com ' + data(iv.anterior.since) + (iv.dias > 1 ? ' a ' + data(iv.anterior.until) : '') + ' · atualizado às ' + fmtHora.format(new Date(g.atualizado));
       abertura(g);
+      carregarSugestoes().then(function () { desenharAbas(g); }).catch(function () {});
       if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);
+      if (estado.aba === 'sugestoes') return carregarSugestoes().then(function (d) { desenharAbas(g); telaSugestoes(d, g); });
       ({ geral: telaGeral, clientes: telaClientes, campanhas: telaCampanhas, alertas: telaAlertas }[estado.aba] || telaGeral)(g);
     }).catch(function (e) {
       if (e.status === 401) { sair('Senha incorreta. Digite de novo.'); return; }
@@ -480,6 +543,7 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
       clientes: ['Clientes', 'Cada cliente, <em>um painel próprio</em>.'],
       campanhas: ['Campanhas', '<em>' + ativas + ' campanhas</em> no ar agora.'],
       alertas: ['Alertas', na ? 'O que pede <em>atenção</em> hoje.' : 'Nada pedindo <em>atenção</em>.'],
+      sugestoes: ['Sugestões', 'O que mudar, <em>com um clique</em>.'],
       cliente: ['Cliente', c ? esc(c.nome).replace(/^(.*?)( - .*)?$/, '<em>$1</em>$2') : 'Cliente'],
     }[estado.aba] || ['Visão geral', 'Painel de Tráfego'];
     $('sobre').textContent = t[0]; $('saudacao').innerHTML = t[1];
@@ -498,7 +562,8 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
 
   function desenharAbas(g) {
     var n = todosAlertas(g).length;
-    var abas = [['geral', 'Visão geral'], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')]];
+    var ns = sugs && sugs.periodo === estado.periodo ? sugs.sugestoes.length : 0;
+    var abas = [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')]];
     var atual = estado.aba === 'cliente' ? 'clientes' : estado.aba;
     $('abas').innerHTML = abas.map(function (a) { return '<a href="' + link({ aba: a[0] }) + '"' + (a[0] === atual ? ' aria-current="page"' : '') + '>' + a[1] + '</a>'; }).join('');
   }
@@ -675,6 +740,73 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(resumo) + '"><defs><linearGradient id="ouro" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5C86F"/><stop offset="1" stop-color="#845721"/></linearGradient></defs>' + svg + '</svg><div class="leg"><span><i style="background:linear-gradient(#F5C86F,#845721)"></i>Investido (eixo esquerdo)</span><span><i style="background:#F7E4CE"></i>Resultados (eixo direito)</span></div>';
   }
 
+
+  // ------------------------------------------------ sugestões
+  var ROTULO_ESTADO = { aplicada: 'Aplicada no Meta', recusada: 'Recusada', tarefa: 'Virou tarefa', desfeita: 'Desfeita' };
+  function textoAcao(x) {
+    if (!x.acao) return '<span class="acao tarefa">Vira tarefa para a equipe</span>';
+    if (x.acao.tipo === 'pausar') return '<span class="acao">Pausar campanha no Meta</span>';
+    return '<span class="acao num">Orçamento ' + R(x.acao.de, x.moeda) + '/dia → <b>' + R(x.acao.para, x.moeda) + '/dia</b></span>';
+  }
+  function telaSugestoes(d, g) {
+    var h = '';
+    if (!d.podeAplicar) h += '<div class="aviso-chave">As sugestões com mudança no Meta ainda não podem ser aplicadas: falta configurar a chave de gerenciar. Enquanto isso, dá para recusar ou aceitar como tarefa.</div>';
+    if (!d.sugestoes.length) h += '<section class="cartao vidro"><p class="vazio">Nenhuma sugestão aberta para este período. As contas estão dentro do esperado.</p></section>';
+    else h += '<div class="sugs">' + d.sugestoes.map(function (x) {
+      var ok = !x.acao || d.podeAplicar;
+      return '<article class="sug vidro"><span class="ponto ' + x.nivel + '" title="' + NIVEL[x.nivel] + '"></span><div>' +
+        '<h3>' + esc(x.titulo) + '</h3><span class="onde"><a href="' + link({ aba: 'cliente', cliente: x.contaId, sub: 'campanhas' }) + '">' + esc(x.conta) + '</a> · ' + esc(x.campanha) + '</span>' +
+        '<p>' + esc(x.motivo) + '</p><div class="imp">' + esc(x.impacto) + '</div>' + textoAcao(x) + '</div>' +
+        '<div class="botoes"><button type="button" class="botao-ouro p" data-aceitar="' + esc(x.id) + '"' + (ok ? '' : ' disabled title="Falta configurar a chave de gerenciar"') + '>' + (x.acao ? 'Aceitar e aplicar' : 'Aceitar como tarefa') + '</button>' +
+        '<button type="button" class="botao-sec" data-recusar="' + esc(x.id) + '">Recusar</button></div></article>';
+    }).join('') + '</div>';
+    h += '<section class="cartao vidro" style="margin-top:16px"><h2>Decisões recentes<small>' + d.historico.length + '</small></h2><div class="hist corpo">' +
+      (d.historico.length ? d.historico.map(function (r) {
+        var s = r.sugestao || {};
+        var desfazer = r.estado === 'aplicada' && !r.desfeitoEm && d.podeAplicar ? '<button type="button" class="botao-sec" data-desfazer="' + esc(r.registro) + '">Desfazer</button>' : (r.desfeitoEm ? '<span class="meta">Desfeita por ' + esc(r.desfeitoPor) + '</span>' : '');
+        return '<div class="linha"><span class="tag ' + (r.estado === 'aplicada' ? 'baixo' : r.estado === 'recusada' ? 'alto' : 'medio') + '">' + (ROTULO_ESTADO[r.estado] || r.estado) + '</span>' +
+          '<div><b>' + esc(s.titulo || '') + '</b><span class="sub-l">' + esc(s.conta || '') + ' · ' + esc(s.campanha || '') + ' · ' + esc(r.autor) + ' · ' + new Date(r.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (r.motivo ? ' · “' + esc(r.motivo) + '”' : '') + '</span></div>' + desfazer + '</div>';
+      }).join('') : '<p class="vazio">Nenhuma decisão ainda.</p>') + '</div></section>';
+    $('conteudo').innerHTML = h;
+  }
+
+  var dlg = $('dialogo'), pendente = null;
+  function abrirDialogo(tipo, x) {
+    pendente = { tipo: tipo, x: x };
+    $('dlg-erro').textContent = '';
+    $('dlg-autor').value = lerLocal('yamb-trafego-autor');
+    $('dlg-motivo').value = '';
+    $('dlg-motivo-caixa').hidden = tipo !== 'recusar';
+    var m = $('dlg-mudanca'); m.hidden = true;
+    if (tipo === 'recusar') { $('dlg-sobre').textContent = 'Recusar sugestão'; $('dlg-titulo').textContent = x.titulo; $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. Ela some por 7 dias.'; $('dlg-ok').textContent = 'Recusar'; }
+    else if (tipo === 'desfazer') { $('dlg-sobre').textContent = 'Desfazer mudança'; $('dlg-titulo').textContent = (x.sugestao || {}).titulo || 'Desfazer'; $('dlg-texto').textContent = 'A campanha volta como estava antes no Meta.'; $('dlg-ok').textContent = 'Desfazer no Meta'; }
+    else {
+      $('dlg-sobre').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar como tarefa'; $('dlg-titulo').textContent = x.titulo;
+      $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. ' + (x.acao ? 'A mudança é feita agora no Meta e fica registrada, com opção de desfazer.' : 'Fica registrada como tarefa para a equipe fazer no Gerenciador de Anúncios.');
+      if (x.acao) { m.hidden = false; m.innerHTML = x.acao.tipo === 'pausar' ? '<span class="de">Ativa</span><span aria-hidden="true">→</span><span class="para">Pausada</span>' : '<span class="de">' + R(x.acao.de, x.moeda) + '/dia</span><span aria-hidden="true">→</span><span class="para">' + R(x.acao.para, x.moeda) + '/dia</span>'; }
+      $('dlg-ok').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar';
+    }
+    dlg.showModal(); $('dlg-autor').focus();
+  }
+  $('dlg-cancelar').addEventListener('click', function () { dlg.close(); });
+  $('dlg-form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var autor = $('dlg-autor').value.trim(); if (!autor) { $('dlg-erro').textContent = 'Escreva seu nome para registrar quem decidiu.'; $('dlg-autor').focus(); return; }
+    gravarLocal('yamb-trafego-autor', autor);
+    var bt = $('dlg-ok'), txt = bt.textContent; bt.disabled = true; bt.textContent = 'Aplicando…';
+    var p = pendente, req = p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
+      : enviar('/decidir', { id: p.x.id, decisao: p.tipo === 'recusar' ? 'recusar' : 'aceitar', autor: autor, motivo: $('dlg-motivo').value, periodo: estado.periodo });
+    req.then(function () { dlg.close(); geral = null; clientes = {}; return carregarSugestoes(true).then(function () { render(); }); })
+      .catch(function (e) { $('dlg-erro').textContent = e.message; })
+      .then(function () { bt.disabled = false; bt.textContent = txt; });
+  });
+  $('conteudo').addEventListener('click', function (e) {
+    var a = e.target.closest('[data-aceitar],[data-recusar],[data-desfazer]'); if (!a || !sugs) return;
+    if (a.hasAttribute('data-desfazer')) { var r = sugs.historico.filter(function (h) { return h.registro === a.getAttribute('data-desfazer'); })[0]; if (r) abrirDialogo('desfazer', r); return; }
+    var id = a.getAttribute('data-aceitar') || a.getAttribute('data-recusar'), x = sugs.sugestoes.filter(function (s) { return s.id === id; })[0];
+    if (x) abrirDialogo(a.hasAttribute('data-aceitar') ? 'aceitar' : 'recusar', x);
+  });
+
   // ------------------------------------------------ eventos
   function ligarFiltros() {
     document.querySelectorAll('.chip[data-cat]').forEach(function (b) { b.addEventListener('click', function () { ir({ cat: b.getAttribute('data-cat') }); }); });
@@ -686,7 +818,7 @@ td .sub-l{display:block;color:var(--muted);font-size:12px;margin-top:3px;font-we
     if (t) { e.preventDefault(); ir({ ordem: t.getAttribute('data-ordem') }); }
   });
   $('periodos').addEventListener('click', function (e) { var b = e.target.closest('[data-p]'); if (b) ir({ periodo: b.getAttribute('data-p') }); });
-  $('atualizar').addEventListener('click', function () { geral = null; clientes = {}; render(); });
+  $('atualizar').addEventListener('click', function () { geral = null; clientes = {}; sugs = null; render(); });
   $('sair').addEventListener('click', function () { sair(); });
   window.addEventListener('hashchange', function () { var cli = estado.cliente, aba = estado.aba, sub = estado.sub; render(); if (lerEstado().cliente !== cli || lerEstado().aba !== aba || lerEstado().sub !== sub) window.scrollTo(0, 0); });
 

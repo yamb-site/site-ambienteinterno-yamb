@@ -11,6 +11,12 @@
 //   /painel?periodo=last_7d          visão geral de todas as contas (com período anterior e plataformas)
 //   /cliente?id=act_123&periodo=...  detalhe de uma conta: campanhas, conjuntos, anúncios, público, dia a dia
 //   /contas                          lista de contas · /token  validade da chave
+//   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
+//   POST /decidir  {id, decisao, autor}   aceitar (aplica no Meta) ou recusar uma sugestão
+//   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
+//
+// Escrita no Meta: SÓ por /decidir e /desfazer, com o segredo separado META_TOKEN_GERENCIAR (ads_management),
+// só nas ações listadas em ACOES, e sempre conferindo o estado atual da campanha antes de mudar.
 
 const PERIODOS = ["today", "yesterday", "last_7d", "last_30d", "this_month", "last_month"];
 const METRICAS = "spend,impressions,reach,frequency,clicks,inline_link_clicks,ctr,cpc,cpm,actions";
@@ -45,7 +51,8 @@ export default {
   async fetch(request, env, ctx) {
     const cors = corsHeaders(request, env);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
-    if (request.method !== "GET") return json({ erro: "Só leitura." }, 405, cors);
+    const escrita = request.method === "POST" && ["/decidir", "/desfazer"].includes(new URL(request.url).pathname);
+    if (request.method !== "GET" && !escrita) return json({ erro: "Só leitura." }, 405, cors);
 
     if (!(await senhaOk(request.headers.get("X-Painel-Senha") || "", env.PAINEL_SENHA))) {
       return json({ erro: "Senha do painel incorreta." }, 401, cors);
@@ -56,6 +63,12 @@ export default {
     const periodo = PERIODOS.includes(url.searchParams.get("periodo")) ? url.searchParams.get("periodo") : "last_7d";
     try {
       if (url.pathname === "/token") return json(await statusToken(env), 200, cors);
+      if (url.pathname === "/sugestoes") return json(await listarSugestoes(env, ctx, periodo), 200, cors);
+      if (escrita) {
+        const corpo = await request.json().catch(() => ({}));
+        if (url.pathname === "/decidir") return json(await decidir(env, ctx, corpo), 200, cors);
+        return json(await desfazer(env, corpo), 200, cors);
+      }
       if (url.pathname === "/contas") return json(await comCache(ctx, "contas", () => contas(env)), 200, cors);
       if (url.pathname === "/painel") return json(await comCache(ctx, "painel3:" + periodo, () => painel(env, periodo)), 200, cors);
       if (url.pathname === "/cliente") {
@@ -383,6 +396,165 @@ async function statusToken(env) {
   return { valido: !!x.is_valid, venceEm: x.expires_at ? new Date(x.expires_at * 1000).toISOString() : "sem vencimento", permissoes: x.scopes || [] };
 }
 
+
+// ---------------------------------------------------------------- sugestões
+//
+// Regras sobre os números da própria conta (a referência é a média do cliente no período, não um benchmark externo).
+// Ações que o painel pode aplicar no Meta ao aceitar. Qualquer outra sugestão vira tarefa para a equipe.
+const ACOES = { pausar: "Pausar campanha", orcamento: "Ajustar orçamento diário" };
+const LIMITE_AJUSTE = 0.2; // nunca muda orçamento mais de 20% de uma vez
+const DIAS_RECUSA = 7;
+
+function regras(conta) {
+  const s = [];
+  const m = conta.moeda;
+  const comResultado = conta.campanhas.filter((k) => k.ativaAgora && k.resultados > 0);
+  const cprConta = conta.totais.custoPorResultado;
+  for (const k of conta.campanhas) {
+    if (!k.ativaAgora) continue;
+    const base = { contaId: conta.id, conta: conta.nome, campanhaId: k.id, campanha: k.nome, moeda: m };
+    const limitePausa = cprConta ? Math.max(30, cprConta * 2) : 50;
+    if (k.gasto >= limitePausa && !k.resultados) {
+      s.push({ ...base, id: "pausar:" + k.id, tipo: "pausar", nivel: "alto",
+        titulo: "Pausar campanha sem resultado",
+        motivo: `Investiu ${dinheiro(k.gasto, m)} no período sem nenhum resultado${cprConta ? ` (a média da conta é ${dinheiro(cprConta, m)} por resultado)` : ""}.`,
+        acao: { tipo: "pausar", de: "Ativa", para: "Pausada" },
+        impacto: `Para de gastar cerca de ${dinheiro(k.gasto / 7, m)} por dia sem retorno.` });
+      continue;
+    }
+    if (k.orcamentoDiario && cprConta && comResultado.length >= 2) {
+      if (k.resultados >= 5 && k.custoPorResultado <= cprConta * 0.7 && k.frequencia < 3) {
+        const para = Math.round(k.orcamentoDiario * (1 + LIMITE_AJUSTE));
+        if (para > k.orcamentoDiario) s.push({ ...base, id: "orcamento-mais:" + k.id, tipo: "orcamento", nivel: "baixo",
+          titulo: "Aumentar orçamento da campanha mais eficiente",
+          motivo: `${N(k.resultados)} resultados a ${dinheiro(k.custoPorResultado, m)} cada, ${Math.round((1 - k.custoPorResultado / cprConta) * 100)}% abaixo da média da conta (${dinheiro(cprConta, m)}), e o público ainda não está saturado (frequência ${k.frequencia.toFixed(1)}).`,
+          acao: { tipo: "orcamento", de: k.orcamentoDiario, para },
+          impacto: `Mais ${dinheiro(para - k.orcamentoDiario, m)}/dia onde cada resultado sai mais barato.` });
+      } else if (k.resultados > 0 && k.custoPorResultado >= cprConta * 1.8 && k.gasto >= 50) {
+        const para = Math.max(1, Math.round(k.orcamentoDiario * (1 - LIMITE_AJUSTE)));
+        if (para < k.orcamentoDiario) s.push({ ...base, id: "orcamento-menos:" + k.id, tipo: "orcamento", nivel: "medio",
+          titulo: "Reduzir orçamento de campanha cara",
+          motivo: `Cada resultado custa ${dinheiro(k.custoPorResultado, m)}, ${Math.round((k.custoPorResultado / cprConta - 1) * 100)}% acima da média da conta (${dinheiro(cprConta, m)}).`,
+          acao: { tipo: "orcamento", de: k.orcamentoDiario, para },
+          impacto: `Economiza ${dinheiro(k.orcamentoDiario - para, m)}/dia enquanto a campanha é revisada.` });
+      }
+    }
+    if (k.frequencia >= 4) s.push({ ...base, id: "criativo:" + k.id, tipo: "tarefa", nivel: "medio",
+      titulo: "Trocar o criativo (público cansado)",
+      motivo: `Frequência ${k.frequencia.toFixed(1)}: cada pessoa viu o anúncio mais de 4 vezes no período.`,
+      acao: null, impacto: "Criativo novo costuma baixar o custo quando a frequência passa de 4." });
+    if (k.impressoes > 2000 && k.ctr > 0 && k.ctr < 0.6) s.push({ ...base, id: "ctr:" + k.id, tipo: "tarefa", nivel: "medio",
+      titulo: "Revisar criativo ou público (CTR baixo)",
+      motivo: `CTR de ${k.ctr.toFixed(2).replace(".", ",")}% em ${N(k.impressoes)} impressões: poucas pessoas clicam.`,
+      acao: null, impacto: "Testar outra chamada, imagem ou público." });
+    if (k.status === "WITH_ISSUES") s.push({ ...base, id: "problema:" + k.id, tipo: "tarefa", nivel: "alto",
+      titulo: "Resolver problema apontado pelo Meta", motivo: "A campanha está com problema no Meta (anúncio reprovado, pagamento ou configuração).",
+      acao: null, impacto: "Abrir no Gerenciador de Anúncios e ver o aviso." });
+    if (k.orcamentoTotal && k.orcamentoRestante != null && k.orcamentoRestante / k.orcamentoTotal < 0.1) s.push({ ...base, id: "fim:" + k.id, tipo: "tarefa", nivel: "baixo",
+      titulo: "Orçamento total quase no fim", motivo: `Restam ${dinheiro(k.orcamentoRestante, m)} de ${dinheiro(k.orcamentoTotal, m)}.`,
+      acao: null, impacto: "Decidir com o cliente se renova ou encerra." });
+  }
+  return s;
+}
+
+const fmtCache = {};
+function dinheiro(v, m) { m = m || "BRL"; if (!fmtCache[m]) fmtCache[m] = new Intl.NumberFormat("pt-BR", { style: "currency", currency: m }); return v == null ? "—" : fmtCache[m].format(v); }
+const N = (v) => new Intl.NumberFormat("pt-BR").format(Math.round(v || 0));
+const PESO = { alto: 0, medio: 1, baixo: 2 };
+
+async function listarSugestoes(env, ctx, periodo) {
+  const g = await comCache(ctx, "painel3:" + periodo, () => painel(env, periodo));
+  const todas = g.contas.flatMap((c) => (c.erro ? [] : regras(c)));
+  const kv = env.YAMB_TRAFEGO;
+  const decisoes = kv ? await Promise.all(todas.map((x) => kv.get("dec:" + x.id, "json"))) : [];
+  const abertas = todas.filter((x, i) => !decisoes[i]).sort((a, b) => PESO[a.nivel] - PESO[b.nivel]);
+  return { atualizado: g.atualizado, periodo, podeAplicar: !!env.META_TOKEN_GERENCIAR, sugestoes: abertas, historico: await historico(env) };
+}
+
+async function historico(env, limite = 40) {
+  if (!env.YAMB_TRAFEGO) return [];
+  const l = await env.YAMB_TRAFEGO.list({ prefix: "log:", limit: 200 });
+  const nomes = l.keys.map((k) => k.name).sort().reverse().slice(0, limite);
+  return (await Promise.all(nomes.map((n) => env.YAMB_TRAFEGO.get(n, "json")))).filter(Boolean);
+}
+
+async function registrar(env, item) {
+  const chave = `log:${new Date().toISOString()}:${Math.random().toString(36).slice(2, 8)}`;
+  const reg = { registro: chave, em: new Date().toISOString(), ...item };
+  await env.YAMB_TRAFEGO.put(chave, JSON.stringify(reg));
+  return reg;
+}
+
+const limpaAutor = (a) => String(a || "").replace(/[^\p{L}\p{N} .'-]/gu, "").trim().slice(0, 60);
+
+async function escrever(env, objeto, campos) {
+  const corpo = new URLSearchParams({ ...campos, access_token: env.META_TOKEN_GERENCIAR });
+  const resp = await fetch(graph(env, objeto), { method: "POST", body: corpo });
+  const dados = await resp.json();
+  if (dados.error) throw new Error(`O Meta recusou a mudança: ${dados.error.error_user_msg || dados.error.message}`);
+  return dados;
+}
+
+async function decidir(env, ctx, corpo) {
+  const autor = limpaAutor(corpo.autor);
+  if (!autor) return { erro: "Informe quem está decidindo." };
+  if (!env.YAMB_TRAFEGO) return { erro: "Armazenamento de decisões não configurado." };
+  const periodo = PERIODOS.includes(corpo.periodo) ? corpo.periodo : "last_7d";
+  // A sugestão é recalculada aqui no servidor: o painel só manda o id, nunca a mudança.
+  const { sugestoes } = await listarSugestoes(env, ctx, periodo);
+  const sug = sugestoes.find((x) => x.id === corpo.id);
+  if (!sug) return { erro: "Essa sugestão não está mais aberta. Atualize o painel." };
+  const ttl = { expirationTtl: DIAS_RECUSA * 86400 };
+
+  if (corpo.decisao === "recusar") {
+    const motivo = String(corpo.motivo || "").slice(0, 300);
+    await env.YAMB_TRAFEGO.put("dec:" + sug.id, JSON.stringify({ estado: "recusada", autor, em: new Date().toISOString() }), ttl);
+    return { ok: true, registro: await registrar(env, { estado: "recusada", autor, motivo, sugestao: sug }) };
+  }
+  if (corpo.decisao !== "aceitar") return { erro: "Decisão inválida." };
+
+  if (!sug.acao) {
+    await env.YAMB_TRAFEGO.put("dec:" + sug.id, JSON.stringify({ estado: "tarefa", autor, em: new Date().toISOString() }), ttl);
+    return { ok: true, registro: await registrar(env, { estado: "tarefa", autor, sugestao: sug }) };
+  }
+  if (!ACOES[sug.acao.tipo]) return { erro: "Ação não permitida." };
+  if (!env.META_TOKEN_GERENCIAR) return { erro: "A chave de gerenciar ainda não foi configurada. Por enquanto, aceite como tarefa ou peça ao YA - Tráfego para configurar." };
+
+  // Confere o estado atual da campanha antes de mudar.
+  const atual = await pegar(env, sug.campanhaId, { fields: "id,name,status,effective_status,daily_budget,account_id" });
+  if ("act_" + atual.account_id !== sug.contaId) return { erro: "A campanha não pertence a essa conta." };
+  let antes, depois;
+  if (sug.acao.tipo === "pausar") {
+    if (atual.status !== "ACTIVE") return { erro: "A campanha já não está ativa." };
+    antes = { status: "ACTIVE" }; depois = { status: "PAUSED" };
+  } else {
+    const deMinor = Number(atual.daily_budget || 0);
+    if (Math.round(deMinor / 100) !== Math.round(sug.acao.de)) return { erro: "O orçamento mudou desde a sugestão. Atualize o painel." };
+    const paraMinor = Math.round(sug.acao.para * 100);
+    if (Math.abs(paraMinor - deMinor) > deMinor * LIMITE_AJUSTE + 100) return { erro: "Ajuste acima do limite de 20%." };
+    antes = { daily_budget: String(deMinor) }; depois = { daily_budget: String(paraMinor) };
+  }
+  await escrever(env, sug.campanhaId, depois);
+  await env.YAMB_TRAFEGO.put("dec:" + sug.id, JSON.stringify({ estado: "aplicada", autor, em: new Date().toISOString() }), ttl);
+  return { ok: true, registro: await registrar(env, { estado: "aplicada", autor, sugestao: sug, campanhaId: sug.campanhaId, antes, depois }) };
+}
+
+async function desfazer(env, corpo) {
+  const autor = limpaAutor(corpo.autor);
+  if (!autor) return { erro: "Informe quem está desfazendo." };
+  if (!env.YAMB_TRAFEGO || !env.META_TOKEN_GERENCIAR) return { erro: "Desfazer não está configurado." };
+  const chave = String(corpo.registro || "");
+  if (!chave.startsWith("log:")) return { erro: "Registro inválido." };
+  const reg = await env.YAMB_TRAFEGO.get(chave, "json");
+  if (!reg || reg.estado !== "aplicada") return { erro: "Só dá para desfazer mudanças aplicadas." };
+  if (reg.desfeitoEm) return { erro: "Essa mudança já foi desfeita." };
+  await escrever(env, reg.campanhaId, reg.antes);
+  reg.desfeitoEm = new Date().toISOString(); reg.desfeitoPor = autor;
+  await env.YAMB_TRAFEGO.put(chave, JSON.stringify(reg));
+  await registrar(env, { estado: "desfeita", autor, sugestao: reg.sugestao, campanhaId: reg.campanhaId, antes: reg.depois, depois: reg.antes });
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------- utilidades
 
 async function comCache(ctx, chave, fn) {
@@ -408,8 +580,8 @@ function corsHeaders(request, env) {
   const ok = permitidas.includes(origem) || /^https:\/\/[a-z0-9-]+\.site-yamb\.pages\.dev$/.test(origem) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origem);
   return {
     "Access-Control-Allow-Origin": ok ? origem : "https://yamb.com.br",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
-    "Access-Control-Allow-Headers": "X-Painel-Senha",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "X-Painel-Senha, Content-Type",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };

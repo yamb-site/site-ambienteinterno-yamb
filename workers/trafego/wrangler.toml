@@ -8,3 +8,10 @@ GRAPH_VERSION = "v25.0"
 ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev"
 
 # Segredos (nunca aqui): npx wrangler secret put META_TOKEN · npx wrangler secret put PAINEL_SENHA
+
+# Decisões das sugestões (aceita/recusada/desfeita) e histórico de mudanças aplicadas no Meta
+[[kv_namespaces]]
+binding = "YAMB_TRAFEGO"
+id = "e19d2510d2d14e7ba4e0e3372e8f95ee"
+
+# Segredo extra para aplicar sugestões: npx wrangler secret put META_TOKEN_GERENCIAR (token com ads_management)

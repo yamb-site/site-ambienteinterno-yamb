@@ -18,7 +18,9 @@ Meta Marketing API  ──(token só leitura, guardado como segredo)──>  Clo
 ```
 
 - **O token nunca vai para o navegador, para o HTML ou para o git.** O site e o repositório `yamb-site` são públicos. O token fica como segredo do Worker (`wrangler secret put META_TOKEN`), e quem digita é o dono.
-- O Worker só **lê** (`ads_read`). Nunca crie, pause, edite campanhas ou mude orçamento pela API sem pedido explícito do dono para aquela ação — e mesmo então, mostre antes o que vai mudar.
+- O Worker lê com `META_TOKEN` (`ads_read`). Escrita no Meta existe **só** na aba Sugestões do painel: a pessoa aceita na janela de confirmação, o Worker recalcula a sugestão no servidor, confere o estado atual da campanha e aplica com o segredo separado `META_TOKEN_GERENCIAR` (`ads_management`). Ações permitidas: pausar campanha e ajustar orçamento diário em no máximo 20%. Tudo fica no histórico (Cloudflare KV `YAMB_TRAFEGO`, prefixo `log:`), com Desfazer.
+- Fora do painel, nunca crie, pause, edite campanhas ou mude orçamento pela API sem pedido explícito do dono para aquela ação — e mesmo então, mostre antes o que vai mudar.
+- Regras das sugestões: função `regras()` em `workers/trafego/src/index.js` (referência = média da própria conta no período). Ao mudar uma regra, explique ao dono o efeito.
 - O painel é uma página própria (`interno/trafego/index.html`), **fora da exportação da ferramenta de design** — não passa pelo `otimizar.py` e não se perde em exportações novas do interno. Siga o visual do interno (tokens em `tokens/`, fontes em `assets/fonts/`).
 - Acesso ao painel: o Worker exige autorização (Cloudflare Access, ou uma senha do painel guardada como segredo do Worker). Dados de clientes nunca ficam abertos para quem tem o link.
 - Cache no Worker (ex.: 10–15 min) para não estourar os limites da API e o painel abrir rápido.

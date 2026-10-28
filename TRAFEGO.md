@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-28 — sugestões com aceitar/recusar
+- Aba Sugestões: regras sobre a média de cada conta (pausar campanha sem resultado; +20% de orçamento na mais eficiente; −20% na cara; tarefas: criativo cansado, CTR baixo, problema no Meta, orçamento total no fim).
+- Aceitar aplica no Meta com `META_TOKEN_GERENCIAR` (ads_management), conferindo o estado atual; recusar esconde por 7 dias; histórico com Desfazer no KV `YAMB_TRAFEGO`.
+- Pendente: o dono gerar a chave com ads_management e guardar com `npx wrangler secret put META_TOKEN_GERENCIAR` (em workers/trafego).
+
 ## 2026-10-28 — painel com abas e detalhe por cliente
 - App do Meta "YAMB Painel de Trafego" (ID 1871489147340430), sem portfólio, acesso pelo token pessoal do dono (`ads_read`, 60 dias — renovar antes de vencer; o painel avisa com 10 dias).
 - Worker `yamb-trafego` (https://yamb-trafego.gabrielsocialm21.workers.dev): `/painel`, `/cliente`, `/contas`, `/token`; segredos `META_TOKEN` e `PAINEL_SENHA` só no cofre da Cloudflare.
