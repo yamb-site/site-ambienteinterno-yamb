@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel de Tráfego · YAMB</title>
+<link rel="icon" href="/interno/icon.png">
+<link rel="stylesheet" href="/tokens/colors.css">
+<link rel="stylesheet" href="/tokens/fonts.css">
+<!-- Painel de Tráfego (YA - Tráfego). Página própria, fora da exportação do interno.
+     Dados: Worker yamb-trafego (só leitura), que guarda o token do Meta. Nada sensível aqui. -->
+<style>
+:root{
+  --bg:var(--ink-950,#0A0A0A); --card:var(--ink-900,#121212); --raised:var(--ink-800,#1C1C1C); --line:#2a2a2a;
+  --text:var(--bone,#F7E4CE); --muted:var(--ink-300,#9A9A9A); --gold:var(--gold-400,#F3AC2F); --gold-d:var(--gold-500,#E09A24);
+  --ok:#6FBF8A; --bad:#E07A62; --warn:var(--gold-300,#F5C86F);
+  --font:'Sora',system-ui,sans-serif; --display:'Monument Extended','Sora',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5}
+a{color:var(--gold)}
+button,input,select{font:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px 64px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-bottom:24px}
+header img{height:22px}
+header h1{font-family:var(--display);font-weight:800;font-size:clamp(18px,3vw,24px);letter-spacing:.02em;margin:0;flex:1 1 auto}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select,input[type=search],input[type=password]{background:var(--raised);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:40px}
+input[type=search]{min-width:200px}
+.btn{background:var(--gold-d);color:#121212;border:0;border-radius:999px;padding:9px 18px;font-weight:600;cursor:pointer;min-height:40px}
+.btn:hover{background:var(--gold)} .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.meta{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:8px 0 24px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.kpi b{display:block;font-size:clamp(20px,2.6vw,26px);font-weight:600;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.alertas{background:#1f1710;border:1px solid #4a3416;border-radius:16px;padding:14px 18px;margin-bottom:24px}
+.alertas h2{font-size:14px;margin:0 0 8px;color:var(--warn);text-transform:uppercase;letter-spacing:.08em}
+.alertas li{margin:4px 0}
+.conta{background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:16px;overflow:hidden}
+.conta>summary{list-style:none;cursor:pointer;padding:16px 20px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline}
+.conta>summary::-webkit-details-marker{display:none}
+.conta>summary h3{margin:0;font-size:17px;font-weight:600;flex:1 1 220px}
+.conta>summary h3 small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.mini{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--muted)}
+.mini b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.tabela{overflow-x:auto;border-top:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em;background:var(--raised);position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:220px}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--raised);color:var(--muted);margin-top:4px}
+.tag.alerta{background:#3a2412;color:var(--warn)}
+.vazio{padding:16px 20px;color:var(--muted)}
+.erro{color:var(--bad)}
+#entrar{max-width:380px;margin:12vh auto;text-align:center}
+#entrar img{height:30px;margin-bottom:24px}
+#entrar h1{font-family:var(--display);font-size:22px;margin:0 0 8px}
+#entrar form{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+#entrar input{border-radius:14px;text-align:center}
+.carregando{color:var(--muted);padding:32px 0;text-align:center}
+@media (prefers-reduced-motion:no-preference){.kpi,.conta{transition:border-color .2s}.conta:hover{border-color:#3a3a3a}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section id="entrar" hidden>
+  <img src="/assets/logo-yamb-wordmark-cream.png" alt="YAMB">
+  <h1>Painel de Tráfego</h1>
+  <p class="meta">Campanhas ativas e desempenho de todos os clientes.</p>
+  <form id="form-senha">
+    <label for="senha" class="meta">Senha do painel</label>
+    <input id="senha" type="password" autocomplete="current-password" required>
+    <button class="btn" type="submit">Entrar</button>
+    <p id="erro-senha" class="erro" role="alert"></p>
+  </form>
+  <p class="meta"><a href="/interno/">Voltar ao ambiente interno</a></p>
+</section>
+
+<section id="painel" hidden>
+  <header>
+    <img src="/assets/logo-yamb-wordmark-cream.png" alt="YAMB">
+    <h1>Painel de Tráfego</h1>
+    <div class="ctl">
+      <label class="meta" for="periodo">Período</label>
+      <select id="periodo">
+        <option value="today">Hoje</option>
+        <option value="yesterday">Ontem</option>
+        <option value="last_7d" selected>Últimos 7 dias</option>
+        <option value="last_30d">Últimos 30 dias</option>
+        <option value="this_month">Este mês</option>
+        <option value="last_month">Mês passado</option>
+      </select>
+      <input id="busca" type="search" placeholder="Buscar cliente ou campanha" aria-label="Buscar cliente ou campanha">
+      <button class="btn ghost" id="atualizar" type="button">Atualizar</button>
+      <button class="btn ghost" id="sair" type="button">Sair</button>
+    </div>
+  </header>
+  <p class="meta" id="info"></p>
+  <div id="conteudo"><p class="carregando">Carregando campanhas…</p></div>
+  <p class="meta"><a href="/interno/">Voltar ao ambiente interno</a> · Dados do Meta Ads (só leitura), atualizados a cada 10 minutos.</p>
+</section>
+
+</main>
+<script>
+(function () {
+  var API = 'https://yamb-trafego.gabrielsocialm21.workers.dev';
+  var CHAVE = 'yamb-trafego-senha';
+  var $ = function (id) { return document.getElementById(id); };
+  var dados = null;
+
+  function guardar(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) {} }
+  function ler(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  var senha = ler(CHAVE);
+
+  function pedir(rota) {
+    return fetch(API + rota, { headers: { 'X-Painel-Senha': senha || '' } }).then(function (r) {
+      return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; });
+    });
+  }
+
+  var moedaFmt = {};
+  function dinheiro(v, moeda) {
+    if (v == null) return '—';
+    moeda = moeda || 'BRL';
+    if (!moedaFmt[moeda]) moedaFmt[moeda] = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: moeda });
+    return moedaFmt[moeda].format(v);
+  }
+  var int = new Intl.NumberFormat('pt-BR');
+  function n(v) { return v == null ? '—' : int.format(Math.round(v)); }
+  function pct(v) { return v == null ? '—' : v.toFixed(2).replace('.', ',') + '%'; }
+  function dec(v) { return v == null || !v ? '—' : v.toFixed(2).replace('.', ','); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var OBJETIVOS = { OUTCOME_LEADS: 'Leads', OUTCOME_ENGAGEMENT: 'Engajamento', OUTCOME_TRAFFIC: 'Tráfego', OUTCOME_AWARENESS: 'Reconhecimento', OUTCOME_SALES: 'Vendas', OUTCOME_APP_PROMOTION: 'App', MESSAGES: 'Mensagens', LINK_CLICKS: 'Cliques', CONVERSIONS: 'Conversões', REACH: 'Alcance', BRAND_AWARENESS: 'Reconhecimento', LEAD_GENERATION: 'Leads', POST_ENGAGEMENT: 'Engajamento', VIDEO_VIEWS: 'Vídeo' };
+  var STATUS = { ACTIVE: 'Ativa', IN_PROCESS: 'Em processamento', WITH_ISSUES: 'Com problema' };
+
+  function mostrar(qual) { $('entrar').hidden = qual !== 'entrar'; $('painel').hidden = qual !== 'painel'; }
+
+  function carregar() {
+    $('conteudo').innerHTML = '<p class="carregando">Carregando campanhas…</p>';
+    pedir('/painel?periodo=' + $('periodo').value).then(function (d) { dados = d; desenhar(); })
+      .catch(function (e) {
+        if (e.status === 401) { sair('Senha incorreta.'); return; }
+        $('conteudo').innerHTML = '<p class="erro">Não foi possível carregar: ' + esc(e.message) + '</p>';
+      });
+  }
+
+  function desenhar() {
+    var d = dados, busca = $('busca').value.trim().toLowerCase();
+    var moeda = (d.contas[0] && d.contas[0].moeda) || 'BRL';
+    var t = d.totais;
+    $('info').textContent = d.contas.length + ' conta(s) com anúncios ativos · atualizado às ' + new Date(d.atualizado).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    var alertas = [];
+    d.contas.forEach(function (c) {
+      if (c.erro) alertas.push('<b>' + esc(c.nome) + '</b>: ' + esc(c.erro));
+      c.campanhas.forEach(function (k) { k.alertas.forEach(function (a) { alertas.push('<b>' + esc(c.nome) + '</b> · ' + esc(k.nome) + ': ' + esc(a)); }); });
+    });
+    (d.contasInativas || []).forEach(function (c) { if (c.status !== 'Desativada' && c.status !== 'Fechada') alertas.push('<b>' + esc(c.nome) + '</b>: conta ' + esc(c.status.toLowerCase())); });
+
+    var html = '<div class="kpis">' +
+      kpi('Investido', dinheiro(t.gasto, moeda)) + kpi('Resultados', n(t.resultados)) + kpi('Custo por resultado', dinheiro(t.custoPorResultado, moeda)) +
+      kpi('Cliques', n(t.cliques)) + kpi('CTR', pct(t.ctr)) + kpi('Campanhas ativas', n(t.campanhas)) + '</div>';
+    if (alertas.length) html += '<section class="alertas" aria-label="Alertas"><h2>Atenção (' + alertas.length + ')</h2><ul>' + alertas.slice(0, 30).map(function (a) { return '<li>' + a + '</li>'; }).join('') + '</ul></section>';
+
+    var contas = d.contas.slice().sort(function (a, b) { return b.totais.gasto - a.totais.gasto; });
+    var algum = false;
+    contas.forEach(function (c) {
+      var camp = c.campanhas.filter(function (k) { return !busca || c.nome.toLowerCase().indexOf(busca) >= 0 || (c.empresa || '').toLowerCase().indexOf(busca) >= 0 || k.nome.toLowerCase().indexOf(busca) >= 0; });
+      if (busca && !camp.length) return;
+      algum = true;
+      var m = c.moeda, ct = c.totais;
+      html += '<details class="conta" open><summary><h3>' + esc(c.nome) + (c.empresa ? '<small>' + esc(c.empresa) + '</small>' : '') + '</h3>' +
+        '<div class="mini"><span>Investido <b>' + dinheiro(ct.gasto, m) + '</b></span><span>Resultados <b>' + n(ct.resultados) + '</b></span><span>Custo/resultado <b>' + dinheiro(ct.custoPorResultado, m) + '</b></span><span>Campanhas <b>' + camp.length + '</b></span></div></summary>';
+      if (!camp.length) { html += '<p class="vazio">Nenhuma campanha ativa nesta conta.</p></details>'; return; }
+      html += '<div class="tabela"><table><thead><tr><th scope="col">Campanha</th><th scope="col">Orçamento</th><th scope="col">Investido</th><th scope="col">Resultados</th><th scope="col">Custo/result.</th><th scope="col">Alcance</th><th scope="col">Impressões</th><th scope="col">Freq.</th><th scope="col">Cliques</th><th scope="col">CTR</th><th scope="col">CPC</th><th scope="col">CPM</th></tr></thead><tbody>';
+      camp.forEach(function (k) {
+        var orc = k.orcamentoDiario != null ? dinheiro(k.orcamentoDiario, m) + '/dia' : (k.orcamentoTotal != null ? dinheiro(k.orcamentoTotal, m) + ' total' : 'no conjunto');
+        html += '<tr><td>' + esc(k.nome) + '<br><span class="tag">' + esc(OBJETIVOS[k.objetivo] || k.objetivo || '') + '</span> <span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' +
+          k.alertas.map(function (a) { return ' <span class="tag alerta">' + esc(a) + '</span>'; }).join('') + '</td>' +
+          '<td>' + orc + '</td><td>' + dinheiro(k.gasto, m) + '</td><td>' + n(k.resultados) + (k.resultado ? '<br><span class="tag">' + esc(k.resultado) + '</span>' : '') + '</td>' +
+          '<td>' + dinheiro(k.custoPorResultado, m) + '</td><td>' + n(k.alcance) + '</td><td>' + n(k.impressoes) + '</td><td>' + dec(k.frequencia) + '</td>' +
+          '<td>' + n(k.cliques) + '</td><td>' + pct(k.ctr) + '</td><td>' + dinheiro(k.cpc || null, m) + '</td><td>' + dinheiro(k.cpm || null, m) + '</td></tr>';
+      });
+      html += '</tbody></table></div></details>';
+    });
+    if (!algum) html += '<p class="vazio">' + (busca ? 'Nada encontrado para “' + esc(busca) + '”.' : 'Nenhuma conta com campanhas ativas.') + '</p>';
+    $('conteudo').innerHTML = html;
+  }
+
+  function kpi(rotulo, valor) { return '<div class="kpi"><span>' + rotulo + '</span><b>' + valor + '</b></div>'; }
+
+  function avisoToken() {
+    pedir('/token').then(function (t) {
+      if (!t.valido) { $('info').insertAdjacentHTML('afterend', '<p class="erro">A chave do Meta não é mais válida. Gere uma nova e atualize no cofre da Cloudflare.</p>'); return; }
+      if (t.venceEm && t.venceEm !== 'sem vencimento') {
+        var dias = Math.floor((new Date(t.venceEm) - new Date()) / 864e5);
+        if (dias <= 10) $('info').insertAdjacentHTML('afterend', '<p class="erro">A chave do Meta vence em ' + dias + ' dia(s). Gere uma nova antes disso.</p>');
+      }
+    }).catch(function () {});
+  }
+
+  function entrar() { mostrar('painel'); carregar(); avisoToken(); }
+  function sair(msg) { senha = null; guardar(CHAVE, null); mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = ''; $('senha').focus(); }
+
+  $('form-senha').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    senha = $('senha').value;
+    $('erro-senha').textContent = '';
+    pedir('/contas').then(function () { guardar(CHAVE, senha); entrar(); })
+      .catch(function (e) { $('erro-senha').textContent = e.status === 401 ? 'Senha incorreta.' : 'Não foi possível conectar: ' + e.message; });
+  });
+  $('periodo').addEventListener('change', carregar);
+  $('atualizar').addEventListener('click', carregar);
+  $('busca').addEventListener('input', function () { if (dados) desenhar(); });
+  $('sair').addEventListener('click', function () { sair(); });
+
+  if (senha) entrar(); else { mostrar('entrar'); $('senha').focus(); }
+})();
+</script>
+</body>
+</html>

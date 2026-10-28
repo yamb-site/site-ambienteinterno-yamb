@@ -1,0 +1,10 @@
+name = "yamb-trafego"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[vars]
+GRAPH_VERSION = "v25.0"
+ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev"
+
+# Segredos (nunca aqui): npx wrangler secret put META_TOKEN · npx wrangler secret put PAINEL_SENHA
