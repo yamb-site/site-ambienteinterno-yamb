@@ -16,8 +16,7 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 //   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
 //   POST /decidir  {id, decisao, autor}   aceitar (aplica no Meta) ou recusar uma sugestão
 //   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
-//   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
-//   GET/POST /config                      ajustes: regras ligadas/desligadas, limites, notificações
+//   GET/POST /config                      avisos no celular (as regras das sugestões são da YA e não se editam pelo painel)
 //   POST /push/inscrever · /push/sair · /push/teste   notificações no celular (Web Push, sem serviço de terceiros)
 //   Agendado (cron, de hora em hora): checa sugestões e manda push nas horas configuradas
 //
@@ -33,7 +32,7 @@ const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,t
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
 const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES", "PAUSED", "ADSET_PAUSED", "CAMPAIGN_PAUSED"]);
 const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
-const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
+const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
 const RESULTADOS = [
   ["onsite_conversion.messaging_conversation_started_7d", "Conversas iniciadas"],
@@ -76,7 +75,7 @@ export default {
       if (url.pathname === "/config" && !escrita) return json({ config: await lerConfig(env), vapid: env.VAPID_PUBLIC || null, inscritos: await contarInscritos(env) }, 200, cors);
       if (escrita) {
         const corpo = await request.json().catch(() => ({}));
-        const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo), "/editar": () => editar(env, ctx, corpo),
+        const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo),
           "/config": () => salvarConfig(env, corpo), "/push/inscrever": () => inscrever(env, corpo), "/push/sair": () => sairPush(env, corpo), "/push/teste": () => pushTeste(env) };
         return json(await rotas[url.pathname](), 200, cors);
       }
@@ -320,7 +319,7 @@ async function cliente(env, id, periodo) {
   camps.sort((a, b) => (b.ativaAgora - a.ativaAgora) || (b.gasto - a.gasto));
 
   return {
-    atualizado: new Date().toISOString(), periodo, intervalo: r, conta, podeEditar: !!env.META_TOKEN_GERENCIAR,
+    atualizado: new Date().toISOString(), periodo, intervalo: r, conta, podeEditar: false,
     totais: somar(camps.filter((k) => k.gasto > 0 || k.ativaAgora)), ativas: camps.filter((k) => k.ativaAgora).length, anterior: anterior[0] ? metricas(anterior[0]) : metricas({}),
     categorias: agrupar(camps, (k) => k.categoria),
     campanhas: camps, conjuntos: conjs, anuncios: anuns,
@@ -444,7 +443,8 @@ async function statusToken(env) {
 
 // ---------------------------------------------------------------- sugestões
 //
-// Regras sobre os números da própria conta (a referência é a média do cliente no período, não um benchmark externo).
+// A YA sugere; a equipe só aceita ou recusa. Regras fixas (não se editam pelo painel),
+// sobre os números da própria conta (a referência é a média do cliente no período, não um benchmark externo).
 // Ações que o painel pode aplicar no Meta ao aceitar. Qualquer outra sugestão vira tarefa para a equipe.
 const ACOES = { pausar: "Pausar campanha", orcamento: "Ajustar orçamento diário" };
 const LIMITE_AJUSTE = 0.2; // nunca muda orçamento mais de 20% de uma vez
@@ -469,10 +469,7 @@ const PADRAO = {
 async function lerConfig(env) {
   const salvo = env.YAMB_TRAFEGO ? await env.YAMB_TRAFEGO.get("config", "json") : null;
   const c = JSON.parse(JSON.stringify(PADRAO));
-  if (salvo) {
-    for (const [k, v] of Object.entries(salvo.regras || {})) if (c.regras[k]) Object.assign(c.regras[k], v, { rotulo: c.regras[k].rotulo });
-    Object.assign(c.notificacoes, salvo.notificacoes || {});
-  }
+  if (salvo) Object.assign(c.notificacoes, salvo.notificacoes || {});
   return c;
 }
 
@@ -480,17 +477,13 @@ async function salvarConfig(env, corpo) {
   const autor = limpaAutor(corpo.autor);
   if (!autor) return { erro: "Informe quem está mudando os ajustes." };
   const atual = await lerConfig(env), novo = corpo.config || {};
-  for (const [k, v] of Object.entries(novo.regras || {})) {
-    if (!atual.regras[k]) continue;
-    atual.regras[k].ativa = !!v.ativa;
-    for (const campo of ["minimo", "percentual", "frequencia"]) if (campo in atual.regras[k] && isFinite(Number(v[campo])) && Number(v[campo]) > 0) atual.regras[k][campo] = Number(v[campo]);
-  }
+  // As regras são da YA: o painel só muda os avisos.
   const n = novo.notificacoes || {};
   if ("ativo" in n) atual.notificacoes.ativo = !!n.ativo;
   if (Array.isArray(n.horas)) atual.notificacoes.horas = [...new Set(n.horas.map(Number).filter((h) => h >= 0 && h <= 23))].sort((a, b) => a - b);
   if (["alto", "medio", "baixo"].includes(n.nivelMinimo)) atual.notificacoes.nivelMinimo = n.nivelMinimo;
-  await env.YAMB_TRAFEGO.put("config", JSON.stringify(atual));
-  await registrar(env, { estado: "ajustes", autor, sugestao: { titulo: "Ajustes do painel alterados" } });
+  await env.YAMB_TRAFEGO.put("config", JSON.stringify({ notificacoes: atual.notificacoes }));
+  await registrar(env, { estado: "ajustes", autor, sugestao: { titulo: "Avisos no celular alterados" } });
   return { ok: true, config: atual };
 }
 
@@ -659,41 +652,6 @@ async function desfazer(env, corpo) {
   return { ok: true };
 }
 
-// ---------------------------------------------------------------- edição manual
-const NIVEIS = { campanha: "Campanha", conjunto: "Conjunto", anuncio: "Anúncio" };
-async function editar(env, ctx, corpo) {
-  const autor = limpaAutor(corpo.autor);
-  if (!autor) return { erro: "Informe quem está editando." };
-  if (!env.META_TOKEN_GERENCIAR || !env.YAMB_TRAFEGO) return { erro: "A edição ainda não está configurada (falta a chave de gerenciar)." };
-  const objeto = String(corpo.objeto || ""), nivel = corpo.nivel, acao = corpo.acao;
-  if (!/^\d+$/.test(objeto) || !NIVEIS[nivel]) return { erro: "Item inválido." };
-  if (!["ativar", "pausar", "orcamento"].includes(acao)) return { erro: "Ação inválida." };
-  if (acao === "orcamento" && nivel === "anuncio") return { erro: "Anúncio não tem orçamento próprio." };
-  const atual = await pegar(env, objeto, { fields: "id,name,status,effective_status,account_id" + (nivel === "anuncio" ? "" : ",daily_budget") });
-  const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
-  const conta = lista.find((c) => c.id === "act_" + atual.account_id);
-  if (!conta) return { erro: "Esse item não é de uma conta que o painel acompanha." };
-  let antes, depois, descricao;
-  if (acao === "ativar" || acao === "pausar") {
-    const para = acao === "ativar" ? "ACTIVE" : "PAUSED";
-    if (atual.status === para) return { erro: acao === "ativar" ? "Já está ativo." : "Já está pausado." };
-    antes = { status: atual.status }; depois = { status: para };
-    descricao = `${acao === "ativar" ? "Ativou" : "Pausou"} ${NIVEIS[nivel].toLowerCase()}`;
-  } else {
-    const deMinor = Number(atual.daily_budget || 0);
-    if (!deMinor) return { erro: "Esse item não tem orçamento diário próprio (o orçamento fica no outro nível)." };
-    const paraMinor = Math.round(Number(corpo.valor) * 100);
-    if (!(paraMinor >= 100)) return { erro: "Orçamento inválido." };
-    if (paraMinor > deMinor * 3 || paraMinor < deMinor / 3) return { erro: "Mudança grande demais de uma vez (mais de 3 vezes). Faça em etapas." };
-    if (paraMinor === deMinor) return { erro: "O orçamento já é esse." };
-    antes = { daily_budget: String(deMinor) }; depois = { daily_budget: String(paraMinor) };
-    descricao = `Orçamento diário ${dinheiro(deMinor / 100, conta.moeda)} → ${dinheiro(paraMinor / 100, conta.moeda)}`;
-  }
-  await escrever(env, objeto, depois);
-  return { ok: true, registro: await registrar(env, { estado: "editada", autor, objetoId: objeto, antes, depois,
-    sugestao: { titulo: descricao, conta: conta.nome, campanha: `${NIVEIS[nivel]}: ${atual.name}` } }) };
-}
-
 // ---------------------------------------------------------------- notificações no celular (Web Push)
 const hashCurto = async (t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -732,7 +690,7 @@ async function enviarPush(env, mensagem) {
 }
 
 async function pushTeste(env) {
-  const r = await enviarPush(env, { title: "YAMB · Painel de Tráfego", body: "Notificações ligadas neste aparelho. Você vai receber os alertas de tráfego aqui.", url: "/interno/trafego/#aba=sugestoes", tag: "yamb-teste" });
+  const r = await enviarPush(env, { title: "YA · Painel de Tráfego", body: "Avisos ligados neste aparelho. A YA vai mandar as sugestões de tráfego aqui.", url: "/interno/trafego/#aba=sugestoes", tag: "yamb-teste" });
   return r.erro ? { erro: r.erro } : { ok: true, ...r };
 }
 
@@ -750,8 +708,8 @@ async function checagemAgendada(env, ctx) {
   const urgentes = novas.filter((x) => x.nivel === "alto").length;
   const primeira = novas[0];
   await enviarPush(env, {
-    title: urgentes ? `YAMB · ${urgentes} alerta${urgentes > 1 ? "s" : ""} urgente${urgentes > 1 ? "s" : ""} no tráfego` : `YAMB · ${novas.length} sugest${novas.length > 1 ? "ões" : "ão"} no tráfego`,
-    body: `${primeira.conta}: ${primeira.titulo.toLowerCase()}.` + (novas.length > 1 ? ` E mais ${novas.length - 1}.` : ""),
+    title: urgentes ? `YA · ${urgentes} alerta${urgentes > 1 ? "s" : ""} urgente${urgentes > 1 ? "s" : ""} no tráfego` : `YA · ${novas.length} sugest${novas.length > 1 ? "ões" : "ão"} no tráfego`,
+    body: `A YA sugere em ${primeira.conta}: ${primeira.titulo.toLowerCase()}.` + (novas.length > 1 ? ` E mais ${novas.length - 1}.` : "") + " Toque para aceitar ou recusar.",
     url: "/interno/trafego/#aba=sugestoes", tag: "yamb-trafego",
   });
   for (const x of novas) await env.YAMB_TRAFEGO.put("notif:" + x.id, "1", { expirationTtl: 3 * 86400 });

@@ -2,6 +2,9 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-28 — só a YA sugere
+- Decisão do dono: nenhuma sugestão é feita por pessoas. Removidos a edição manual (ativar/pausar/orçamento) e o ajuste de regras; a equipe só aceita ou recusa. Aba Ajustes virou Avisos (só notificações). Sugestões, histórico e push assinados pela YA.
+
 ## 2026-10-28 — ajustes, edição, push e novas regras
 - Aba Ajustes: liga/desliga cada regra e muda os limites; horários e nível dos avisos. Salvo no KV (`config`).
 - Edição manual (campanha, conjunto, anúncio): ativar, pausar, orçamento diário (limite de 3× para cima ou para baixo de uma vez), com histórico e Desfazer.

@@ -277,14 +277,8 @@ dialog::backdrop{background:rgba(5,5,5,.72);backdrop-filter:blur(6px);-webkit-ba
 .modal .erro{color:#B2391F;font-size:13px;min-height:18px;margin:0 0 10px}
 @media (max-width:620px){.sug{grid-template-columns:auto 1fr}.sug .botoes{grid-column:1/-1;flex-direction:row}.sug .botoes>*{flex:1}}
 
-/* ---------- edição ---------- */
-.ctrl{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.mini-btn{min-height:32px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--edge-2);background:rgba(18,18,18,.5);color:var(--soft);cursor:pointer;font-size:12px;white-space:nowrap;transition:border-color .2s,color .2s,background-color .2s}
-.mini-btn:hover{border-color:var(--edge-gold);color:var(--text)}
-.mini-btn.pausar:hover{border-color:var(--bad);color:var(--bad)}
-.mini-btn.ativar{border-color:rgba(134,211,160,.35);color:var(--ok)}
-.mini-btn.ativar:hover{background:rgba(134,211,160,.08)}
-tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
+/* ---------- itens pausados ---------- */
+tr.pausada td{opacity:.62}
 /* ---------- saúde ---------- */
 .saude{display:inline-flex;align-items:center;gap:8px;font-size:12px;padding:4px 10px 4px 4px;border-radius:var(--r-pill);background:rgba(247,228,206,.06);color:var(--soft);white-space:nowrap}
 .saude b{display:inline-grid;place-items:center;min-width:30px;height:24px;border-radius:var(--r-pill);font-weight:600;font-size:12px;color:var(--ink)}
@@ -407,7 +401,6 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     <h2 id="dlg-titulo"></h2>
     <p id="dlg-texto"></p>
     <div class="mudanca" id="dlg-mudanca" hidden></div>
-    <div id="dlg-valor-caixa" hidden><label for="dlg-valor">Novo orçamento diário (R$)</label><input id="dlg-valor" name="valor" type="number" inputmode="decimal" min="1" step="1"></div>
     <label for="dlg-autor">Seu nome</label>
     <input id="dlg-autor" name="autor" autocomplete="name" required maxlength="60" placeholder="Ex.: Gabriel Santos…">
     <div id="dlg-motivo-caixa" hidden><label for="dlg-motivo">Motivo (opcional)</label><textarea id="dlg-motivo" name="motivo" maxlength="300" placeholder="Ex.: cliente pediu para manter…"></textarea></div>
@@ -587,8 +580,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       clientes: ['Clientes', 'Cada cliente, <em>um painel próprio</em>.'],
       campanhas: ['Campanhas', '<em>' + ativas + ' campanhas</em> no ar agora.'],
       alertas: ['Alertas', na ? 'O que pede <em>atenção</em> hoje.' : 'Nada pedindo <em>atenção</em>.'],
-      sugestoes: ['Sugestões', 'O que mudar, <em>com um clique</em>.'],
-      ajustes: ['Ajustes', 'Regras e avisos <em>do seu jeito</em>.'],
+      sugestoes: ['Sugestões da YA', 'A YA sugere, <em>você decide</em>.'],
+      ajustes: ['Avisos', 'A YA avisa <em>no seu celular</em>.'],
       cliente: ['Cliente', c ? esc(c.nome).replace(/^(.*?)( - .*)?$/, '<em>$1</em>$2') : 'Cliente'],
     }[estado.aba] || ['Visão geral', 'Painel de Tráfego'];
     $('sobre').textContent = t[0]; $('saudacao').innerHTML = t[1];
@@ -608,7 +601,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function desenharAbas(g) {
     var n = todosAlertas(g).length;
     var ns = sugs && sugs.periodo === estado.periodo ? sugs.sugestoes.length : 0;
-    var abas = [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Ajustes']];
+    var abas = [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Avisos']];
     var atual = estado.aba === 'cliente' ? 'clientes' : estado.aba;
     $('abas').innerHTML = abas.map(function (a) { return '<a href="' + link({ aba: a[0] }) + '"' + (a[0] === atual ? ' aria-current="page"' : '') + '>' + a[1] + '</a>'; }).join('');
   }
@@ -703,17 +696,6 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     $('conteudo').innerHTML = h;
   }
 
-  // ------------------------------------------------ edição (ativar, pausar, orçamento)
-  var itens = {};
-  function controles(k, nivel, m, pode) {
-    if (!pode || !k.statusConfig) return '';
-    itens[k.id] = { id: k.id, nome: k.nome, nivel: nivel, orcamentoDiario: k.orcamentoDiario, moeda: m, status: k.statusConfig };
-    var h = k.statusConfig === 'ACTIVE' ? '<button type="button" class="mini-btn pausar" data-editar="' + k.id + '" data-acao="pausar">Pausar</button>' : '<button type="button" class="mini-btn ativar" data-editar="' + k.id + '" data-acao="ativar">Ativar</button>';
-    if (nivel !== 'anuncio' && k.orcamentoDiario) h += '<button type="button" class="mini-btn" data-editar="' + k.id + '" data-acao="orcamento">Orçamento</button>';
-    return '<div class="ctrl">' + h + '</div>';
-  }
-  var NIVEL_NOME = { campanha: 'campanha', conjunto: 'conjunto', anuncio: 'anúncio' };
-
   // ------------------------------------------------ cliente
   var SUBS = [['resumo', 'Resumo'], ['campanhas', 'Campanhas'], ['conjuntos', 'Conjuntos'], ['anuncios', 'Anúncios'], ['publico', 'Público'], ['diario', 'Dia a dia']];
   function telaCliente(d) {
@@ -728,11 +710,11 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     else if (sub === 'campanhas') h += tabela('ccamp', d.campanhas, [
       ['Campanha', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(OBJETIVOS[k.objetivo] || k.objetivo || '') + '</span><span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
-    ].concat(colsMetricas(m), d.podeEditar ? [['Ações', 'acoes', function (k) { return controles(k, 'campanha', m, true); }, { nao: 1 }]] : []), 'gasto');
+    ].concat(colsMetricas(m)), 'gasto');
     else if (sub === 'conjuntos') h += tabela('cconj', d.conjuntos, [
       ['Conjunto', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(k.campanha || '') + '</span>' + (k.publico ? '<span class="sub-l">Público: ' + esc(k.publico) + '</span>' : '') + '<span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + (k.otimizacao ? '<span class="tag">Otimiza: ' + esc(OTIMIZACAO[k.otimizacao] || k.otimizacao) + '</span>' : '') + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
-    ].concat(colsMetricas(m), d.podeEditar ? [['Ações', 'acoes', function (k) { return controles(k, 'conjunto', m, true); }, { nao: 1 }]] : []), 'gasto');
+    ].concat(colsMetricas(m)), 'gasto');
     else if (sub === 'anuncios') h += anunciosCliente(d, m);
     else if (sub === 'publico') h += publicoCliente(d, m);
     else if (sub === 'diario') h += diarioCliente(d, m);
@@ -759,7 +741,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
         '<div class="c"><h3>' + esc(a.titulo || a.nome) + '</h3>' + (a.titulo ? '<span class="meta">' + esc(a.nome) + '</span>' : '') + (a.texto ? '<p>' + esc(a.texto) + '</p>' : '') +
         '<span class="sub-l">' + esc(a.conjunto || '') + '</span><span class="tag">' + esc(STATUS[a.status] || a.status) + '</span>' + tags(a) +
         '<dl><div><dt>Investido</dt><dd>' + R(a.gasto, m) + '</dd></div><div><dt>Result.</dt><dd>' + N(a.resultados) + '</dd></div><div><dt>Custo</dt><dd>' + R(a.custoPorResultado, m) + '</dd></div>' +
-        '<div><dt>CTR</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt>Freq.</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + (d.podeEditar ? '<div style="margin-top:12px">' + controles(a, 'anuncio', m, true) + '</div>' : '') + '</div></article>';
+        '<div><dt>CTR</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt>Freq.</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -812,11 +794,12 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function telaSugestoes(d, g) {
     var h = '';
     if (!d.podeAplicar) h += '<div class="aviso-chave">As sugestões com mudança no Meta ainda não podem ser aplicadas: falta configurar a chave de gerenciar. Enquanto isso, dá para recusar ou aceitar como tarefa.</div>';
-    if (!d.sugestoes.length) h += '<section class="cartao vidro"><p class="vazio">Nenhuma sugestão aberta para este período. As contas estão dentro do esperado.</p></section>';
+    h += '<p class="meta" style="margin:0 0 14px">A YA analisa todas as contas e sugere. Você só decide: <b>aceitar</b> (aplica no Meta ou vira tarefa) ou <b>recusar</b>.</p>';
+    if (!d.sugestoes.length) h += '<section class="cartao vidro"><p class="vazio">A YA não tem nenhuma sugestão agora. As contas estão dentro do esperado.</p></section>';
     else h += '<div class="sugs">' + d.sugestoes.map(function (x) {
       var ok = !x.acao || d.podeAplicar;
       return '<article class="sug vidro"><span class="ponto ' + x.nivel + '" title="' + NIVEL[x.nivel] + '"></span><div>' +
-        '<h3>' + esc(x.titulo) + '</h3><span class="onde"><a href="' + link({ aba: 'cliente', cliente: x.contaId, sub: 'campanhas' }) + '">' + esc(x.conta) + '</a> · ' + esc(x.campanha) + '</span>' +
+        '<span class="over" style="font-size:10px">A YA sugere</span><h3>' + esc(x.titulo) + '</h3><span class="onde"><a href="' + link({ aba: 'cliente', cliente: x.contaId, sub: 'campanhas' }) + '">' + esc(x.conta) + '</a> · ' + esc(x.campanha) + '</span>' +
         '<p>' + esc(x.motivo) + '</p><div class="imp">' + esc(x.impacto) + '</div>' + textoAcao(x) + '</div>' +
         '<div class="botoes"><button type="button" class="botao-ouro p" data-aceitar="' + esc(x.id) + '"' + (ok ? '' : ' disabled title="Falta configurar a chave de gerenciar"') + '>' + (x.acao ? 'Aceitar e aplicar' : 'Aceitar como tarefa') + '</button>' +
         '<button type="button" class="botao-sec" data-recusar="' + esc(x.id) + '">Recusar</button></div></article>';
@@ -826,7 +809,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
         var s = r.sugestao || {};
         var desfazer = (r.estado === 'aplicada' || r.estado === 'editada') && !r.desfeitoEm && d.podeAplicar ? '<button type="button" class="botao-sec" data-desfazer="' + esc(r.registro) + '">Desfazer</button>' : (r.desfeitoEm ? '<span class="meta">Desfeita por ' + esc(r.desfeitoPor) + '</span>' : '');
         return '<div class="linha"><span class="tag ' + (r.estado === 'aplicada' || r.estado === 'editada' ? 'baixo' : r.estado === 'recusada' ? 'alto' : 'medio') + '">' + (ROTULO_ESTADO[r.estado] || r.estado) + '</span>' +
-          '<div><b>' + esc(s.titulo || '') + '</b><span class="sub-l">' + esc(s.conta || '') + ' · ' + esc(s.campanha || '') + ' · ' + esc(r.autor) + ' · ' + new Date(r.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (r.motivo ? ' · “' + esc(r.motivo) + '”' : '') + '</span></div>' + desfazer + '</div>';
+          '<div><b>' + esc(s.titulo || '') + '</b><span class="sub-l">' + esc(s.conta || '') + ' · ' + esc(s.campanha || '') + ' · ' + (r.estado === 'ajustes' ? esc(r.autor) : r.estado === 'desfeita' ? 'desfeita por ' + esc(r.autor) : 'sugerido pela YA, ' + (r.estado === 'recusada' ? 'recusado' : 'aceito') + ' por ' + esc(r.autor)) + ' · ' + new Date(r.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + (r.motivo ? ' · “' + esc(r.motivo) + '”' : '') + '</span></div>' + desfazer + '</div>';
       }).join('') : '<p class="vazio">Nenhuma decisão ainda.</p>') + '</div></section>';
     $('conteudo').innerHTML = h;
   }
@@ -838,23 +821,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     $('dlg-autor').value = lerLocal('yamb-trafego-autor');
     $('dlg-motivo').value = '';
     $('dlg-motivo-caixa').hidden = tipo !== 'recusar';
-    var m = $('dlg-mudanca'); m.hidden = true; $('dlg-valor-caixa').hidden = true;
+    var m = $('dlg-mudanca'); m.hidden = true;
     if (tipo === 'recusar') { $('dlg-sobre').textContent = 'Recusar sugestão'; $('dlg-titulo').textContent = x.titulo; $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. Ela some por 7 dias.'; $('dlg-ok').textContent = 'Recusar'; }
-    else if (tipo === 'editar') {
-      var it = x.item, n = NIVEL_NOME[it.nivel];
-      $('dlg-sobre').textContent = 'Editar no Meta'; $('dlg-titulo').textContent = it.nome;
-      if (x.acao === 'orcamento') {
-        $('dlg-texto').textContent = 'Muda o orçamento diário d' + (it.nivel === 'campanha' ? 'a ' : 'o ') + n + ' agora no Meta. Fica registrado, com opção de desfazer.';
-        $('dlg-valor-caixa').hidden = false; $('dlg-valor').value = Math.round(it.orcamentoDiario);
-        m.hidden = false; m.innerHTML = '<span>Hoje: <b>' + R(it.orcamentoDiario, it.moeda) + '/dia</b></span>';
-        $('dlg-ok').textContent = 'Salvar no Meta';
-      } else {
-        var ativar = x.acao === 'ativar';
-        $('dlg-texto').textContent = (ativar ? 'Volta a veicular agora no Meta' : 'Para de veicular agora no Meta') + '. Fica registrado, com opção de desfazer.';
-        m.hidden = false; m.innerHTML = ativar ? '<span class="de">Pausad' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span><span aria-hidden="true">→</span><span class="para">Ativ' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span>' : '<span class="de">Ativ' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span><span aria-hidden="true">→</span><span class="para">Pausad' + (it.nivel === 'campanha' ? 'a' : 'o') + '</span>';
-        $('dlg-ok').textContent = ativar ? 'Ativar no Meta' : 'Pausar no Meta';
-      }
-    }
     else if (tipo === 'desfazer') { $('dlg-sobre').textContent = 'Desfazer mudança'; $('dlg-titulo').textContent = (x.sugestao || {}).titulo || 'Desfazer'; $('dlg-texto').textContent = 'A campanha volta como estava antes no Meta.'; $('dlg-ok').textContent = 'Desfazer no Meta'; }
     else {
       $('dlg-sobre').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar como tarefa'; $('dlg-titulo').textContent = x.titulo;
@@ -870,16 +838,13 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var autor = $('dlg-autor').value.trim(); if (!autor) { $('dlg-erro').textContent = 'Escreva seu nome para registrar quem decidiu.'; $('dlg-autor').focus(); return; }
     gravarLocal('yamb-trafego-autor', autor);
     var bt = $('dlg-ok'), txt = bt.textContent; bt.disabled = true; bt.textContent = 'Aplicando…';
-    var p = pendente, req = p.tipo === 'editar' ? enviar('/editar', { objeto: p.x.item.id, nivel: p.x.item.nivel, acao: p.x.acao, valor: Number($('dlg-valor').value), autor: autor })
-      : p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
+    var p = pendente, req = p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
       : enviar('/decidir', { id: p.x.id, decisao: p.tipo === 'recusar' ? 'recusar' : 'aceitar', autor: autor, motivo: $('dlg-motivo').value, periodo: estado.periodo });
     req.then(function () { dlg.close(); geral = null; clientes = {}; return carregarSugestoes(true).then(function () { render(); }); })
       .catch(function (e) { $('dlg-erro').textContent = e.message; })
       .then(function () { bt.disabled = false; bt.textContent = txt; });
   });
   $('conteudo').addEventListener('click', function (e) {
-    var ed = e.target.closest('[data-editar]');
-    if (ed) { var it = itens[ed.getAttribute('data-editar')]; if (it) abrirDialogo('editar', { item: it, acao: ed.getAttribute('data-acao') }); return; }
     var a = e.target.closest('[data-aceitar],[data-recusar],[data-desfazer]'); if (!a || !sugs) return;
     if (a.hasAttribute('data-desfazer')) { var r = sugs.historico.filter(function (h) { return h.registro === a.getAttribute('data-desfazer'); })[0]; if (r) abrirDialogo('desfazer', r); return; }
     var id = a.getAttribute('data-aceitar') || a.getAttribute('data-recusar'), x = sugs.sugestoes.filter(function (s) { return s.id === id; })[0];
@@ -891,24 +856,16 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   var cfgAtual = null, vapid = null;
   function telaAjustes(d) {
     cfgAtual = d.config; vapid = d.vapid;
-    var r = d.config.regras, nt = d.config.notificacoes;
-    var LIM = { minimo: ['Gasto mínimo sem resultado (R$)', 'CTR mínimo (%)'], percentual: ['Alta mínima do custo (%)'], frequencia: ['Frequência máxima'] };
-    var h = '<form id="form-ajustes"><section class="cartao vidro"><span class="over">Sugestões</span><h2>Regras<small>ligue ou desligue cada tipo de sugestão</small></h2><div class="regras corpo">' +
-      Object.keys(r).map(function (k) {
-        var x = r[k], lim = '';
-        if ('minimo' in x) lim = '<label class="lim">' + (k === 'ctr' ? LIM.minimo[1] : LIM.minimo[0]) + ' <input type="number" step="0.1" min="0" name="' + k + '.minimo" value="' + x.minimo + '"></label>';
-        if ('percentual' in x) lim = '<label class="lim">' + LIM.percentual[0] + ' <input type="number" step="1" min="1" name="' + k + '.percentual" value="' + x.percentual + '"></label>';
-        if ('frequencia' in x) lim = '<label class="lim">' + LIM.frequencia[0] + ' <input type="number" step="0.5" min="1" name="' + k + '.frequencia" value="' + x.frequencia + '"></label>';
-        return '<div class="regra"><div><span class="nome">' + esc(x.rotulo) + '</span>' + lim + '</div><label class="chave"><input type="checkbox" name="' + k + '.ativa"' + (x.ativa ? ' checked' : '') + ' aria-label="' + esc(x.rotulo) + '"><span></span></label></div>';
-      }).join('') + '</div></section>';
+    var nt = d.config.notificacoes;
+    var h = '<form id="form-ajustes">';
     var horas = ''; for (var i = 6; i <= 22; i++) horas += '<label><input type="checkbox" name="hora" value="' + i + '"' + (nt.horas.indexOf(i) >= 0 ? ' checked' : '') + '><span>' + i + 'h</span></label>';
     h += '<section class="cartao vidro"><span class="over">Celular</span><h2>Notificações<small>' + d.inscritos + ' aparelho(s) recebendo</small></h2>' +
-      '<div class="regra"><div><span class="nome">Checagem automática</span><span class="meta">O painel confere as contas de hora em hora e avisa nas horas marcadas, só quando surge algo novo.</span></div><label class="chave"><input type="checkbox" name="notif.ativo"' + (nt.ativo ? ' checked' : '') + ' aria-label="Checagem automática"><span></span></label></div>' +
+      '<div class="regra"><div><span class="nome">Checagem automática da YA</span><span class="meta">A YA confere todas as contas de hora em hora e avisa nas horas marcadas, só quando tem sugestão nova para você aceitar ou recusar.</span></div><label class="chave"><input type="checkbox" name="notif.ativo"' + (nt.ativo ? ' checked' : '') + ' aria-label="Checagem automática"><span></span></label></div>' +
       '<div class="corpo"><span class="rotulo">Horários dos avisos</span><div class="horas" role="group" aria-label="Horários dos avisos">' + horas + '</div>' +
       '<label class="rotulo" for="nivel" style="display:inline-block;margin-top:12px">Avisar a partir de</label> <select class="seletor" id="nivel" name="notif.nivel">' + [['alto', 'Só urgentes'], ['medio', 'Urgentes e atenção'], ['baixo', 'Todas as sugestões']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === nt.nivelMinimo ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
       '<div class="status-push"><button type="button" class="botao-ouro p" id="push-ativar">Receber neste aparelho</button><button type="button" class="botao-sec" id="push-sair">Parar neste aparelho</button><button type="button" class="botao-sec" id="push-teste">Enviar teste</button><span class="meta" id="push-status" role="status" aria-live="polite"></span></div>' +
       '<p class="meta" id="push-ios" hidden>No iPhone: toque em Compartilhar › <b>Adicionar à Tela de Início</b>, abra o painel pelo ícone novo e então toque em “Receber neste aparelho”.</p></div></section>' +
-      '<div class="barra-salvar"><label class="rotulo" for="aj-autor">Seu nome</label><input id="aj-autor" name="autor" autocomplete="name" required placeholder="Ex.: Gabriel Santos…" value="' + esc(lerLocal('yamb-trafego-autor')) + '"><button type="submit" class="botao-ouro p" id="aj-salvar">Salvar ajustes</button><span class="meta" id="aj-status" role="status" aria-live="polite"></span></div></form>';
+      '<div class="barra-salvar"><label class="rotulo" for="aj-autor">Seu nome</label><input id="aj-autor" name="autor" autocomplete="name" required placeholder="Ex.: Gabriel Santos…" value="' + esc(lerLocal('yamb-trafego-autor')) + '"><button type="submit" class="botao-ouro p" id="aj-salvar">Salvar avisos</button><span class="meta" id="aj-status" role="status" aria-live="polite"></span></div></form>';
     $('conteudo').innerHTML = h;
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), app = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     if (ios && !app) $('push-ios').hidden = false;
@@ -923,15 +880,10 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var f = ev.target, autor = $('aj-autor').value.trim();
     if (!autor) { $('aj-status').textContent = 'Escreva seu nome.'; $('aj-autor').focus(); return; }
     gravarLocal('yamb-trafego-autor', autor);
-    var regras = {};
-    Object.keys(cfgAtual.regras).forEach(function (k) {
-      regras[k] = { ativa: f.elements[k + '.ativa'].checked };
-      ['minimo', 'percentual', 'frequencia'].forEach(function (c) { if (f.elements[k + '.' + c]) regras[k][c] = Number(f.elements[k + '.' + c].value); });
-    });
     var horas = [].filter.call(f.querySelectorAll('input[name=hora]'), function (i) { return i.checked; }).map(function (i) { return Number(i.value); });
     var bt = $('aj-salvar'); bt.disabled = true; $('aj-status').textContent = 'Salvando…';
-    enviar('/config', { autor: autor, config: { regras: regras, notificacoes: { ativo: f.elements['notif.ativo'].checked, horas: horas, nivelMinimo: f.elements['notif.nivel'].value } } })
-      .then(function (r) { cfgAtual = r.config; sugs = null; $('aj-status').textContent = 'Ajustes salvos. As sugestões já seguem as regras novas.'; })
+    enviar('/config', { autor: autor, config: { notificacoes: { ativo: f.elements['notif.ativo'].checked, horas: horas, nivelMinimo: f.elements['notif.nivel'].value } } })
+      .then(function (r) { cfgAtual = r.config; sugs = null; $('aj-status').textContent = 'Avisos salvos.'; })
       .catch(function (e) { $('aj-status').textContent = e.message; }).then(function () { bt.disabled = false; });
   }
   function chaveB64(b64) { var p = '='.repeat((4 - b64.length % 4) % 4), r = atob((b64 + p).replace(/-/g, '+').replace(/_/g, '/')), o = new Uint8Array(r.length); for (var i = 0; i < r.length; i++) o[i] = r.charCodeAt(i); return o; }
