@@ -1,6 +1,6 @@
 # Manutenção do site — registro
 
-Memória do agente `yamb-manutencao` entre revisões. Mais recente primeiro.
+Memória do agente `ya-manutencao` entre revisões. Mais recente primeiro.
 
 ## Correções feitas no HTML exportado (reaplicar a cada exportação nova)
 
