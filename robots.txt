@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /interno/
+
+User-agent: GPTBot
+Allow: /
+Disallow: /interno/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /interno/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /interno/
+
+Sitemap: https://yamb.com.br/sitemap.xml

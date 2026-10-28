@@ -1,0 +1,17 @@
+:root{
+  --ease-out:cubic-bezier(.22,.61,.36,1); /* @kind other */
+  --ease-in-out:cubic-bezier(.45,.05,.55,.95); /* @kind other */
+  /* petals opening — the signature easing */
+  --ease-bloom:cubic-bezier(.2,.8,.2,1); /* @kind other */
+  --dur-instant:90ms; /* @kind other */
+  --dur-fast:160ms; /* @kind other */
+  --dur-base:260ms; /* @kind other */
+  --dur-slow:420ms; /* @kind other */
+  --dur-bloom:900ms; /* @kind other */
+  --transition-base:all var(--dur-base) var(--ease-out); /* @kind other */
+}
+@media (prefers-reduced-motion:reduce){
+  :root{--dur-instant:0ms; /* @kind other */ --dur-fast:0ms; /* @kind other */ --dur-base:0ms; /* @kind other */ --dur-slow:0ms; /* @kind other */ --dur-bloom:0ms; /* @kind other */}
+}
+@keyframes yamb-bloom{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes yamb-spin{to{transform:rotate(360deg)}}

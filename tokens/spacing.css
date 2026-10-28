@@ -1,0 +1,12 @@
+:root{
+  --space-0:0px;--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-7:32px;--space-8:40px;--space-9:48px;--space-10:64px;
+  --space-11:80px;--space-12:96px;--space-13:120px;--space-14:160px;
+
+  --gutter-inline:24px;         /* mobile page padding */
+  --gutter-inline-lg:64px;      /* desktop page padding */
+  --measure-prose:62ch; /* @kind other */
+  --container-max:1240px;
+  --section-y:96px; /* @kind other */
+  --section-y-lg:140px; /* @kind other */
+}

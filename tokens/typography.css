@@ -1,0 +1,39 @@
+:root{
+  --font-display:'Monument Extended','Arial Black',system-ui,sans-serif;
+  --font-core:'Sora',system-ui,-apple-system,sans-serif;
+  --font-mono:ui-monospace,'SFMono-Regular',Menlo,monospace;
+
+  --weight-thin:100;--weight-extralight:200;--weight-light:300;--weight-regular:400; /* @kind other */
+  --weight-medium:500;--weight-semibold:600;--weight-bold:700;--weight-extrabold:800; /* @kind other */
+
+  /* Display — Monument Extended only. Never below 28px; never in paragraphs. */
+  --text-display-xl:96px;
+  --text-display-lg:72px;
+  --text-display-md:56px;
+  --text-display-sm:40px;
+  --text-display-xs:28px;
+
+  /* Headings & body — Sora */
+  --text-h1:44px;
+  --text-h2:34px;
+  --text-h3:26px;
+  --text-h4:21px;
+  --text-body-lg:18px;
+  --text-body:16px;
+  --text-body-sm:14px;
+  --text-caption:12px;
+  --text-overline:11px;
+
+  --leading-display:0.98; /* @kind other */
+  --leading-tight:1.14; /* @kind other */
+  --leading-heading:1.24; /* @kind other */
+  --leading-body:1.62; /* @kind other */
+  --leading-relaxed:1.75; /* @kind other */
+
+  --tracking-display:-0.02em; /* @kind other */
+  --tracking-heading:-0.01em; /* @kind other */
+  --tracking-body:0em; /* @kind other */
+  --tracking-wide:0.06em; /* @kind other */
+  --tracking-overline:0.34em;   /* "V I V A  O  P R O C E S S O" */
+  --tracking-lockup:0.42em;     /* logo tagline lockup */
+}

@@ -1,0 +1,12 @@
+/* Brand grounds. Two only — never stack a third. */
+:root{
+  /* Peach ground: light deck pages, light web sections. Soft diagonal warm wash. */
+  --ground-cream:radial-gradient(120% 90% at 8% 96%,#F8C99A 0%,#FCD9B1 22%,#FDEBD6 48%,#FEFAF1 78%,#FFFDF9 100%); /* @kind other */
+  /* Dark ground: title slides, hero, footer. Pair with assets/bg-dark-texture.png at low opacity. */
+  --ground-dark:radial-gradient(110% 80% at 72% 12%,#2E2E2E 0%,#1C1C1C 38%,#121212 72%,#0A0A0A 100%); /* @kind other */
+  /* Petal metal: the gold sheen. For rules, keylines, small fills — not large text. */
+  --gradient-gold:linear-gradient(135deg,#F5C86F 0%,#F3AC2F 30%,#C37A1E 62%,#845721 100%); /* @kind other */
+  --gradient-gold-soft:linear-gradient(135deg,#FDEBC9 0%,#F5C86F 55%,#E09A24 100%); /* @kind other */
+  /* Hairline rule on dark */
+  --rule-gold:linear-gradient(90deg,rgba(243,172,47,0) 0%,#E09A24 18%,#F5C86F 50%,#E09A24 82%,rgba(243,172,47,0) 100%); /* @kind other */
+}

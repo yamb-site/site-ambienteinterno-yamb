@@ -8,6 +8,8 @@ Hospedagem: **Cloudflare Pages**, ligado a este repositório. Domínio `yamb.com
 ```
 index.html          → site institucional  (yamb.com.br)
 interno/index.html  → ambiente interno    (yamb.com.br/interno)
+interno/app/        → ambiente interno mobile (yamb.com.br/interno/app)
+assets/, tokens/    → imagens, fontes e tokens da marca
 _headers            → cabeçalhos de cache e segurança (Cloudflare Pages)
 _redirects          → redirecionamentos (Cloudflare Pages)
 ```

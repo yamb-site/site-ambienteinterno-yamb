@@ -1,0 +1,11 @@
+/* YAMB webfonts — brand-supplied binaries in assets/fonts/ */
+@font-face{font-family:'Monument Extended';src:url('../assets/fonts/MonumentExtended-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Monument Extended';src:url('../assets/fonts/MonumentExtended-Ultrabold.otf') format('opentype');font-weight:800;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-Thin.ttf') format('truetype');font-weight:100;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-ExtraLight.ttf') format('truetype');font-weight:200;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-Light.ttf') format('truetype');font-weight:300;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-Medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-SemiBold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-Bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:'Sora';src:url('../assets/fonts/Sora-ExtraBold.ttf') format('truetype');font-weight:800;font-style:normal;font-display:swap}

@@ -1,0 +1,76 @@
+/* YAMB colour system. Sampled from brand assets (petals, FUNDO texture, deck pages). */
+:root{
+  /* --- Gold / institutional "laranja" ramp (the petals) --- */
+  --gold-50:#FEF6E7;
+  --gold-100:#FDEBC9;
+  --gold-200:#FADFA6;
+  --gold-300:#F5C86F;
+  --gold-400:#F3AC2F;
+  --gold-500:#E09A24;
+  --gold-600:#C37A1E;
+  --gold-700:#A86B1B;
+  --gold-800:#845721;
+  --gold-900:#5E3D14;
+
+  /* --- Ink (the FUNDO dark texture) --- */
+  --ink-950:#0A0A0A;
+  --ink-900:#121212;
+  --ink-800:#1C1C1C;
+  --ink-700:#252525;
+  --ink-600:#373737;
+  --ink-500:#4E4E4E;
+  --ink-400:#6E6E6E;
+  --ink-300:#9A9A9A;
+  --ink-200:#C6C6C6;
+
+  /* --- Cream / peach (the light deck ground) --- */
+  --cream-50:#FFFDF9;
+  --cream-100:#FEFAF1;
+  --cream-200:#FDF4ED;
+  --cream-300:#FCEFDE;
+  --cream-400:#FEE9D1;
+  --cream-500:#FBE2C6;
+  --cream-600:#FCD9B1;
+  --cream-700:#F8C99A;
+  --bone:#F7E4CE;          /* wordmark cream on dark */
+  --white:#FFFFFF;
+
+  /* --- Semantic status. Derived to sit inside the warm palette. --- */
+  --success-500:#3E8E5A;
+  --success-100:#DDEFE3;
+  --warning-500:#E09A24;
+  --warning-100:#FDEBC9;
+  --danger-500:#C2452C;
+  --danger-100:#F8DED8;
+  --info-500:#3C6E8F;
+  --info-100:#DCE8EF;
+
+  /* ===== Semantic aliases — use these in product ===== */
+  --brand-primary:var(--gold-500);
+  --brand-primary-hover:var(--gold-400);
+  --brand-primary-press:var(--gold-600);
+  --brand-ink:var(--ink-900);
+
+  --surface-dark:var(--ink-900);
+  --surface-dark-raised:var(--ink-800);
+  --surface-dark-sunken:var(--ink-950);
+  --surface-cream:var(--cream-100);
+  --surface-cream-raised:var(--white);
+  --surface-cream-sunken:var(--cream-300);
+  --surface-gold:var(--gold-500);
+
+  --text-heading:var(--ink-900);
+  --text-body:var(--ink-700);
+  --text-muted:var(--ink-400);
+  --text-on-dark:var(--bone);
+  --text-on-dark-muted:var(--ink-300);
+  --text-on-gold:var(--ink-900);
+  --text-link:var(--gold-700);
+  --text-link-hover:var(--gold-500);
+
+  --border-subtle:rgba(18,18,18,.10);
+  --border-strong:rgba(18,18,18,.24);
+  --border-on-dark:rgba(247,228,206,.16);
+  --border-on-dark-strong:rgba(247,228,206,.34);
+  --focus-ring:var(--gold-400);
+}
