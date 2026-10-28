@@ -119,7 +119,7 @@ function SiteHeader({
       transition: 'padding var(--dur-slow) var(--ease-bloom), box-shadow var(--dur-slow) var(--ease-bloom)'
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "#",
+    href: window.__yambHref('home'),
     onClick: e => {
       e.preventDefault();
       go('home');
@@ -145,7 +145,7 @@ function SiteHeader({
     const on = page === l.value;
     return /*#__PURE__*/React.createElement("a", {
       key: l.value,
-      href: "#",
+      href: window.__yambHref(l.value),
       onClick: e => {
         e.preventDefault();
         go(l.value);
@@ -247,7 +247,7 @@ function SiteHeader({
     }
   }, NAV.map(l => /*#__PURE__*/React.createElement("a", {
     key: l.value,
-    href: "#",
+    href: window.__yambHref(l.value),
     onClick: e => {
       e.preventDefault();
       setMenu(false);

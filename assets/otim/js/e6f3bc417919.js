@@ -154,6 +154,8 @@ function SectionHeading({
   style
 }) {
   const center = align === 'center';
+  const __yambTag = React.useRef(null);
+  if (__yambTag.current === null) __yambTag.current = window.__yambTemH1 ? 'h2' : (window.__yambTemH1 = true, 'h1');
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -172,7 +174,7 @@ function SectionHeading({
       fontWeight: 600,
       color: onDark ? 'var(--gold-400)' : 'var(--gold-700)'
     }
-  }, overline), /*#__PURE__*/React.createElement("h2", {
+  }, overline), /*#__PURE__*/React.createElement(__yambTag.current, {
     style: {
       fontSize: 'var(--text-h2)',
       fontWeight: 600,
@@ -16350,7 +16352,7 @@ function SiteHeader({
       transition: 'padding var(--dur-slow) var(--ease-bloom), box-shadow var(--dur-slow) var(--ease-bloom)'
     }
   }, /*#__PURE__*/React.createElement("a", {
-    href: "#",
+    href: window.__yambHref('home'),
     onClick: e => {
       e.preventDefault();
       go('home');
@@ -16376,7 +16378,7 @@ function SiteHeader({
     const on = page === l.value;
     return /*#__PURE__*/React.createElement("a", {
       key: l.value,
-      href: "#",
+      href: window.__yambHref(l.value),
       onClick: e => {
         e.preventDefault();
         go(l.value);
@@ -16478,7 +16480,7 @@ function SiteHeader({
     }
   }, NAV.map(l => /*#__PURE__*/React.createElement("a", {
     key: l.value,
-    href: "#",
+    href: window.__yambHref(l.value),
     onClick: e => {
       e.preventDefault();
       setMenu(false);

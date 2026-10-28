@@ -19,9 +19,9 @@ for base in "${BASES[@]}"; do
   echo "== $base"
 
   # Páginas: código 200, tamanho mínimo e tempo de resposta
-  for p in / /interno/ /interno/app/ /robots.txt /sitemap.xml /llms.txt; do
+  for p in / /servicos/ /processo/ /equipe/ /contato/ /interno/ /interno/app/ /robots.txt /sitemap.xml /llms.txt; do
     read -r code size tempo < <(curl -sL -o /dev/null --max-time 60 -w "%{http_code} %{size_download} %{time_total}" "$base$p")
-    minimo=100; case $p in /|/interno/*) minimo=100000 ;; esac
+    minimo=100; case $p in /|/interno/*|/servicos/|/processo/|/equipe/|/contato/) minimo=50000 ;; esac
     if [ "$code" != 200 ]; then falha "$p respondeu $code"
     elif [ "${size%.*}" -lt "$minimo" ]; then falha "$p veio quase vazio ($size bytes)"
     elif awk "BEGIN{exit !($tempo > 8)}"; then aviso "$p lento (${tempo}s)"
@@ -40,6 +40,14 @@ for base in "${BASES[@]}"; do
   grep -q 'name="description"' <<<"$home" || falha "página inicial sem meta description"
   grep -q 'rel="canonical"' <<<"$home" || aviso "página inicial sem canonical"
   grep -q 'application/ld+json' <<<"$home" || aviso "página inicial sem dados estruturados"
+
+  # Cada página com título, canonical e <h1> próprios
+  for p in / /servicos/ /processo/ /equipe/ /contato/; do
+    pg=$(curl -sL --max-time 60 "$base$p")
+    grep -q "rel=\"canonical\" href=\"https://yamb.com.br$p\"" <<<"$pg" || aviso "$p sem canonical próprio"
+    [ "$(grep -o '<h1[ >]' <<<"$pg" | wc -l | tr -d ' ')" -ge 1 ] || aviso "$p sem <h1>"
+  done
+  [ "$(curl -sL --max-time 30 "$base/sitemap.xml" | grep -c '<loc>')" -ge 5 ] || aviso "sitemap.xml com menos de 5 endereços"
 
   # Interno fora do Google
   curl -sI --max-time 30 "$base/interno/" | grep -qi 'x-robots-tag: *noindex' \

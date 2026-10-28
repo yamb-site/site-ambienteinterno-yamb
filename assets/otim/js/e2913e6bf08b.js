@@ -1,9 +1,18 @@
 function App() {
-  const [page, setPage] = React.useState('home');
+  const [page, setPage] = React.useState(window.__yambPagina());
+  React.useEffect(() => {
+    const f = () => { const k = window.__yambPagina(); setPage(k); window.__yambMeta(k); };
+    window.addEventListener('popstate', f);
+    return () => window.removeEventListener('popstate', f);
+  }, []);
   const go = p => {
     setPage(p);
+    const u = window.__yambHref(p);
+    if (location.pathname !== u) history.pushState(null, '', u);
+    window.__yambMeta(p);
     window.scrollTo(0, 0);
   };
+  if (window.__yambPaginaH1 !== page) { window.__yambPaginaH1 = page; window.__yambTemH1 = page === 'home'; }
   const P = {
     home: Home,
     servicos: Servicos,

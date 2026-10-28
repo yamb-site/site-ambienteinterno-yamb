@@ -1,0 +1,10 @@
+
+(function(){
+  var P=[{"chave": "home", "caminho": "/", "titulo": "YAMB | Agência de Marketing e Branding em Aracaju, SE", "descricao": "Agência de marketing e branding em Aracaju (SE): posicionamento, identidade visual, conteúdo para redes sociais, tráfego pago e estrutura comercial. Viva o Processo."}, {"chave": "servicos", "caminho": "/servicos/", "titulo": "Serviços de Marketing e Branding em Aracaju | YAMB", "descricao": "Branding, conteúdo para redes sociais, tráfego pago e estrutura comercial no mesmo lugar. Todo projeto começa pelo diagnóstico. Atendimento presencial em Aracaju, SE."}, {"chave": "processo", "caminho": "/processo/", "titulo": "Processo YAMB: as 12 Pétalas da Marca | Aracaju, SE", "descricao": "O método da YAMB: 12 dimensões que conectam identidade, estratégia, posicionamento, conteúdo e resultados, em sete etapas sempre na mesma ordem."}, {"chave": "equipe", "caminho": "/equipe/", "titulo": "Equipe YAMB | Marketing e Branding em Aracaju, SE", "descricao": "Conheça a equipe da YAMB: direção, branding, planejamento, conteúdo, design e audiovisual trabalhando de forma integrada em Aracaju, SE."}, {"chave": "contato", "caminho": "/contato/", "titulo": "Contato | Fale com a YAMB em Aracaju, SE", "descricao": "Conte o momento da sua marca e receba um diagnóstico inicial. WhatsApp (79) 99161-5056, diretoria@yamb.com.br. Seg. a sex., 8h às 18h, em Aracaju."}];
+  window.__yambHref=function(k){ for(var i=0;i<P.length;i++) if(P[i].chave===k) return P[i].caminho; return '/'; };
+  window.__yambPagina=function(){ var c=location.pathname.replace(/index\.html$/,''); if(c.slice(-1)!=='/') c+='/';
+    for(var i=0;i<P.length;i++) if(P[i].caminho===c) return P[i].chave; return 'home'; };
+  window.__yambMeta=function(k){ for(var i=0;i<P.length;i++) if(P[i].chave===k){ var p=P[i]; document.title=p.titulo;
+    var d=document.querySelector('meta[name="description"]'); if(d) d.setAttribute('content',p.descricao);
+    var c=document.querySelector('link[rel="canonical"]'); if(c) c.setAttribute('href','https://yamb.com.br'+p.caminho); } };
+})();
