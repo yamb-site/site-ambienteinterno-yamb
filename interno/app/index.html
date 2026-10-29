@@ -81081,8 +81081,69 @@ input:focus,select:focus,textarea:focus{border-color:var(--gold-500)!important;b
 a{color:var(--gold-700);text-decoration:none}a:hover{color:var(--gold-900)}
 @keyframes yamb-chat{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}@keyframes yamb-toast{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}@keyframes m-up{from{transform:translateY(100%)}to{transform:none}}@keyframes m-fade{from{opacity:0}to{opacity:1}}@keyframes yamb-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
-[data-av-scroll]>*{flex-shrink:0}</style></head>
-<body><div id="root"></div>
+[data-av-scroll]>*{flex-shrink:0}</style><style id="yamb-tema">
+/* Tema premium do ambiente interno (mesma linguagem do Painel de Tráfego e do site).
+   Injetado pelo scripts/interno.py. As variáveis claras da marca são redefinidas
+   dentro do app; as partes que já eram escuras (ground-dark, ink-900, bone) não mudam. */
+html, body { background: #0A0A0A; color-scheme: dark; }
+#root {
+  --text-heading: #F7E4CE;
+  --text-body: rgba(247, 228, 206, .76);
+  --text-muted: rgba(247, 228, 206, .54);
+  --text-link: #F5C86F;
+  --text-link-hover: #F7D58C;
+  --white: rgba(26, 26, 26, .78);
+  --cream-100: #0E0E0E;
+  --cream-200: #121212;
+  --cream-300: rgba(247, 228, 206, .07);
+  --cream-400: rgba(243, 172, 47, .14);
+  --cream-500: rgba(247, 228, 206, .14);
+  --cream-600: rgba(247, 228, 206, .22);
+  --surface-cream: #0E0E0E;
+  --surface-cream-raised: rgba(26, 26, 26, .78);
+  --surface-cream-sunken: rgba(8, 8, 8, .6);
+  --ground-cream:
+    radial-gradient(1100px 620px at 85% -10%, rgba(224, 154, 36, .14), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(195, 122, 30, .08), transparent 60%),
+    linear-gradient(180deg, #0D0D0D, #0A0A0A);
+  --border-subtle: rgba(247, 228, 206, .10);
+  --border-strong: rgba(247, 228, 206, .24);
+  --ink-300: rgba(247, 228, 206, .42);
+  --ink-400: rgba(247, 228, 206, .54);
+  --ink-500: rgba(247, 228, 206, .62);
+  --ink-700: rgba(247, 228, 206, .76);
+  --gold-100: rgba(243, 172, 47, .14);
+  --gold-700: #F5C86F;
+  --gold-900: #F7D58C;
+  --success-100: rgba(76, 175, 120, .16);
+  --danger-100: rgba(220, 90, 70, .16);
+  --info-100: rgba(90, 150, 220, .16);
+  --shadow-xs: 0 1px 6px rgba(0, 0, 0, .35);
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 620px at 85% -10%, rgba(224, 154, 36, .10), transparent 60%),
+    #0A0A0A;
+  color: var(--text-body);
+  outline: none;
+}
+/* Cartões em vidro escuro, como no painel */
+#root [style*="background: var(--white)"], #root [style*="background: rgb(255, 255, 255)"] {
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  box-shadow: inset 0 1px 0 rgba(247, 228, 206, .07), 0 18px 40px -22px rgba(0, 0, 0, .8);
+}
+/* Barra de abas do celular (cor fixa clara na exportação) */
+#root nav[style*="rgba(255, 253, 249"] {
+  background: rgba(14, 14, 14, .82) !important; border-top: 1px solid rgba(247, 228, 206, .08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2);
+}
+#root input, #root textarea, #root select { color: #F7E4CE; }
+#root input::placeholder, #root textarea::placeholder { color: rgba(247, 228, 206, .42); }
+#root select option { background: #141414; color: #F7E4CE; }
+:focus-visible { outline: 2px solid #F3AC2F !important; outline-offset: 3px; }
+.yamb-pular { position: absolute; left: -999px; top: 8px; z-index: 10000; background: #F3AC2F; color: #121212; padding: 8px 14px; border-radius: 999px; font: 600 14px Sora, system-ui, sans-serif; text-decoration: none; }
+.yamb-pular:focus { left: 16px; }
+</style></head>
+<body><a class="yamb-pular" href="#root">Pular para o conteúdo</a><div id="root" tabindex="-1"></div>
 <script>/* ../internal/InternalChrome.jsx */(function(){
 const {
   Logo,
@@ -87206,6 +87267,8 @@ function MLogin({
     },
     placeholder: "Usu\xE1rio (nome.sobrenome)",
     autoComplete: "username",
+    spellCheck: false,
+    autoCapitalize: "none",
     autoCapitalize: "none",
     style: mInput
   }), React.createElement("input", {
