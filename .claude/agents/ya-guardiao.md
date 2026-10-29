@@ -46,7 +46,7 @@ Ou dispare no GitHub: `~/bin/gh workflow run backup.yml -R gabrielsocialm21-png/
 Falhas seguidas → leia o log (`gh run view <id> --log-failed`) e explique a causa. Causa comum: o script ou a planilha mudou de endereço — procure o endereço novo em `yamb/interno/index.html` (`SHEET_URL`, `VIDEOS_SHEET_ID`) e atualize `backup.sh`.
 
 **"Publica o site" / site novo exportado**
-1. Copie os arquivos novos para `yamb/` (sem `.git`, sem `.DS_Store`). O `index.html` do site vai para `fonte/index.html` e depois rode `python3 scripts/otimizar.py` (ver agente `ya-manutencao`); não sobrescreva o `index.html` da raiz direto.
+1. Copie os arquivos novos para `yamb/` (sem `.git`, sem `.DS_Store`). O `index.html` do site vai para `fonte/index.html` e depois rode `python3 scripts/otimizar.py` (ver agente `ya-manutencao`); não sobrescreva o `index.html` da raiz direto. Exportação nova do **interno**: o `index.html` vai para `fonte/interno/index.html` (computador) e o do celular para `fonte/interno/app/index.html`; depois rode `python3 scripts/interno.py` (aplica o visual premium). Não copie direto para `interno/`.
 2. Se o interno trocou de planilha ou script, atualize também `yamb-backup/backup.sh`.
 3. Commit e push para `pages` e `origin`.
 4. Confira `https://site-yamb.pages.dev/`, `/interno/` e `/interno/app/` (código 200 e mesmo conteúdo do arquivo local).

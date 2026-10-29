@@ -8,6 +8,16 @@ Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). 
 
 ## Revisões
 
+### 2026-10-29 — visual premium (site + interno)
+- Site: `scripts/tema-premium.css` (mesmo visual do Painel de Tráfego) entra pelo `otimizar.py`; as seções claras ganham `data-tema` e as variáveis da marca são redefinidas dentro delas. Campos de formulário escuros.
+- Conteúdo: depoimentos de exemplo removidos; Yngra Lyriel (Diretora de Brand Culture) na Equipe; fotos da equipe em sépia, como no interno.
+- Peso: ícones lucide só os usados (349 → 25 KB); removido o script que recarregava a página a cada 1 min e desinstalava os service workers (inclusive o do push do painel).
+- Acessibilidade: foco visível no teclado, link "Pular para o conteúdo".
+- Compartilhamento: `assets/og-yamb.jpg` 1200×630 com `og:image:width/height/alt` e `twitter:image`.
+- Cuidado no `otimizar.py`: o pacote do design system traz uma cópia em texto do código do site. As trocas de código só valem depois de `</head>…<div id="root">` (senão quebram o pacote).
+- Interno: originais em `fonte/interno/` (computador) e `fonte/interno/app/` (celular); `python3 scripts/interno.py` gera `interno/` e `interno/app/` com `scripts/tema-interno.css`, login sem corretor/maiúscula no usuário, foco visível e link de pular. Conferido no modo demonstração do celular (`/interno/app/?demo=<id>&tela=inicio|semana|indicadores`); telas internas do computador só com login — conferir depois de entrar.
+- Pendente: restos de deck-stage/TweaksPanel dentro do pacote do design system (mexer é arriscado; melhor na ferramenta de design).
+
 ### 2026-10-28 — velocidade
 - `scripts/otimizar.py` criado. A exportação original fica em `fonte/index.html`; o `index.html` publicado é gerado.
 - HTML da página inicial: 2.776 KB → 177 KB. Fontes ttf/otf embutidas → woff2 (≈690 → 236 KB; o navegador só baixa as usadas). Imagens embutidas → arquivos no tamanho medido (742 → 496 KB). Scripts → arquivos com `defer`.

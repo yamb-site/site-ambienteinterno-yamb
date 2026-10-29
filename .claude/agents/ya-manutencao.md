@@ -26,8 +26,10 @@ cp <exportação nova>/index.html fonte/index.html   # se o dono mandou uma expo
 python3 scripts/otimizar.py                        # precisa do Google Chrome e: pip install --user pillow fonttools brotli
 ```
 
+O **interno** segue o mesmo princípio: originais em `fonte/interno/` e `fonte/interno/app/`, gerados por `python3 scripts/interno.py` (tema `scripts/tema-interno.css`). Confira no modo demonstração: `/interno/app/?demo=gabriel&tela=inicio`.
+
 O script tira fontes, imagens e scripts de dentro do HTML (fontes em woff2, imagens no tamanho medido ×2, scripts com `defer`) e grava uma "fotografia" da página pronta em `#root` para cada faixa de tela (≥1160, 621–1159, ≤620 px), que aparece antes do React carregar. Depois de rodar, confira antes de publicar:
-- capturas do original (`fonte/`) e do otimizado no Chrome em 1440, 900 e 390 px devem ser iguais;
+- capturas do otimizado no Chrome em 1440, 900 e 390 px: mesmo conteúdo do original (`fonte/`), mas no visual premium escuro (`scripts/tema-premium.css`, decisão do dono em 2026-10-29), sem depoimentos e com a equipe em sépia;
 - sem erros no console;
 - `bash scripts/saude.sh` depois do push.
 
