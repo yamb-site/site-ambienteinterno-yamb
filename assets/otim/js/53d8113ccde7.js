@@ -44,27 +44,7 @@ var SERVICES = [{
 }];
 
 /* Depoimentos — exemplos fictícios; substituir pelos relatos reais dos clientes. */
-var DEPOIMENTOS = [{
-  nome: 'Mariana Lopes',
-  empresa: 'Clínica Lumière · Estética',
-  texto: 'A gente postava todo dia e não sabia o porquê. Depois do diagnóstico, cada conteúdo passou a ter função, e as avaliações começaram a vir de quem já chegava decidido.'
-}, {
-  nome: 'Rafael Menezes',
-  empresa: 'Menezes Arquitetura',
-  texto: 'O escritório tinha qualidade, mas a marca não mostrava isso. A nova identidade e o posicionamento mudaram o tipo de projeto que chega até nós.'
-}, {
-  nome: 'Carla Duarte',
-  empresa: 'Duarte Imóveis',
-  texto: 'O tráfego trazia contato, mas o atendimento perdia. A YAMB organizou o funil e os scripts do WhatsApp. Hoje a equipe fala a mesma língua.'
-}, {
-  nome: 'Thiago Rocha',
-  empresa: 'Casa Brasa · Gastronomia',
-  texto: 'Planejamento com antecedência fez toda a diferença. Paramos de correr atrás de post e passamos a ter uma marca que as pessoas reconhecem pelo feed.'
-}, {
-  nome: 'Juliana Prado',
-  empresa: 'Ateliê Prado · Moda',
-  texto: 'Eles entenderam a essência da marca antes de criar qualquer peça. O rebranding manteve quem somos e nos colocou num lugar mais alto.'
-}];
+var DEPOIMENTOS = [];
 function HeroStage({
   go
 }) {
@@ -663,6 +643,7 @@ function Servicos12({
   })))))));
 }
 function Depoimentos() {
+  return null;
   const [k, setK] = React.useState(0);
   const n = DEPOIMENTOS.length;
   const move = d => setK((k + d + n) % n);
@@ -960,9 +941,7 @@ function Home({
     go: go
   }), /*#__PURE__*/React.createElement(DozePetalas, null)), /*#__PURE__*/React.createElement(Servicos12, {
     go: go
-  }), /*#__PURE__*/React.createElement("div", {
-    style: fundo
-  }, /*#__PURE__*/React.createElement(Depoimentos, null)), /*#__PURE__*/React.createElement(Portas, {
+  }), null, /*#__PURE__*/React.createElement(Portas, {
     go: go
   }));
 }

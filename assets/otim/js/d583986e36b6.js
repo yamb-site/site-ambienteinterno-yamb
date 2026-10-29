@@ -473,6 +473,7 @@ function Section({
 }) {
   return /*#__PURE__*/React.createElement("section", {
     "data-r": "sec",
+    "data-tema": ground,
     style: {
       position: 'relative',
       padding: 'var(--section-y) var(--gutter-inline-lg)',

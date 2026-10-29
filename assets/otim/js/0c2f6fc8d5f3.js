@@ -44,7 +44,7 @@ var TEAM = [{
   f: 'Brisa',
   l: 'França',
   r: 'Social Media'
-}];
+}, {"s": "yngra-lyriel", "f": "Yngra", "l": "Lyriel", "r": "Diretora de Brand Culture"}];
 function Equipe() {
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Section, null, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -75,6 +75,7 @@ function Equipe() {
     src: A + 'team/' + p.s + '.png',
     alt: p.f + ' ' + p.l,
     style: {
+      filter: 'grayscale(1) sepia(.42) saturate(1.7) hue-rotate(-6deg) contrast(1.05)',
       width: '100%',
       aspectRatio: '1 / 1.05',
       objectFit: 'cover',

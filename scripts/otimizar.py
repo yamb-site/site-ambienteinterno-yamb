@@ -16,6 +16,9 @@ O que faz, sem mudar o visual:
   4. "Fotografia" da página pronta dentro de <div id="root"> (uma por tamanho de
      tela), para o visitante e os buscadores verem o conteúdo antes do React
      terminar; o React substitui pela versão interativa assim que carrega.
+  6. Visual premium (scripts/tema-premium.css), sem depoimentos de exemplo, equipe
+     completa com fotos em sépia, só os ícones usados e sem o script que recarregava
+     a página e desinstalava os service workers.
   5. SEO: cada tela do menu ganha endereço próprio (/servicos/, /processo/...),
      com título, descrição, canonical, Open Graph e dados estruturados próprios
      (lista PAGINAS), links reais no menu e sitemap.xml com todos os endereços.
@@ -392,6 +395,7 @@ def cabecalho(html, pag):
         (r'<meta property="og:title" content="[^"]*">', '<meta property="og:title" content="%s">' % esc(pag["titulo"])),
         (r'<meta property="og:description" content="[^"]*">', '<meta property="og:description" content="%s">' % esc(pag["descricao"])),
         (r'<meta property="og:url" content="[^"]*">', '<meta property="og:url" content="%s">' % url),
+        (r'<meta property="og:image" content="[^"]*">', '<meta property="og:image" content="%s/assets/og-yamb.jpg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:alt" content="YAMB · Agência de marketing e branding em Aracaju, SE">\n<meta name="twitter:image" content="%s/assets/og-yamb.jpg">' % (SITE, SITE)),
     ]
     for padrao, novo in trocas:
         html, n = re.subn(padrao, lambda m: novo, html, count=1)
@@ -417,6 +421,84 @@ def sitemap():
     urls = "".join("<url><loc>%s%s</loc><lastmod>%s</lastmod><priority>%s</priority></url>\n"
                    % (SITE, p["caminho"], hoje, "1.0" if p["caminho"] == "/" else "0.8") for p in PAGINAS)
     return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s</urlset>\n' % urls)
+
+
+# ---------------------------------------------------------------- 6. visual premium, conteúdo e peso
+
+TEMA_CSS = os.path.join(RAIZ, "scripts", "tema-premium.css")
+FOTO_SEPIA = "grayscale(1) sepia(.42) saturate(1.7) hue-rotate(-6deg) contrast(1.05)"  # o mesmo filtro das fotos do ambiente interno
+EQUIPE_EXTRA = [  # pessoas que faltam na exportação do site (foto em assets/team/<s>.png)
+    {"s": "yngra-lyriel", "f": "Yngra", "l": "Lyriel", "r": "Diretora de Brand Culture"},
+]
+
+
+def troca_obrigatoria(html, antes, depois, descricao, flags=0, contagem=1):
+    novo, n = re.subn(antes, depois, html, count=contagem, flags=flags)
+    if n == 0:
+        sys.exit("Não achei %s — a exportação mudou; ajuste scripts/otimizar.py." % descricao)
+    return novo
+
+
+def icones_usados(html):
+    """Troca o pacote inteiro do lucide (~1.700 ícones, 349 KB) só pelos ícones citados no código."""
+    i = html.find("@license lucide")
+    if i < 0:
+        return html
+    ini = html.rfind("<script>", 0, i) + len("<script>")
+    fim = html.lower().find("</script", ini)
+    resto = html[:ini] + html[fim:]
+    nomes = sorted(set(re.findall(r"""['"]([A-Z][A-Za-z0-9]{1,40})['"]""", resto)))
+    with tempfile.TemporaryDirectory() as d:
+        open(os.path.join(d, "l.js"), "w", encoding="utf-8").write(html[ini:fim])
+        json.dump(nomes, open(os.path.join(d, "n.json"), "w"))
+        r = subprocess.run(["node", "-e", """
+const vm=require('vm'),fs=require('fs'),d=process.argv[1]; const c={}; c.window=c; c.self=c; c.globalThis=c; vm.createContext(c);
+vm.runInContext(fs.readFileSync(d+'/l.js','utf8'),c); const L=c.lucide, n=JSON.parse(fs.readFileSync(d+'/n.json','utf8'));
+process.stdout.write(JSON.stringify(Object.fromEntries(n.filter(k=>Array.isArray(L[k])).map(k=>[k,L[k]]))));""", d], capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("Não consegui ler o pacote de ícones: " + r.stderr[:300])
+    usados = json.loads(r.stdout)
+    mini = ("/* lucide (só os ícones usados no site, gerado por scripts/otimizar.py) - ISC */\n"
+            "(function(){var n=function(t,a,c){var e=document.createElementNS('http://www.w3.org/2000/svg',t);"
+            "Object.keys(a).forEach(function(k){e.setAttribute(k,String(a[k]))});(c||[]).forEach(function(x){e.appendChild(n(x[0],x[1],x[2]))});return e};"
+            "var L={createElement:function(i){return n(i[0],i[1],i[2])}},I=" + json.dumps(usados, separators=(",", ":")) + ";"
+            "for(var k in I)L[k]=I[k];window.lucide=L;})();\n")
+    print("ícones: %d de %s (%d KB → %d KB)" % (len(usados), "~1.700", (fim - ini) // 1024, len(mini) // 1024))
+    return html[:ini] + mini + html[fim:]
+
+
+def premium(html):
+    # Site público não precisa conferir versão a cada minuto, e esse script desinstalava todos os
+    # service workers do endereço (inclusive o das notificações do Painel de Tráfego).
+    html = troca_obrigatoria(html, r"<script>\(function\(\)\{var V='\d+';try\{if\(navigator\.serviceWorker.*?\}\)\(\);</script>", "",
+                             "o script de recarregar versão", flags=re.S)
+    # O código do site aparece duas vezes: uma cópia dentro do pacote do design system (em texto, não roda)
+    # e a de verdade, depois do <head>. As trocas de código valem só para a de verdade.
+    corte = re.search(r'</head>\s*<body[^>]*>\s*<div id="root">', html)
+    if not corte:
+        sys.exit('Não achei o fim do <head> antes de <div id="root">.')
+    cabeca, html = html[:corte.start()], html[corte.start():]
+    # Seções claras se identificam, para o tema premium redefinir as variáveis dentro delas.
+    html = troca_obrigatoria(html, r'(function Section\(\{[^}]*\}\) \{\s*return /\*#__PURE__\*/React\.createElement\("section", \{\s*"data-r": "sec",)',
+                             r'\1\n    "data-tema": ground,', "o componente Section")
+    # Depoimentos de exemplo: fora do site (decisão do dono em 2026-10-29) — some a seção e os textos.
+    html = troca_obrigatoria(html, r"function Depoimentos\(\) \{", "function Depoimentos() {\n  return null;", "o componente Depoimentos")
+    html = troca_obrigatoria(html, r'/\*#__PURE__\*/React\.createElement\("div", \{\s*style: fundo\s*\}, /\*#__PURE__\*/React\.createElement\(Depoimentos, null\)\)',
+                             "null", "o lugar dos depoimentos", contagem=0)
+    html = re.sub(r"((?:var|const) DEPOIMENTOS = )\[.*?\];", r"\1[];", html, count=1, flags=re.S)
+    # Equipe: quem falta + fotos com o tratamento em sépia do ambiente interno.
+    extra = "".join(", " + json.dumps(p, ensure_ascii=False) for p in EQUIPE_EXTRA if ("'%s'" % p["s"]) not in html)
+    html = troca_obrigatoria(html, r"(var TEAM = \[.*?r: 'Social Media'\s*\})(\];)", lambda m: m.group(1) + extra + m.group(2), "a lista da equipe", flags=re.S)
+    html = troca_obrigatoria(html, r"(src: A \+ 'team/' \+ p\.s \+ '\.png',\s*alt: p\.f \+ ' ' \+ p\.l,\s*style: \{)",
+                             r"\1\n      filter: '%s'," % FOTO_SEPIA, "a foto da equipe")
+    html = icones_usados(cabeca + html)
+    # Tema premium e link "pular para o conteúdo".
+    css = open(TEMA_CSS, encoding="utf-8").read()
+    # Só no fim real do <head> (a exportação tem "</head>" e "<body>" escritos dentro de scripts).
+    html = troca_obrigatoria(html, r'</head>(\s*)<body([^>]*)>(\s*)<div id="root">',
+                             lambda m: '<style>\n%s</style>\n</head>%s<body%s>\n<a class="yamb-pular" href="#root">Pular para o conteúdo</a>%s<div id="root">' % (css, m.group(1), m.group(2), m.group(3)),
+                             "o fim do <head> antes de <div id=\"root\">")
+    return html
 
 
 # ---------------------------------------------------------------- principal
@@ -448,7 +530,7 @@ def main():
     if not os.path.exists(FONTE):
         sys.exit("Falta fonte/index.html (copie a exportação para lá).")
     fonte_original = open(FONTE, encoding="utf-8").read()
-    fonte_html = rotas(fonte_original)
+    fonte_html = rotas(premium(fonte_original))
     tmp = tempfile.mkdtemp(prefix="yamb-otim-")
     perfil = os.path.join(tmp, "chrome")
     site = os.path.join(tmp, "site")
