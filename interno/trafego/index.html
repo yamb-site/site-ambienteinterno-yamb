@@ -129,6 +129,21 @@ b,strong{font-weight:600}
 .kpi.destaque{background:radial-gradient(140% 120% at 0% 0%,rgba(243,172,47,.22),transparent 60%),var(--glass-2);border-color:var(--edge-gold)}
 .kpi.destaque b{font-size:clamp(28px,3vw,40px);color:#FFE7B8}
 .kpi.destaque::after{content:"";position:absolute;left:20px;right:20px;bottom:0;height:2px;background:var(--rule-gold);opacity:.8}
+.kpi .sigla{text-decoration:none;letter-spacing:.12em;font-size:9.5px;padding:2px 6px;margin-left:4px;border-radius:6px;background:rgba(247,228,206,.08);color:var(--soft,rgba(247,228,206,.6));vertical-align:1px}
+.kpi .frase{margin:0 0 10px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.kpi.destaque .frase{color:rgba(255,231,184,.78)}
+.ajuda{margin-top:10px;font-size:12px}
+.ajuda summary{cursor:pointer;color:var(--gold,#F3AC2F);list-style:none;display:inline-flex;align-items:center;gap:6px;min-height:24px}
+.ajuda summary::-webkit-details-marker{display:none}
+.ajuda summary::before{content:"?";display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;border:1px solid currentColor;font-size:10px;font-weight:700}
+.ajuda p{margin:8px 0 0;line-height:1.5;color:var(--text)}
+.ajuda .bom,.guia .bom{color:var(--muted)}
+.guia{padding:14px 20px;margin:0 0 18px}
+.guia summary{cursor:pointer;font-weight:500;display:flex;align-items:center;gap:10px;min-height:32px}
+.guia dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px 22px;margin:14px 0 8px}
+.guia dt{font-weight:600;margin-bottom:4px}
+.guia dd{margin:0;font-size:13px;line-height:1.5}
+.guia .sigla,.tabela .sigla{text-decoration:none;font-size:.8em;opacity:.65;margin-left:3px}
 .delta{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 10px;border-radius:var(--r-pill);background:rgba(247,228,206,.06)}
 .delta.bom{color:var(--ok);background:rgba(134,211,160,.10)} .delta.ruim{color:var(--bad);background:rgba(240,146,124,.10)} .delta.neutro{color:var(--muted)}
 .grade2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr));gap:14px;margin-bottom:14px}
@@ -496,18 +511,55 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var seta = v > 0 ? '▲' : (v < 0 ? '▼' : '•');
     return '<span class="delta ' + cls + '" title="Comparado com o período anterior"><span aria-hidden="true">' + seta + '</span> ' + fmtDec.format(Math.abs(v)).replace(/,00$/, '') + '%<span class="meta" style="font-size:inherit">&nbsp;vs anterior</span></span>';
   }
-  function kpi(r, v, d, destaque) { return '<div class="kpi vidro' + (destaque ? ' destaque' : '') + '"><span class="r">' + r + '</span><b class="num">' + v + '</b>' + (d || '') + '</div>'; }
+  // Cada número explicado em português simples: nome, sigla (se houver), o que é, frase com o valor do período e o que é bom.
+  function U(v) { return v == null || isNaN(v) ? '—' : new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(v); }
+  var GUIA = {
+    gasto: { nome: 'Investido', oque: 'Dinheiro gasto nos anúncios no período, somando todas as campanhas.', dica: 'Acompanha o orçamento das campanhas. Sozinho não diz se foi bom: compare com os resultados.',
+      frase: function (t, m) { return 'Foram ' + R(t.gasto, m) + ' em anúncios neste período.'; } },
+    resultados: { nome: 'Resultados', oque: 'O que cada campanha busca: conversas no WhatsApp ou Direct, cadastros (leads), compras ou cliques no link, conforme o objetivo.', dica: 'Quanto mais, melhor. Cada campanha conta o próprio objetivo.',
+      frase: function (t) { return t.resultados ? 'Os anúncios geraram ' + N(t.resultados) + ' resultado' + (t.resultados === 1 ? '' : 's') + '.' : 'Nenhum resultado no período.'; } },
+    custoPorResultado: { nome: 'Custo por resultado', oque: 'Quanto custou, em média, cada resultado: o investido dividido pelo número de resultados.', dica: 'Quanto menor, melhor. O mais útil é comparar com o período anterior e com o que o cliente ganha com cada contato.',
+      frase: function (t, m) { return t.custoPorResultado ? 'Cada resultado custou, em média, ' + R(t.custoPorResultado, m) + '.' : 'Sem resultados para calcular.'; } },
+    alcance: { nome: 'Pessoas alcançadas', sigla: 'Alcance', oque: 'Quantas pessoas diferentes viram o anúncio pelo menos uma vez.', dica: 'Mostra o tamanho do público atingido. Quem viu duas vezes conta uma só.',
+      frase: function (t) { return N(t.alcance) + ' pessoas diferentes viram os anúncios.'; } },
+    impressoes: { nome: 'Exibições', sigla: 'Impressões', oque: 'Quantas vezes o anúncio apareceu na tela, contando quando a mesma pessoa vê de novo.', dica: 'É sempre maior ou igual às pessoas alcançadas.',
+      frase: function (t) { return 'Os anúncios apareceram ' + N(t.impressoes) + ' vezes.'; } },
+    frequencia: { nome: 'Frequência', oque: 'Quantas vezes, em média, cada pessoa viu o anúncio (exibições divididas pelas pessoas alcançadas).', dica: 'Acima de 3 a 4 vezes na semana, o público começa a cansar do anúncio: hora de trocar o criativo.',
+      frase: function (t) { return t.frequencia ? 'Cada pessoa viu o anúncio ' + U(t.frequencia) + ' vez' + (t.frequencia >= 1.95 ? 'es' : '') + ', em média.' : ''; } },
+    cliques: { nome: 'Cliques', oque: 'Quantas vezes alguém tocou ou clicou no anúncio.', dica: 'Quanto mais, melhor, desde que o custo por clique não suba muito.',
+      frase: function (t) { return N(t.cliques) + ' cliques nos anúncios.'; } },
+    ctr: { nome: 'Taxa de clique', sigla: 'CTR', oque: 'De cada 100 vezes que o anúncio apareceu, quantas viraram clique. Mostra se o anúncio chama atenção.', dica: 'Acima de 1% costuma ser bom. Abaixo de 0,6%, o anúncio pode estar pouco atraente.',
+      frase: function (t) { if (t.ctr == null) return ''; var n = Math.round(t.ctr); return 'De cada 100 vezes que o anúncio apareceu, ' + (n < 1 ? 'menos de 1 virou clique.' : 'cerca de ' + n + (n === 1 ? ' virou clique.' : ' viraram clique.')); } },
+    cpc: { nome: 'Custo por clique', sigla: 'CPC', oque: 'Quanto custou, em média, cada clique no anúncio.', dica: 'Quanto menor, melhor.',
+      frase: function (t, m) { return t.cpc ? 'Cada clique custou, em média, ' + R(t.cpc, m) + '.' : ''; } },
+    cpm: { nome: 'Custo por mil exibições', sigla: 'CPM', oque: 'Quanto custa mostrar o anúncio 1.000 vezes. É o “preço do espaço” no Instagram e no Facebook.', dica: 'Varia com a concorrência e a época do ano (sobe em datas como Black Friday e Natal).',
+      frase: function (t, m) { return t.cpm ? 'Cada 1.000 exibições custaram ' + R(t.cpm, m) + '.' : ''; } },
+  };
+  function rotulo(k) { var g = GUIA[k]; return g.nome + (g.sigla ? ' <abbr class="sigla" title="' + esc(g.nome) + '">' + g.sigla + '</abbr>' : ''); }
+  function kpi(k, t, m, d, destaque) {
+    var g = GUIA[k], v = k === 'gasto' || k === 'custoPorResultado' || k === 'cpc' || k === 'cpm' ? R(t[k], m) : k === 'ctr' ? P(t[k]) : k === 'frequencia' ? D(t[k]) : N(t[k]);
+    return '<div class="kpi vidro' + (destaque ? ' destaque' : '') + '"><span class="r">' + rotulo(k) + '</span><b class="num">' + v + '</b>' +
+      '<p class="frase">' + esc(g.frase(t, m)) + '</p>' + (d || '') +
+      '<details class="ajuda"><summary>O que é isso?</summary><p>' + esc(g.oque) + '</p><p class="bom">' + esc(g.dica) + '</p></details></div>';
+  }
   function kpis(t, ant, m) {
     ant = ant || {};
     return '<div class="kpis">' +
-      kpi('Investido', R(t.gasto, m), delta(t.gasto, ant.gasto, false, true), true) +
-      kpi('Resultados', N(t.resultados), delta(t.resultados, ant.resultados)) +
-      kpi('Custo por resultado', R(t.custoPorResultado, m), delta(t.custoPorResultado, ant.custoPorResultado, true)) +
-      kpi('Alcance', N(t.alcance), delta(t.alcance, ant.alcance)) +
-      kpi('Cliques', N(t.cliques), delta(t.cliques, ant.cliques)) +
-      kpi('CTR', P(t.ctr), delta(t.ctr, ant.ctr)) +
-      kpi('CPC', R(t.cpc, m), delta(t.cpc, ant.cpc, true)) +
-      kpi('CPM', R(t.cpm, m), delta(t.cpm, ant.cpm, true)) + '</div>';
+      kpi('gasto', t, m, delta(t.gasto, ant.gasto, false, true), true) +
+      kpi('resultados', t, m, delta(t.resultados, ant.resultados)) +
+      kpi('custoPorResultado', t, m, delta(t.custoPorResultado, ant.custoPorResultado, true)) +
+      kpi('alcance', t, m, delta(t.alcance, ant.alcance)) +
+      kpi('cliques', t, m, delta(t.cliques, ant.cliques)) +
+      kpi('ctr', t, m, delta(t.ctr, ant.ctr)) +
+      kpi('cpc', t, m, delta(t.cpc, ant.cpc, true)) +
+      kpi('cpm', t, m, delta(t.cpm, ant.cpm, true)) + '</div>';
+  }
+  // Guia "Como ler estes números", aberto ou fechado (fica lembrado neste aparelho).
+  function guia() {
+    var aberto = lerLocal('yamb-trafego-guia') === '1';
+    return '<details class="guia vidro" id="guia"' + (aberto ? ' open' : '') + '><summary><span class="over">Glossário</span> Como ler estes números</summary><dl>' +
+      ['resultados', 'custoPorResultado', 'alcance', 'impressoes', 'frequencia', 'cliques', 'ctr', 'cpc', 'cpm'].map(function (k) { var g = GUIA[k]; return '<div><dt>' + rotulo(k) + '</dt><dd>' + esc(g.oque) + ' <span class="bom">' + esc(g.dica) + '</span></dd></div>'; }).join('') +
+      '</dl><p class="meta">“vs anterior” compara com o mesmo número de dias logo antes. Verde é melhora, vermelho é piora (nos custos, cair é bom).</p></details>';
   }
   function barras(lista, campo, rotulo, m) {
     var max = Math.max.apply(null, lista.map(function (x) { return x[campo] || 0; }).concat([0]));
@@ -534,9 +586,10 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     }
     if (!linhas.length) return '<p class="vazio">Nenhum item no período.</p>';
     var h = '<div class="tabela"><table><thead><tr>' + colunas.map(function (c) {
-      if (c[3] && c[3].nao) return '<th scope="col">' + c[0] + '</th>';
+      var dica = GUIA[c[1]] ? ' title="' + esc(GUIA[c[1]].oque) + '"' : '';
+      if (c[3] && c[3].nao) return '<th scope="col"' + dica + '>' + c[0] + '</th>';
       var s = c[1] === chave ? (desc ? 'descending' : 'ascending') : 'none';
-      return '<th scope="col" aria-sort="' + s + '"><button type="button" data-ordem="' + id + ':' + c[1] + ':' + (c[1] === chave && desc ? 'a' : 'd') + '">' + c[0] + '</button></th>';
+      return '<th scope="col" aria-sort="' + s + '"' + dica + '><button type="button" data-ordem="' + id + ':' + c[1] + ':' + (c[1] === chave && desc ? 'a' : 'd') + '">' + c[0] + '</button></th>';
     }).join('') + '</tr></thead><tbody>';
     linhas.forEach(function (l) { h += '<tr' + (l.ativaAgora === false ? ' class="pausada"' : '') + '>' + colunas.map(function (c) { return '<td>' + c[2](l) + '</td>'; }).join('') + '</tr>'; });
     return h + '</tbody></table></div>';
@@ -547,14 +600,14 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     return [
       ['Investido', 'gasto', function (l) { return R(l.gasto, m || l.moeda); }],
       ['Resultados', 'resultados', function (l) { return N(l.resultados) + (l.resultado ? '<span class="sub-l">' + esc(l.resultado) + '</span>' : ''); }],
-      ['Custo/result.', 'custoPorResultado', function (l) { return R(l.custoPorResultado, m || l.moeda); }],
-      ['Alcance', 'alcance', function (l) { return N(l.alcance); }],
-      ['Impressões', 'impressoes', function (l) { return N(l.impressoes); }],
-      ['Freq.', 'frequencia', function (l) { return D(l.frequencia); }],
+      ['Custo por resultado', 'custoPorResultado', function (l) { return R(l.custoPorResultado, m || l.moeda); }],
+      [rotulo('alcance'), 'alcance', function (l) { return N(l.alcance); }],
+      [rotulo('impressoes'), 'impressoes', function (l) { return N(l.impressoes); }],
+      ['Frequência', 'frequencia', function (l) { return D(l.frequencia); }],
       ['Cliques', 'cliques', function (l) { return N(l.cliques); }],
-      ['CTR', 'ctr', function (l) { return P(l.ctr); }],
-      ['CPC', 'cpc', function (l) { return R(l.cpc || null, m || l.moeda); }],
-      ['CPM', 'cpm', function (l) { return R(l.cpm || null, m || l.moeda); }],
+      [rotulo('ctr'), 'ctr', function (l) { return P(l.ctr); }],
+      [rotulo('cpc'), 'cpc', function (l) { return R(l.cpc || null, m || l.moeda); }],
+      [rotulo('cpm'), 'cpm', function (l) { return R(l.cpm || null, m || l.moeda); }],
     ];
   }
 
@@ -657,7 +710,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var m = (g.contas[0] && g.contas[0].moeda) || 'BRL';
     var ranking = g.contas.slice().sort(function (a, b) { return b.totais.gasto - a.totais.gasto; }).slice(0, 10);
     var alertas = todosAlertas(g);
-    var h = kpis(g.totais, g.anterior, m);
+    var h = kpis(g.totais, g.anterior, m) + guia();
     h += '<div class="grade2"><section class="cartao vidro"><h2>Por objetivo<small>investimento e resultados</small></h2>' + barras(g.categorias, 'gasto', function (x) { return x.nome; }, m) + '</section>' +
       '<section class="cartao vidro"><h2>Por plataforma</h2>' + barras(g.plataformas, 'gasto', function (x) { return x.nome; }, m) + '</section></div>';
     if (ehCliente()) {
@@ -686,7 +739,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
         (na ? '<span class="tag medio alertas-n">' + na + ' alerta' + (na > 1 ? 's' : '') + '</span>' : '') +
         '<div class="cab"><span class="mono" aria-hidden="true">' + esc(iniciais(c.nome)) + '</span><div><h3>' + esc(c.nome) + '</h3>' + (c.empresa ? '<span class="emp">' + esc(c.empresa) + '</span>' : '') + '</div></div>' +
         '<dl><div><dt>Investido</dt><dd>' + R(t.gasto, m) + '</dd></div><div><dt>Resultados</dt><dd>' + N(t.resultados) + '</dd></div>' +
-        '<div><dt>Custo/result.</dt><dd>' + R(t.custoPorResultado, m) + '</dd></div><div><dt>Campanhas ativas</dt><dd>' + N(c.ativas || 0) + '</dd></div></dl>' +
+        '<div><dt>Custo por resultado</dt><dd>' + R(t.custoPorResultado, m) + '</dd></div><div><dt>Campanhas ativas</dt><dd>' + N(c.ativas || 0) + '</dd></div></dl>' +
         '<div class="fatia"><span class="trilho" aria-hidden="true"><i style="width:' + fatia.toFixed(1) + '%"></i></span><span class="num">' + fatia.toFixed(0) + '% do investimento</span></div>' +
         '<div class="rodape-cli">' + chipSaude(c.saude) + delta(t.resultados, c.anterior && c.anterior.resultados) + '</div></a>';
     }).join('') + '</div>';
@@ -707,7 +760,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       g.contas.slice().sort(function (a, b) { return a.nome.localeCompare(b.nome, 'pt-BR'); }).map(function (c) { return '<option value="' + c.id + '"' + (c.id === cli ? ' selected' : '') + '>' + esc(c.nome) + '</option>'; }).join('') + '</select>' +
       '<input class="busca" type="search" id="busca" name="busca" autocomplete="off" placeholder="Buscar campanha…" aria-label="Buscar campanha" value="' + esc(estado.busca || '') + '"></div>';
     var m = (g.contas[0] && g.contas[0].moeda) || 'BRL';
-    h += kpis(somarLinhas(lista), null, m).replace(/<span class="delta[^<]*<\/span>/g, '');
+    h += kpis(somarLinhas(lista), null, m).replace(/<span class="delta[^<]*<\/span>/g, '') + guia();
     h += tabela('camp', lista, [
       ['Campanha', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l"><a href="' + link({ aba: 'cliente', cliente: k.contaId, sub: 'campanhas' }) + '">' + esc(k.conta) + '</a></span><span class="tag">' + esc(k.categoria) + '</span><span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, k.moeda); }, { nao: 1 }],
@@ -769,6 +822,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       return '<a href="' + link({ sub: s[0] }) + '"' + (s[0] === sub ? ' aria-current="page"' : '') + '>' + s[1] + (n != null ? ' <span class="meta">(' + n + ')</span>' : '') + '</a>';
     }).join('') + '</nav>';
     if (sub === 'resumo') h += resumoCliente(d, m);
+    else if (sub !== 'anuncios' && sub !== 'publico' && sub !== 'diario') h += guia();
     else if (sub === 'campanhas') h += tabela('ccamp', d.campanhas, [
       ['Campanha', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(OBJETIVOS[k.objetivo] || k.objetivo || '') + '</span><span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
@@ -787,7 +841,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var plat = {};
     d.posicionamentos.forEach(function (p) { var x = plat[p.plataforma] = plat[p.plataforma] || { nome: p.plataforma, gasto: 0, resultados: 0 }; x.gasto += p.gasto; x.resultados += p.resultados; });
     var plats = Object.keys(plat).map(function (k) { var x = plat[k]; x.custoPorResultado = x.resultados ? x.gasto / x.resultados : null; return x; }).sort(function (a, b) { return b.gasto - a.gasto; });
-    var h = kpis(d.totais, d.anterior, m);
+    var h = kpis(d.totais, d.anterior, m) + guia();
     h += '<div class="grade2"><section class="cartao vidro"><h2>Por objetivo</h2>' + barras(d.categorias, 'gasto', function (x) { return x.nome; }, m) + '</section>' +
       '<section class="cartao vidro"><h2>Por plataforma</h2>' + barras(plats, 'gasto', function (x) { return x.nome; }, m) + '</section></div>';
     h += '<section class="cartao vidro grafico"><h2>Dia a dia<small>investido e resultados</small></h2>' + grafico(d.diario, m) + '</section>';
@@ -802,8 +856,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       return '<article class="anu vidro"><div class="midia">' + (a.miniatura ? '<img src="' + esc(a.miniatura) + '" alt="Prévia do anúncio ' + esc(a.nome) + '" width="320" height="180"' + (i > 5 ? ' loading="lazy"' : '') + ' referrerpolicy="no-referrer">' : '<div class="semimg">Sem prévia</div>') + '</div>' +
         '<div class="c"><h3>' + esc(a.titulo || a.nome) + '</h3>' + (a.titulo ? '<span class="meta">' + esc(a.nome) + '</span>' : '') + (a.texto ? '<p>' + esc(a.texto) + '</p>' : '') +
         '<span class="sub-l">' + esc(a.conjunto || '') + '</span><span class="tag">' + esc(STATUS[a.status] || a.status) + '</span>' + tags(a) +
-        '<dl><div><dt>Investido</dt><dd>' + R(a.gasto, m) + '</dd></div><div><dt>Result.</dt><dd>' + N(a.resultados) + '</dd></div><div><dt>Custo</dt><dd>' + R(a.custoPorResultado, m) + '</dd></div>' +
-        '<div><dt>CTR</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt>Freq.</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + (d.podeEditar ? '<div style="margin-top:12px">' + controles(a, 'anuncio', m, true) + '</div>' : '') + '</div></article>';
+        '<dl><div><dt>Investido</dt><dd>' + R(a.gasto, m) + '</dd></div><div><dt>Resultados</dt><dd>' + N(a.resultados) + '</dd></div><div><dt>Custo por result.</dt><dd>' + R(a.custoPorResultado, m) + '</dd></div>' +
+        '<div><dt title="' + esc(GUIA.ctr.oque) + '">Taxa de clique</dt><dd>' + P(a.ctr) + '</dd></div><div><dt>Cliques</dt><dd>' + N(a.cliques) + '</dd></div><div><dt title="' + esc(GUIA.frequencia.oque) + '">Frequência</dt><dd>' + D(a.frequencia) + '</dd></div></dl>' + (d.podeEditar ? '<div style="margin-top:12px">' + controles(a, 'anuncio', m, true) + '</div>' : '') + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -1085,6 +1139,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var t = e.target.closest('[data-ordem]');
     if (t) { e.preventDefault(); ir({ ordem: t.getAttribute('data-ordem') }); }
   });
+  $('conteudo').addEventListener('toggle', function (e) { if (e.target.id === 'guia') gravarLocal('yamb-trafego-guia', e.target.open ? '1' : '0'); }, true);
   $('periodos').addEventListener('click', function (e) { var b = e.target.closest('[data-p]'); if (b) ir({ periodo: b.getAttribute('data-p') }); });
   $('atualizar').addEventListener('click', function () { geral = null; clientes = {}; sugs = null; render(); });
   $('sair').addEventListener('click', function () { sair(); });

@@ -2,6 +2,12 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-29 — números explicados
+- Siglas viraram nomes simples, com a sigla pequena ao lado: Taxa de clique (CTR), Custo por clique (CPC), Custo por mil exibições (CPM), Pessoas alcançadas, Exibições, Frequência.
+- Cada cartão traz uma frase com o número do período ("Cada clique custou, em média, R$ 0,92") e um "O que é isso?" com a explicação e o que é um número bom.
+- Glossário "Como ler estes números" nas telas com cartões e tabelas (abre e fecha; o aparelho lembra). Cabeçalhos das tabelas mostram a explicação ao passar o mouse.
+- Textos em `GUIA` no `interno/trafego/index.html`; referências de "bom" usadas: CTR acima de 1% bom e abaixo de 0,6% fraco (mesma regra das sugestões), frequência acima de 3–4 na semana cansa o público.
+
 ## 2026-10-29 — um usuário para cada pessoa e cada cliente
 - Acabou a senha única. Cada pessoa entra com usuário e senha próprios; o nome no histórico vem do login (sumiu o campo "Seu nome").
 - Três tipos de acesso (decisão do dono): **Cliente** só vê os números das contas marcadas para ele — sem sugestões, alertas, nota de saúde, edição, avisos ou histórico; **Equipe YAMB** vê tudo, decide sugestões e edita; **Administrador** faz tudo e tem a aba **Acessos** (criar, editar, trocar senha, bloquear, apagar).
