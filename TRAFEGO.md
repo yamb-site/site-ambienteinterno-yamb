@@ -2,6 +2,15 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-10-29 — um usuário para cada pessoa e cada cliente
+- Acabou a senha única. Cada pessoa entra com usuário e senha próprios; o nome no histórico vem do login (sumiu o campo "Seu nome").
+- Três tipos de acesso (decisão do dono): **Cliente** só vê os números das contas marcadas para ele — sem sugestões, alertas, nota de saúde, edição, avisos ou histórico; **Equipe YAMB** vê tudo, decide sugestões e edita; **Administrador** faz tudo e tem a aba **Acessos** (criar, editar, trocar senha, bloquear, apagar).
+- O filtro do cliente é no Worker: ele nunca recebe dado de outra conta (testado: conta de outro cliente, sugestões, edição, avisos e Acessos devolvem recusa).
+- Entrada de emergência: usuário `admin` com a senha mestra (segredo `PAINEL_SENHA`, a mesma senha do painel de antes). Use para criar o seu próprio acesso de Administrador e os da equipe.
+- Senhas guardadas só como PBKDF2 (ninguém consegue ler). Sessão de 30 dias no aparelho; trocar senha, tipo ou contas, bloquear ou apagar derruba a sessão na hora. 8 erros seguidos no mesmo usuário → espera 15 min.
+- KV: `usr:<login>` (usuários), `ses:<hash do token>` (sessões), `tent:<login>` (tentativas).
+- Não testado ainda: a aba Acessos com um administrador de verdade (o teste com usuário temporário de administrador foi bloqueado pelo ambiente). O dono confere no primeiro uso.
+
 ## 2026-10-28 — atualização mais frequente
 - Dados do Meta guardados no Worker por até 5 min (antes 10). O Meta atualiza o desempenho com ~15 min de atraso; 1 min estouraria o limite de chamadas do app (~65 consultas por atualização).
 - Painel aberto se atualiza sozinho a cada 2 min (sem piscar; pula se houver janela aberta, alguém digitando, aba Avisos ou painel em segundo plano).

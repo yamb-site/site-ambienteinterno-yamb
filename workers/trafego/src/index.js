@@ -2,19 +2,26 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 
 // YAMB — serviço intermediário do Painel de Tráfego (Cloudflare Worker).
 // Lê campanhas e desempenho na Marketing API do Meta com o token guardado como segredo
-// e entrega ao painel /interno/trafego/ só para quem envia a senha do painel.
-// Só leitura: este Worker nunca cria, pausa ou edita nada no Meta.
+// e entrega ao painel /interno/trafego/ só para quem entrou com usuário e senha.
 //
 // Segredos (definidos pelo dono, nunca no código):
 //   META_TOKEN   — token do Meta com ads_read
-//   PAINEL_SENHA — senha que a equipe digita no painel
+//   PAINEL_SENHA — chave mestra: entra como usuário "admin" (para o dono criar os acessos na aba Acessos)
+//
+// Usuários (KV, prefixo usr:) com três papéis:
+//   admin   — tudo, inclusive a aba Acessos (criar, trocar senha, bloquear)
+//   equipe  — vê todos os clientes, decide sugestões, edita campanhas e recebe avisos
+//   cliente — só vê os números das contas dele (sem sugestões, alertas, edição, avisos ou histórico)
+// O filtro do cliente é feito aqui no servidor: ele nunca recebe dados de outra conta.
+//   POST /entrar {usuario, senha} → {token, usuario} · POST /sair · GET /eu
+//   GET /acessos · POST /acessos/salvar {login, nome, papel, contas, senha?, ativo} · POST /acessos/remover {login}  (só admin)
 //
 // Endereços:
 //   /painel?periodo=last_7d          visão geral de todas as contas (com período anterior e plataformas)
 //   /cliente?id=act_123&periodo=...  detalhe de uma conta: campanhas, conjuntos, anúncios, público, dia a dia
 //   /contas                          lista de contas · /token  validade da chave
 //   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
-//   POST /decidir  {id, decisao, autor}   aceitar (aplica no Meta) ou recusar uma sugestão
+//   POST /decidir  {id, decisao}          aceitar (aplica no Meta) ou recusar uma sugestão
 //   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
 //   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
 //   GET/POST /config                      avisos no celular (as regras das sugestões são da YA e não se editam pelo painel)
@@ -33,7 +40,9 @@ const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,t
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
 const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES", "PAUSED", "ADSET_PAUSED", "CAMPAIGN_PAUSED"]);
 const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
-const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste"];
+const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste", "/entrar", "/sair", "/acessos/salvar", "/acessos/remover"];
+// O que o cliente pode pedir (tudo só leitura e filtrado pelas contas dele).
+const ROTAS_CLIENTE = ["/eu", "/sair", "/contas", "/painel", "/cliente"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
 const RESULTADOS = [
   ["onsite_conversion.messaging_conversation_started_7d", "Conversas iniciadas"],
@@ -63,29 +72,48 @@ export default {
     const escrita = request.method === "POST" && ROTAS_ESCRITA.includes(new URL(request.url).pathname);
     if (request.method !== "GET" && !escrita) return json({ erro: "Só leitura." }, 405, cors);
 
-    if (!(await senhaOk(request.headers.get("X-Painel-Senha") || "", env.PAINEL_SENHA))) {
-      return json({ erro: "Senha do painel incorreta." }, 401, cors);
+    const url = new URL(request.url);
+    if (!env.YAMB_TRAFEGO) return json({ erro: "Armazenamento (KV) não configurado no Worker." }, 500, cors);
+    if (url.pathname === "/entrar") {
+      const corpo = await request.json().catch(() => ({}));
+      const r = await entrar(env, request, corpo);
+      return json(r, r.erro ? (r.status || 401) : 200, cors);
     }
+    const quem = await sessao(env, request);
+    if (!quem) return json({ erro: "Sessão encerrada. Entre de novo." }, 401, cors);
+    if (quem.papel === "cliente" && !ROTAS_CLIENTE.includes(url.pathname)) return json({ erro: "Seu acesso é só de leitura." }, 403, cors);
+    if (url.pathname.startsWith("/acessos") && quem.papel !== "admin") return json({ erro: "Só o administrador mexe nos acessos." }, 403, cors);
     if (!env.META_TOKEN) return json({ erro: "META_TOKEN não configurado no Worker." }, 500, cors);
 
-    const url = new URL(request.url);
     const periodo = PERIODOS.includes(url.searchParams.get("periodo")) ? url.searchParams.get("periodo") : "last_7d";
     try {
+      if (url.pathname === "/eu") return json({ usuario: publico(quem) }, 200, cors);
       if (url.pathname === "/token") return json(await statusToken(env), 200, cors);
       if (url.pathname === "/sugestoes") return json(await listarSugestoes(env, ctx, periodo), 200, cors);
+      if (url.pathname === "/acessos" && !escrita) return json(await listarAcessos(env, ctx), 200, cors);
       if (url.pathname === "/config" && !escrita) return json({ config: await lerConfig(env), vapid: env.VAPID_PUBLIC || null, inscritos: await contarInscritos(env) }, 200, cors);
       if (escrita) {
         const corpo = await request.json().catch(() => ({}));
+        corpo.autor = quem.nome; // quem decide é sempre quem entrou, nunca um nome digitado
         const rotas = { "/decidir": () => decidir(env, ctx, corpo), "/desfazer": () => desfazer(env, corpo), "/editar": () => editar(env, ctx, corpo),
-          "/config": () => salvarConfig(env, corpo), "/push/inscrever": () => inscrever(env, corpo), "/push/sair": () => sairPush(env, corpo), "/push/teste": () => pushTeste(env) };
+          "/config": () => salvarConfig(env, corpo), "/push/inscrever": () => inscrever(env, corpo), "/push/sair": () => sairPush(env, corpo), "/push/teste": () => pushTeste(env),
+          "/sair": () => sairSessao(env, request), "/acessos/salvar": () => salvarAcesso(env, quem, corpo), "/acessos/remover": () => removerAcesso(env, quem, corpo) };
         return json(await rotas[url.pathname](), 200, cors);
       }
-      if (url.pathname === "/contas") return json(await comCache(ctx, "contas", () => contas(env)), 200, cors);
-      if (url.pathname === "/painel") return json(await comCache(ctx, "painel4:" + periodo, () => painel(env, periodo)), 200, cors);
+      if (url.pathname === "/contas") {
+        const c = await comCache(ctx, "contas", () => contas(env));
+        return json(quem.papel === "cliente" ? { ...c, contas: c.contas.filter((x) => quem.contas.includes(x.id)) } : c, 200, cors);
+      }
+      if (url.pathname === "/painel") {
+        const g = await comCache(ctx, "painel4:" + periodo, () => painel(env, periodo));
+        return json(quem.papel === "cliente" ? painelDoCliente(g, quem.contas) : g, 200, cors);
+      }
       if (url.pathname === "/cliente") {
         const id = url.searchParams.get("id") || "";
         if (!/^act_\d+$/.test(id)) return json({ erro: "Conta inválida." }, 400, cors);
-        return json(await comCache(ctx, "cliente3:" + id + ":" + periodo, () => cliente(env, id, periodo)), 200, cors);
+        if (quem.papel === "cliente" && !quem.contas.includes(id)) return json({ erro: "Essa conta não é do seu acesso." }, 403, cors);
+        const d = await comCache(ctx, "cliente3:" + id + ":" + periodo, () => cliente(env, id, periodo));
+        return json(quem.papel === "cliente" ? semAnalise(d) : d, 200, cors);
       }
       return json({ erro: "Endereço desconhecido.", enderecos: ["/painel?periodo=last_7d", "/cliente?id=act_...", "/contas", "/token"] }, 404, cors);
     } catch (e) {
@@ -822,6 +850,126 @@ async function checagemAgendada(env, ctx) {
   for (const x of novas) await env.YAMB_TRAFEGO.put("notif:" + x.id, "1", { expirationTtl: 3 * 86400 });
 }
 
+// ---------------------------------------------------------------- usuários e sessões
+// Senha guardada só como PBKDF2-SHA256 (100 mil voltas, sal próprio). Sessão: token aleatório de 30 dias.
+// Trocar a senha, bloquear ou apagar o usuário derruba as sessões dele na hora (campo "versao").
+const PAPEIS = { admin: "Administrador", equipe: "Equipe YAMB", cliente: "Cliente" };
+const DIAS_SESSAO = 30;
+const TENTATIVAS = 8; // erros seguidos por usuário antes de esperar 15 min
+const limpaLogin = (l) => String(l || "").trim().toLowerCase().replace(/[^a-z0-9._-]/g, "").slice(0, 40);
+const b64 = (u8) => btoa(String.fromCharCode(...u8));
+const aleatorio = (n) => crypto.getRandomValues(new Uint8Array(n));
+const publico = (u) => ({ login: u.login, nome: u.nome, papel: u.papel, contas: u.papel === "cliente" ? u.contas : null });
+
+async function hashSenha(senha, sal) {
+  const chave = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: sal, iterations: 100000 }, chave, 256);
+  return new Uint8Array(bits);
+}
+async function senhaConfere(senha, u) {
+  const sal = Uint8Array.from(atob(u.sal), (c) => c.charCodeAt(0));
+  const a = await hashSenha(senha, sal), b = Uint8Array.from(atob(u.hash), (c) => c.charCodeAt(0));
+  return a.length === b.length && crypto.subtle.timingSafeEqual(a, b);
+}
+
+async function entrar(env, request, corpo) {
+  const login = limpaLogin(corpo.usuario), senha = String(corpo.senha || "");
+  if (!login || !senha) return { erro: "Digite usuário e senha." };
+  const kvT = "tent:" + login, erros = Number(await env.YAMB_TRAFEGO.get(kvT)) || 0;
+  if (erros >= TENTATIVAS) return { erro: "Muitas tentativas erradas. Espere 15 minutos.", status: 429 };
+  let u = null;
+  if (login === "admin") {
+    // Chave mestra do dono (segredo PAINEL_SENHA), para criar os primeiros acessos.
+    if (await senhaOk(senha, env.PAINEL_SENHA)) u = { login: "admin", nome: "Administrador", papel: "admin", versao: 0, ativo: true };
+  } else {
+    const salvo = await env.YAMB_TRAFEGO.get("usr:" + login, "json");
+    if (salvo && salvo.ativo && (await senhaConfere(senha, salvo))) u = salvo;
+  }
+  if (!u) {
+    await env.YAMB_TRAFEGO.put(kvT, String(erros + 1), { expirationTtl: 900 });
+    return { erro: "Usuário ou senha incorretos." };
+  }
+  await env.YAMB_TRAFEGO.delete(kvT);
+  const token = [...aleatorio(32)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  await env.YAMB_TRAFEGO.put("ses:" + (await hashCurto(token)), JSON.stringify({ login: u.login, versao: u.versao || 0, em: new Date().toISOString() }), { expirationTtl: DIAS_SESSAO * 86400 });
+  return { token, usuario: publico(u) };
+}
+
+async function sessao(env, request) {
+  const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (!/^[0-9a-f]{64}$/.test(token)) return null;
+  const s = await env.YAMB_TRAFEGO.get("ses:" + (await hashCurto(token)), "json");
+  if (!s) return null;
+  if (s.login === "admin") return { login: "admin", nome: "Administrador", papel: "admin", contas: [] };
+  const u = await env.YAMB_TRAFEGO.get("usr:" + s.login, "json");
+  if (!u || !u.ativo || (u.versao || 0) !== s.versao) return null;
+  return { ...u, contas: u.contas || [] };
+}
+
+async function sairSessao(env, request) {
+  const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
+  if (/^[0-9a-f]{64}$/.test(token)) await env.YAMB_TRAFEGO.delete("ses:" + (await hashCurto(token)));
+  return { ok: true };
+}
+
+async function listarAcessos(env, ctx) {
+  const l = await env.YAMB_TRAFEGO.list({ prefix: "usr:" });
+  const usuarios = (await Promise.all(l.keys.map((k) => env.YAMB_TRAFEGO.get(k.name, "json")))).filter(Boolean)
+    .map((u) => ({ ...publico(u), contas: u.contas || [], ativo: u.ativo, criadoEm: u.criadoEm, alteradoEm: u.alteradoEm, alteradoPor: u.alteradoPor }))
+    .sort((a, b) => a.papel.localeCompare(b.papel) || a.nome.localeCompare(b.nome));
+  const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
+  return { usuarios, contas: lista.map((c) => ({ id: c.id, nome: c.nome, ativa: c.ativa })), papeis: PAPEIS };
+}
+
+async function salvarAcesso(env, quem, corpo) {
+  const login = limpaLogin(corpo.login);
+  if (login.length < 3 || login === "admin") return { erro: "Usuário inválido (mínimo 3 letras; use letras, números, ponto ou traço)." };
+  const nome = limpaAutor(corpo.nome);
+  if (!nome) return { erro: "Escreva o nome." };
+  if (!PAPEIS[corpo.papel]) return { erro: "Tipo de acesso inválido." };
+  const atual = await env.YAMB_TRAFEGO.get("usr:" + login, "json");
+  if (corpo.novo && atual) return { erro: "Já existe um usuário com esse nome." };
+  const contasEscolhidas = corpo.papel === "cliente" ? [...new Set((corpo.contas || []).map(String).filter((c) => /^act_\d+$/.test(c)))] : [];
+  if (corpo.papel === "cliente" && !contasEscolhidas.length) return { erro: "Escolha pelo menos uma conta de anúncio para o cliente." };
+  const senha = corpo.senha == null ? "" : String(corpo.senha);
+  if (!atual && !senha) return { erro: "Defina a senha do usuário novo." };
+  if (senha && senha.length < 8) return { erro: "A senha precisa ter pelo menos 8 caracteres." };
+  const u = atual || { login, criadoEm: new Date().toISOString(), versao: 0 };
+  const ativo = corpo.ativo !== false;
+  // Trocar senha, papel ou contas, ou bloquear, encerra as sessões abertas desse usuário.
+  const derruba = !!senha || (atual && (atual.papel !== corpo.papel || String(atual.contas) !== String(contasEscolhidas) || (atual.ativo && !ativo)));
+  Object.assign(u, { nome, papel: corpo.papel, contas: contasEscolhidas, ativo, alteradoEm: new Date().toISOString(), alteradoPor: quem.nome });
+  if (senha) { const sal = aleatorio(16); u.sal = b64(sal); u.hash = b64(await hashSenha(senha, sal)); }
+  if (derruba && atual) u.versao = (u.versao || 0) + 1;
+  await env.YAMB_TRAFEGO.put("usr:" + login, JSON.stringify(u));
+  await registrar(env, { estado: "ajustes", autor: quem.nome, sugestao: { titulo: `${atual ? "Acesso alterado" : "Acesso criado"}: ${nome} (${PAPEIS[u.papel]})${senha && atual ? ", senha trocada" : ""}${!ativo ? ", bloqueado" : ""}` } });
+  return { ok: true, usuario: publico(u) };
+}
+
+async function removerAcesso(env, quem, corpo) {
+  const login = limpaLogin(corpo.login);
+  const atual = await env.YAMB_TRAFEGO.get("usr:" + login, "json");
+  if (!atual) return { erro: "Usuário não encontrado." };
+  await env.YAMB_TRAFEGO.delete("usr:" + login);
+  await registrar(env, { estado: "ajustes", autor: quem.nome, sugestao: { titulo: `Acesso apagado: ${atual.nome}` } });
+  return { ok: true };
+}
+
+// O cliente vê os números das contas dele, sem a análise interna da YA (alertas, nota de saúde).
+function semAnalise(d) {
+  const tira = (l) => (l || []).map((x) => ({ ...x, alertas: [] }));
+  return { ...d, podeEditar: false, campanhas: tira(d.campanhas), conjuntos: tira(d.conjuntos), anuncios: tira(d.anuncios), saude: null };
+}
+function painelDoCliente(g, ids) {
+  const porConta = g.contas.filter((c) => ids.includes(c.id)).map((c) => ({ ...semAnalise(c), saude: null }));
+  const campanhas = porConta.flatMap((c) => c.campanhas);
+  return {
+    ...g, contas: porConta, contasInativas: (g.contasInativas || []).filter((c) => ids.includes(c.id)),
+    totais: somar(campanhas), anterior: somarMetricas(porConta.map((c) => c.anterior).filter(Boolean)),
+    categorias: agrupar(campanhas, (k) => k.categoria), plataformas: juntarPlataformas(porConta.flatMap((c) => c.plataformas)),
+  };
+}
+
 // ---------------------------------------------------------------- utilidades
 
 // Dados do Meta guardados por até 5 minutos: o Meta atualiza o desempenho com ~15 min de atraso,
@@ -851,7 +999,7 @@ function corsHeaders(request, env) {
   return {
     "Access-Control-Allow-Origin": ok ? origem : "https://yamb.com.br",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "X-Painel-Senha, Content-Type",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
   };

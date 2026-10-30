@@ -341,6 +341,18 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   .cartao{padding:18px}
   .abas{width:100%}
 }
+/* acessos */
+.quem{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;margin-right:4px}
+.ac-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:14px 0}
+.ac-grade>div{display:flex;flex-direction:column;gap:6px}
+.ac-grade .busca,.ac-grade .seletor{width:100%}
+.ac-senha{display:flex;gap:8px}.ac-senha .busca{flex:1}
+.ac-contas{border:1px solid var(--line,rgba(247,228,206,.1));border-radius:14px;padding:12px 14px;margin:0 0 14px}
+.ac-contas .busca{width:100%;margin:6px 0 10px}
+.ac-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px 14px;max-height:280px;overflow:auto}
+.ac-lista label,.ac-ativo{display:flex;gap:8px;align-items:center;cursor:pointer;min-height:32px}
+.ac-lista input,.ac-ativo input{accent-color:#F3AC2F;width:18px;height:18px}
+@media (max-width:720px){.ac-grade{grid-template-columns:1fr}.quem{display:none}}
 @media (pointer:fine){html{overscroll-behavior:none}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
@@ -361,11 +373,16 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     </div>
   </div>
   <div class="cartao-entrar">
-    <span class="over">Acesso da equipe</span>
+    <span class="over">Acesso da equipe e dos clientes</span>
     <h2>Painel de Tráfego</h2>
-    <p>Campanhas ativas e desempenho de todos os clientes, direto do Meta Ads.</p>
+    <p>Campanhas e resultados direto do Meta Ads. Entre com o usuário e a senha que a YAMB passou para você.</p>
     <form id="form-senha">
-      <label for="senha" class="campo">Senha do painel</label>
+      <label for="usuario" class="campo">Usuário</label>
+      <div class="entrada">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.7-2.8 2.7-4.3 5.2-4.3s4.5 1.5 5.2 4.3"/></svg>
+        <input id="usuario" name="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="nome.sobrenome" required>
+      </div>
+      <label for="senha" class="campo">Senha</label>
       <div class="entrada">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
         <input id="senha" name="senha" type="password" autocomplete="current-password" placeholder="••••••••" required>
@@ -383,7 +400,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     <span class="sep" aria-hidden="true"></span>
     <span class="nome">Painel de Tráfego</span>
     <div class="acoes">
-      <a class="icone-btn" href="/interno/" aria-label="Voltar ao ambiente interno"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span class="rot">Interno</span></a>
+      <span class="quem meta" id="quem"></span>
+      <a class="icone-btn" id="ir-interno" href="/interno/" aria-label="Voltar ao ambiente interno"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span class="rot">Interno</span></a>
       <button class="icone-btn" id="atualizar" type="button" aria-label="Atualizar dados"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3"/></svg><span class="rot">Atualizar</span></button>
       <button class="icone-btn" id="sair" type="button" aria-label="Sair do painel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 3H3.5v10H6M10 5l3 3-3 3M13 8H6.5"/></svg><span class="rot">Sair</span></button>
     </div>
@@ -416,8 +434,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     <p id="dlg-texto"></p>
     <div class="mudanca" id="dlg-mudanca" hidden></div>
     <div id="dlg-valor-caixa" hidden><label for="dlg-valor">Novo orçamento diário (R$)</label><input id="dlg-valor" name="valor" type="number" inputmode="decimal" min="1" step="1"></div>
-    <label for="dlg-autor">Seu nome</label>
-    <input id="dlg-autor" name="autor" autocomplete="name" required maxlength="60" placeholder="Ex.: Gabriel Santos…">
+    <p class="meta" id="dlg-quem"></p>
     <div id="dlg-motivo-caixa" hidden><label for="dlg-motivo">Motivo (opcional)</label><textarea id="dlg-motivo" name="motivo" maxlength="300" placeholder="Ex.: cliente pediu para manter…"></textarea></div>
     <p class="erro" id="dlg-erro" role="alert" aria-live="polite"></p>
     <div class="linha-botoes"><button type="button" class="cancelar" id="dlg-cancelar">Cancelar</button><button type="submit" class="botao-ouro" id="dlg-ok">Confirmar</button></div>
@@ -427,22 +444,28 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
 (function () {
   'use strict';
   var API = 'https://yamb-trafego.gabrielsocialm21.workers.dev';
-  var CHAVE = 'yamb-trafego-senha';
+  var CHAVE = 'yamb-trafego-sessao';
   var $ = function (id) { return document.getElementById(id); };
   var geral = null, clientes = {}, estado = {}, sugs = null;
 
   // ------------------------------------------------ armazenamento e rede
-  function guardar(k, v) { try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch (e) {} }
-  function ler(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
-  var senha = ler(CHAVE);
+  // Sessão de 30 dias neste aparelho (o servidor pode encerrar antes: senha trocada ou acesso bloqueado).
+  function guardar(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+  function ler(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  try { sessionStorage.removeItem('yamb-trafego-senha'); } catch (e) {}
+  var sessao = null; try { sessao = JSON.parse(ler(CHAVE) || 'null'); } catch (e) {}
+  var token = sessao && sessao.token, eu = (sessao && sessao.usuario) || null;
+  function ehCliente() { return !!eu && eu.papel === 'cliente'; }
+  function ehAdmin() { return !!eu && eu.papel === 'admin'; }
+  function cab(extra) { var h = Object.assign({}, extra); if (token) h.Authorization = 'Bearer ' + token; return h; }
   function enviar(rota, corpo) {
-    return fetch(API + rota, { method: 'POST', headers: { 'X-Painel-Senha': senha || '', 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) })
+    return fetch(API + rota, { method: 'POST', headers: cab({ 'Content-Type': 'application/json' }), body: JSON.stringify(corpo) })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.erro) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; }); });
   }
   function lerLocal(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function gravarLocal(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function pedir(rota) {
-    return fetch(API + rota, { headers: { 'X-Painel-Senha': senha || '' } }).then(function (r) {
+    return fetch(API + rota, { headers: cab() }).then(function (r) {
       return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; });
     });
   }
@@ -539,6 +562,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function lerEstado() {
     var e = {}; location.hash.replace(/^#/, '').split('&').forEach(function (p) { if (!p) return; var i = p.indexOf('='); e[decodeURIComponent(p.slice(0, i))] = decodeURIComponent(p.slice(i + 1)); });
     e.aba = e.aba || (e.cliente ? 'cliente' : 'geral'); e.periodo = e.periodo || 'last_7d';
+    if (ehCliente() && ['geral', 'clientes', 'campanhas', 'cliente'].indexOf(e.aba) < 0) e.aba = 'geral';
+    if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'geral';
     return e;
   }
   function link(mudar) {
@@ -573,16 +598,17 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     return carregarGeral().then(function (g) {
       desenharAbas(g);
       var iv = g.intervalo;
-      $('info').textContent = g.contas.length + ' contas com anúncios ativos · ' + data(iv.atual.since) + (iv.dias > 1 ? ' a ' + data(iv.atual.until) : '') +
+      $('info').textContent = g.contas.length + (g.contas.length === 1 ? ' conta' : ' contas') + ' com anúncios ativos · ' + data(iv.atual.since) + (iv.dias > 1 ? ' a ' + data(iv.atual.until) : '') +
         ' · comparado com ' + data(iv.anterior.since) + (iv.dias > 1 ? ' a ' + data(iv.anterior.until) : '') + ' · atualizado às ' + fmtHora.format(new Date(g.atualizado));
       abertura(g);
-      carregarSugestoes().then(function () { desenharAbas(g); }).catch(function () {});
+      if (!ehCliente()) carregarSugestoes().then(function () { desenharAbas(g); }).catch(function () {});
       if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);
+      if (estado.aba === 'acessos') return pedir('/acessos').then(telaAcessos);
       if (estado.aba === 'ajustes') return pedir('/config').then(telaAjustes);
       if (estado.aba === 'sugestoes') return carregarSugestoes().then(function (d) { desenharAbas(g); telaSugestoes(d, g); });
       ({ geral: telaGeral, clientes: telaClientes, campanhas: telaCampanhas, alertas: telaAlertas }[estado.aba] || telaGeral)(g);
     }).catch(function (e) {
-      if (e.status === 401) { sair('Senha incorreta. Digite de novo.'); return; }
+      if (e.status === 401) { sair('Sua sessão terminou. Entre de novo.'); return; }
       $('conteudo').innerHTML = '<p class="erro">Não foi possível carregar: ' + esc(e.message) + '</p><p class="meta">Tente “Atualizar”. Se continuar, avise o YA - Tráfego.</p>';
     });
   }
@@ -590,9 +616,11 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function abertura(g) {
     var ativas = g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0), na = todosAlertas(g).length;
     var c = estado.cliente && g.contas.filter(function (x) { return x.id === estado.cliente; })[0];
+    var cli = ehCliente(), primeiro = eu ? esc(String(eu.nome).split(' ')[0]) : '';
     var t = {
-      geral: ['Visão geral', 'Tudo o que está no ar em <em>' + g.contas.length + ' clientes</em>.'],
-      clientes: ['Clientes', 'Cada cliente, <em>um painel próprio</em>.'],
+      geral: cli ? ['Visão geral', 'Olá, ' + primeiro + '. Seus anúncios, <em>em números claros</em>.'] : ['Visão geral', 'Tudo o que está no ar em <em>' + g.contas.length + ' clientes</em>.'],
+      clientes: cli ? ['Suas contas', 'Cada conta, <em>um painel próprio</em>.'] : ['Clientes', 'Cada cliente, <em>um painel próprio</em>.'],
+      acessos: ['Acessos', 'Quem entra, e <em>o que cada um vê</em>.'],
       campanhas: ['Campanhas', '<em>' + ativas + ' campanhas</em> no ar agora.'],
       alertas: ['Alertas', na ? 'O que pede <em>atenção</em> hoje.' : 'Nada pedindo <em>atenção</em>.'],
       sugestoes: ['Sugestões da YA', 'A YA sugere, <em>você decide</em>.'],
@@ -616,7 +644,10 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function desenharAbas(g) {
     var n = todosAlertas(g).length;
     var ns = sugs && sugs.periodo === estado.periodo ? sugs.sugestoes.length : 0;
-    var abas = [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Avisos']];
+    var nCamp = 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>';
+    var abas = ehCliente() ? [['geral', 'Visão geral'], ['clientes', (g.contas.length === 1 ? 'Conta' : 'Contas <span class="meta">(' + g.contas.length + ')</span>')], ['campanhas', nCamp]]
+      : [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', nCamp], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Avisos']];
+    if (ehAdmin()) abas.push(['acessos', 'Acessos']);
     var atual = estado.aba === 'cliente' ? 'clientes' : estado.aba;
     $('abas').innerHTML = abas.map(function (a) { return '<a href="' + link({ aba: a[0] }) + '"' + (a[0] === atual ? ' aria-current="page"' : '') + '>' + a[1] + '</a>'; }).join('');
   }
@@ -629,6 +660,11 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var h = kpis(g.totais, g.anterior, m);
     h += '<div class="grade2"><section class="cartao vidro"><h2>Por objetivo<small>investimento e resultados</small></h2>' + barras(g.categorias, 'gasto', function (x) { return x.nome; }, m) + '</section>' +
       '<section class="cartao vidro"><h2>Por plataforma</h2>' + barras(g.plataformas, 'gasto', function (x) { return x.nome; }, m) + '</section></div>';
+    if (ehCliente()) {
+      var top = g.contas.flatMap(function (c) { return c.campanhas; }).sort(function (a, b) { return b.gasto - a.gasto; }).slice(0, 8);
+      h += '<section class="cartao vidro"><h2>Campanhas que mais investiram</h2>' + (top.length ? barras(top, 'gasto', function (x) { return x.nome; }, m) + '<a class="mais" href="' + link({ aba: 'campanhas' }) + '">Ver todas as campanhas</a>' : '<p class="vazio">Nenhuma campanha no período.</p>') + '</section>';
+      $('conteudo').innerHTML = h; return;
+    }
     h += '<div class="grade2"><section class="cartao vidro"><h2>Clientes que mais investiram</h2>' + barras(ranking.map(function (c) { return Object.assign({ nome: c.nome }, c.totais); }), 'gasto', function (x) { return x.nome; }, m) +
       '<a class="mais" href="' + link({ aba: 'clientes' }) + '">Ver todos os clientes</a></section>' +
       '<section class="cartao vidro"><h2>Alertas<small>' + alertas.length + '</small></h2>' + (alertas.length ? alertas.slice(0, 6).map(linhaAlerta).join('') + '<a class="mais" href="' + link({ aba: 'alertas' }) + '">Ver todos os alertas</a>' : '<p class="vazio">Nada pedindo atenção agora.</p>') + '</section></div>';
@@ -640,7 +676,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var lista = g.contas.filter(function (c) { return !busca || (c.nome + ' ' + (c.empresa || '')).toLowerCase().indexOf(busca) >= 0; });
     var ordem = estado.ordemcli || 'gasto';
     lista.sort(function (a, b) { if (ordem === 'saude') return ((a.saude && a.saude.nota) || 0) - ((b.saude && b.saude.nota) || 0); return ordem === 'nome' ? a.nome.localeCompare(b.nome, 'pt-BR') : (ordem === 'custo' ? (a.totais.custoPorResultado || Infinity) - (b.totais.custoPorResultado || Infinity) : b.totais[ordem] - a.totais[ordem]); });
-    var h = '<div class="filtros"><input class="busca" type="search" id="busca" name="busca" autocomplete="off" placeholder="Buscar cliente…" aria-label="Buscar cliente" value="' + esc(estado.busca || '') + '">' +
+    var h = '<div class="filtros"><input class="busca" type="search" id="busca" name="busca" autocomplete="off" placeholder="' + (ehCliente() ? 'Buscar conta…' : 'Buscar cliente…') + '" aria-label="Buscar" value="' + esc(estado.busca || '') + '">' +
       '<label class="rotulo" for="ordemcli">Ordenar por</label><select class="seletor" id="ordemcli" name="ordemcli">' + [['gasto', 'Investimento'], ['saude', 'Pior saúde primeiro'], ['resultados', 'Resultados'], ['custo', 'Menor custo por resultado'], ['nome', 'Nome']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === ordem ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
     if (!lista.length) h += '<p class="vazio">Nenhum cliente encontrado para “' + esc(estado.busca) + '”.</p>';
     h += '<div class="clientes">' + lista.map(function (c) {
@@ -667,7 +703,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var cats = g.categorias.map(function (c) { return c.nome; });
     var h = '<div class="chips" role="group" aria-label="Filtrar por objetivo"><button type="button" class="chip" data-cat="" aria-pressed="' + (!cat) + '">Todos</button>' +
       cats.map(function (c) { return '<button type="button" class="chip" data-cat="' + esc(c) + '" aria-pressed="' + (c === cat) + '">' + esc(c) + '</button>'; }).join('') + '</div>' +
-      '<div class="filtros"><label class="rotulo" for="cli">Cliente</label><select class="seletor" id="cli" name="cli"><option value="">Todos os clientes</option>' +
+      '<div class="filtros"><label class="rotulo" for="cli">Cliente</label><select class="seletor" id="cli" name="cli"><option value="">' + (ehCliente() ? 'Todas as contas' : 'Todos os clientes') + '</option>' +
       g.contas.slice().sort(function (a, b) { return a.nome.localeCompare(b.nome, 'pt-BR'); }).map(function (c) { return '<option value="' + c.id + '"' + (c.id === cli ? ' selected' : '') + '>' + esc(c.nome) + '</option>'; }).join('') + '</select>' +
       '<input class="busca" type="search" id="busca" name="busca" autocomplete="off" placeholder="Buscar campanha…" aria-label="Buscar campanha" value="' + esc(estado.busca || '') + '"></div>';
     var m = (g.contas[0] && g.contas[0].moeda) || 'BRL';
@@ -726,7 +762,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   var SUBS = [['resumo', 'Resumo'], ['campanhas', 'Campanhas'], ['conjuntos', 'Conjuntos'], ['anuncios', 'Anúncios'], ['publico', 'Público'], ['diario', 'Dia a dia']];
   function telaCliente(d) {
     var c = d.conta, m = c.moeda, sub = estado.sub || 'resumo';
-    var h = '<a class="voltar" href="' + link({ aba: 'clientes' }) + '">← Todos os clientes</a><div class="cabcli"><span class="mono" aria-hidden="true">' + esc(iniciais(c.nome)) + '</span><div><h2>' + esc(c.nome) + '</h2>' + (c.empresa ? '<span class="emp">' + esc(c.empresa) + '</span>' : '') + '</div>' +
+    var h = '<a class="voltar" href="' + link({ aba: 'clientes' }) + '">' + (ehCliente() ? '← Suas contas' : '← Todos os clientes') + '</a><div class="cabcli"><span class="mono" aria-hidden="true">' + esc(iniciais(c.nome)) + '</span><div><h2>' + esc(c.nome) + '</h2>' + (c.empresa ? '<span class="emp">' + esc(c.empresa) + '</span>' : '') + '</div>' +
       '<span class="tag' + (c.status === 'Ativa' ? '' : ' alto') + '">Conta ' + esc(c.status.toLowerCase()) + '</span>' + chipSaude(geral && (geral.contas.filter(function (x) { return x.id === c.id; })[0] || {}).saude) + '</div>';
     h += '<nav class="abas sub" aria-label="Detalhes do cliente">' + SUBS.map(function (s) {
       var n = s[0] === 'campanhas' ? d.campanhas.length : s[0] === 'conjuntos' ? d.conjuntos.length : s[0] === 'anuncios' ? d.anuncios.length : null;
@@ -849,7 +885,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function abrirDialogo(tipo, x) {
     pendente = { tipo: tipo, x: x };
     $('dlg-erro').textContent = '';
-    $('dlg-autor').value = lerLocal('yamb-trafego-autor');
+    $('dlg-quem').textContent = 'Fica registrado em nome de ' + (eu ? eu.nome : '') + '.';
     $('dlg-motivo').value = '';
     $('dlg-motivo-caixa').hidden = tipo !== 'recusar';
     var m = $('dlg-mudanca'); m.hidden = true; $('dlg-valor-caixa').hidden = true; m.style.display = '';
@@ -884,13 +920,12 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       if (!x.acao && x.passos && x.passos.length) { m.hidden = false; m.innerHTML = listaPassos(x); m.style.display = 'block'; } else { m.style.display = ''; }
       $('dlg-ok').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar';
     }
-    dlg.showModal(); $('dlg-autor').focus();
+    dlg.showModal(); ($('dlg-valor-caixa').hidden ? $('dlg-ok') : $('dlg-valor')).focus();
   }
   $('dlg-cancelar').addEventListener('click', function () { dlg.close(); });
   $('dlg-form').addEventListener('submit', function (ev) {
     ev.preventDefault();
-    var autor = $('dlg-autor').value.trim(); if (!autor) { $('dlg-erro').textContent = 'Escreva seu nome para registrar quem decidiu.'; $('dlg-autor').focus(); return; }
-    gravarLocal('yamb-trafego-autor', autor);
+    var autor = eu ? eu.nome : '';
     var bt = $('dlg-ok'), txt = bt.textContent; bt.disabled = true; bt.textContent = 'Aplicando…';
     var p = pendente, req = p.tipo === 'editar' ? enviar('/editar', { objeto: p.x.item.id, nivel: p.x.item.nivel, acao: p.x.acao, valor: Number($('dlg-valor').value), autor: autor })
       : p.tipo === 'editar-sug' ? enviar('/decidir', { id: p.x.id, decisao: 'aceitar', valor: Number($('dlg-valor').value), autor: autor, periodo: estado.periodo })
@@ -925,7 +960,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       '<label class="rotulo" for="nivel" style="display:inline-block;margin-top:12px">Avisar a partir de</label> <select class="seletor" id="nivel" name="notif.nivel">' + [['alto', 'Só urgentes'], ['medio', 'Urgentes e atenção'], ['baixo', 'Todas as sugestões']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === nt.nivelMinimo ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
       '<div class="status-push"><button type="button" class="botao-ouro p" id="push-ativar">Receber neste aparelho</button><button type="button" class="botao-sec" id="push-sair">Parar neste aparelho</button><button type="button" class="botao-sec" id="push-teste">Enviar teste</button><span class="meta" id="push-status" role="status" aria-live="polite"></span></div>' +
       '<p class="meta" id="push-ios" hidden>No iPhone: toque em Compartilhar › <b>Adicionar à Tela de Início</b>, abra o painel pelo ícone novo e então toque em “Receber neste aparelho”.</p></div></section>' +
-      '<div class="barra-salvar"><label class="rotulo" for="aj-autor">Seu nome</label><input id="aj-autor" name="autor" autocomplete="name" required placeholder="Ex.: Gabriel Santos…" value="' + esc(lerLocal('yamb-trafego-autor')) + '"><button type="submit" class="botao-ouro p" id="aj-salvar">Salvar avisos</button><span class="meta" id="aj-status" role="status" aria-live="polite"></span></div></form>';
+      '<div class="barra-salvar"><button type="submit" class="botao-ouro p" id="aj-salvar">Salvar avisos</button><span class="meta" id="aj-status" role="status" aria-live="polite"></span></div></form>';
     $('conteudo').innerHTML = h;
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), app = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     if (ios && !app) $('push-ios').hidden = false;
@@ -937,9 +972,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   }
   function salvarAjustes(ev) {
     ev.preventDefault();
-    var f = ev.target, autor = $('aj-autor').value.trim();
-    if (!autor) { $('aj-status').textContent = 'Escreva seu nome.'; $('aj-autor').focus(); return; }
-    gravarLocal('yamb-trafego-autor', autor);
+    var f = ev.target, autor = eu ? eu.nome : '';
     var horas = [].filter.call(f.querySelectorAll('input[name=hora]'), function (i) { return i.checked; }).map(function (i) { return Number(i.value); });
     var bt = $('aj-salvar'); bt.disabled = true; $('aj-status').textContent = 'Salvando…';
     enviar('/config', { autor: autor, config: { notificacoes: { ativo: f.elements['notif.ativo'].checked, horas: horas, nivelMinimo: f.elements['notif.nivel'].value } } })
@@ -954,9 +987,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     registroSW().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) { st.textContent = sub ? 'Este aparelho já recebe os avisos.' : (Notification.permission === 'denied' ? 'As notificações estão bloqueadas neste navegador: libere nas configurações do site.' : 'Este aparelho ainda não recebe.'); }).catch(function () {});
   }
   function ativarPush() {
-    var st = $('push-status'), nome = ($('aj-autor').value || lerLocal('yamb-trafego-autor')).trim();
-    if (!nome) { st.textContent = 'Escreva seu nome no campo abaixo antes.'; $('aj-autor').focus(); return; }
-    gravarLocal('yamb-trafego-autor', nome);
+    var st = $('push-status'), nome = eu ? eu.nome : '';
     st.textContent = 'Pedindo permissão…';
     Notification.requestPermission().then(function (p) {
       if (p !== 'granted') throw new Error('Permissão negada. Libere as notificações nas configurações do site.');
@@ -973,6 +1004,76 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       var ep = sub.endpoint; return sub.unsubscribe().then(function () { return enviar('/push/sair', { endpoint: ep }); }).then(function () { st.textContent = 'Este aparelho não recebe mais os avisos.'; });
     }).catch(function (e) { st.textContent = e.message; });
   }
+
+  // ------------------------------------------------ acessos (só administrador)
+  var acessos = null, editando = null;
+  var PAPEL = { admin: 'Administrador', equipe: 'Equipe YAMB', cliente: 'Cliente' };
+  function gerarSenha() {
+    var letras = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789', a = new Uint32Array(12), r = '';
+    crypto.getRandomValues(a); for (var i = 0; i < a.length; i++) r += letras[a[i] % letras.length];
+    return r.slice(0, 4) + '-' + r.slice(4, 8) + '-' + r.slice(8);
+  }
+  function telaAcessos(d) {
+    acessos = d;
+    var nomeConta = {}; d.contas.forEach(function (c) { nomeConta[c.id] = c.nome; });
+    var h = '<p class="meta" style="margin:0 0 14px">Cada pessoa entra com o próprio usuário. <b>Cliente</b> vê só os números das contas marcadas (sem sugestões, alertas ou edição). <b>Equipe</b> vê todos os clientes, decide as sugestões e edita campanhas. <b>Administrador</b> faz tudo e cuida desta aba.</p>';
+    h += '<div class="filtros"><button type="button" class="botao-ouro p" id="ac-novo">Novo acesso</button></div>';
+    h += '<div id="ac-form-caixa"></div>';
+    h += '<section class="cartao vidro"><h2>Acessos<small>' + d.usuarios.length + '</small></h2>' + (d.usuarios.length ? '<div class="tabela"><table><thead><tr><th scope="col">Nome</th><th scope="col">Usuário</th><th scope="col">Tipo</th><th scope="col">O que vê</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead><tbody>' +
+      d.usuarios.map(function (u) {
+        var ve = u.papel === 'cliente' ? u.contas.map(function (c) { return esc(nomeConta[c] || c); }).join('<br>') : '<span class="meta">Todos os clientes</span>';
+        return '<tr' + (u.ativo ? '' : ' class="pausada"') + '><td><b>' + esc(u.nome) + '</b>' + (u.alteradoPor ? '<span class="sub-l">alterado por ' + esc(u.alteradoPor) + ' em ' + new Date(u.alteradoEm).toLocaleDateString('pt-BR') + '</span>' : '') + '</td><td class="num">' + esc(u.login) + '</td><td><span class="tag">' + esc(PAPEL[u.papel] || u.papel) + '</span></td><td>' + ve + '</td>' +
+          '<td>' + (u.ativo ? '<span class="tag baixo">Ativo</span>' : '<span class="tag alto">Bloqueado</span>') + '</td>' +
+          '<td><div class="ctrl"><button type="button" class="mini-btn" data-ac-editar="' + esc(u.login) + '">Editar</button><button type="button" class="mini-btn ' + (u.ativo ? 'pausar' : 'ativar') + '" data-ac-ativo="' + esc(u.login) + '">' + (u.ativo ? 'Bloquear' : 'Liberar') + '</button><button type="button" class="mini-btn pausar" data-ac-apagar="' + esc(u.login) + '">Apagar</button></div></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<p class="vazio">Nenhum acesso criado ainda. Comece criando o seu (tipo Administrador) e os da equipe.</p>') + '</section>';
+    h += '<p class="meta">Entrada de emergência: usuário <b>admin</b> com a senha mestra do painel (guardada no cofre da Cloudflare).</p>';
+    $('conteudo').innerHTML = h;
+    $('ac-novo').addEventListener('click', function () { formAcesso(null); });
+  }
+  function formAcesso(u) {
+    editando = u; var novo = !u; u = u || { nome: '', login: '', papel: 'cliente', contas: [], ativo: true };
+    var contas = acessos.contas.slice().sort(function (a, b) { return a.nome.localeCompare(b.nome, 'pt-BR'); });
+    var h = '<section class="cartao vidro"><form id="ac-form" novalidate><span class="over">' + (novo ? 'Novo acesso' : 'Editar acesso') + '</span><h2>' + (novo ? 'Criar usuário' : esc(u.nome)) + '</h2>' +
+      '<div class="ac-grade"><div><label class="rotulo" for="ac-nome">Nome</label><input class="busca" id="ac-nome" name="nome" autocomplete="off" maxlength="60" required placeholder="Ex.: Clínica CAE ou Gabriel Santos…" value="' + esc(u.nome) + '"></div>' +
+      '<div><label class="rotulo" for="ac-login">Usuário</label><input class="busca" id="ac-login" name="login" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" required placeholder="ex.: clinica.cae" value="' + esc(u.login) + '"' + (novo ? '' : ' readonly') + '></div>' +
+      '<div><label class="rotulo" for="ac-papel">Tipo de acesso</label><select class="seletor" id="ac-papel" name="papel">' + ['cliente', 'equipe', 'admin'].map(function (p) { return '<option value="' + p + '"' + (p === u.papel ? ' selected' : '') + '>' + PAPEL[p] + '</option>'; }).join('') + '</select></div>' +
+      '<div><label class="rotulo" for="ac-senha">' + (novo ? 'Senha' : 'Nova senha (deixe em branco para manter)') + '</label><div class="ac-senha"><input class="busca" id="ac-senha" name="senha" type="text" autocomplete="new-password" autocapitalize="none" spellcheck="false" minlength="8" placeholder="mínimo 8 caracteres"><button type="button" class="botao-sec" id="ac-gerar">Gerar</button></div><span class="meta">Copie e envie a senha para a pessoa: depois de salvar, ninguém consegue vê-la de novo.</span></div></div>' +
+      '<fieldset class="ac-contas" id="ac-contas"' + (u.papel === 'cliente' ? '' : ' hidden') + '><legend class="rotulo">Contas de anúncio que este cliente vê</legend><input class="busca" type="search" id="ac-busca" autocomplete="off" placeholder="Filtrar contas…" aria-label="Filtrar contas"><div class="ac-lista">' +
+      contas.map(function (c) { return '<label data-nome="' + esc(c.nome.toLowerCase()) + '"><input type="checkbox" name="conta" value="' + c.id + '"' + (u.contas.indexOf(c.id) >= 0 ? ' checked' : '') + '><span>' + esc(c.nome) + (c.ativa ? '' : ' <span class="meta">(inativa)</span>') + '</span></label>'; }).join('') + '</div></fieldset>' +
+      '<label class="ac-ativo"><input type="checkbox" name="ativo"' + (u.ativo ? ' checked' : '') + '> Acesso liberado</label>' +
+      '<p class="erro" id="ac-erro" role="alert" aria-live="polite"></p>' +
+      '<div class="linha-botoes"><button type="button" class="cancelar" id="ac-cancelar">Cancelar</button><button type="submit" class="botao-ouro p" id="ac-salvar">' + (novo ? 'Criar acesso' : 'Salvar') + '</button></div></form></section>';
+    $('ac-form-caixa').innerHTML = h;
+    $('ac-papel').addEventListener('change', function () { $('ac-contas').hidden = this.value !== 'cliente'; });
+    $('ac-gerar').addEventListener('click', function () { $('ac-senha').value = gerarSenha(); $('ac-senha').select(); });
+    $('ac-busca').addEventListener('input', function () { var q = this.value.toLowerCase(); document.querySelectorAll('.ac-lista label').forEach(function (l) { l.hidden = q && l.getAttribute('data-nome').indexOf(q) < 0; }); });
+    $('ac-cancelar').addEventListener('click', function () { $('ac-form-caixa').innerHTML = ''; });
+    $('ac-form').addEventListener('submit', salvarAcessoForm);
+    $('ac-nome').focus(); $('ac-form-caixa').scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+  function salvarAcessoForm(ev) {
+    ev.preventDefault();
+    var f = ev.target, senha = f.elements.senha.value;
+    var corpo = { novo: !editando, nome: f.elements.nome.value.trim(), login: f.elements.login.value.trim().toLowerCase(), papel: f.elements.papel.value, ativo: f.elements.ativo.checked,
+      contas: [].filter.call(f.querySelectorAll('input[name=conta]'), function (i) { return i.checked; }).map(function (i) { return i.value; }) };
+    if (senha) corpo.senha = senha;
+    var bt = $('ac-salvar'); bt.disabled = true; $('ac-erro').textContent = '';
+    enviar('/acessos/salvar', corpo).then(function () { return pedir('/acessos'); }).then(function (d) {
+      telaAcessos(d);
+      $('ac-form-caixa').innerHTML = '<section class="cartao vidro"><p><b>Acesso ' + (editando ? 'salvo' : 'criado') + '.</b> ' + (senha ? 'Envie para a pessoa: endereço <b>site-yamb.pages.dev/interno/trafego/</b>, usuário <b>' + esc(corpo.login) + '</b> e a senha que você definiu.' : '') + '</p></section>';
+    }).catch(function (e) { $('ac-erro').textContent = e.message; bt.disabled = false; });
+  }
+  $('conteudo').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ac-editar],[data-ac-ativo],[data-ac-apagar]'); if (!b || !acessos) return;
+    var login = b.getAttribute('data-ac-editar') || b.getAttribute('data-ac-ativo') || b.getAttribute('data-ac-apagar');
+    var u = acessos.usuarios.filter(function (x) { return x.login === login; })[0]; if (!u) return;
+    if (b.hasAttribute('data-ac-editar')) return formAcesso(u);
+    var req;
+    if (b.hasAttribute('data-ac-apagar')) { if (!confirm('Apagar o acesso de ' + u.nome + '? A pessoa sai do painel na hora.')) return; req = enviar('/acessos/remover', { login: login }); }
+    else req = enviar('/acessos/salvar', { login: login, nome: u.nome, papel: u.papel, contas: u.contas, ativo: !u.ativo });
+    b.disabled = true;
+    req.then(function () { return pedir('/acessos'); }).then(telaAcessos).catch(function (er) { alert(er.message); b.disabled = false; });
+  });
 
   // ------------------------------------------------ eventos
   function ligarFiltros() {
@@ -1012,19 +1113,36 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function ligarAtualizacao() { clearInterval(timerAtualiza); timerAtualiza = setInterval(atualizarSozinho, ATUALIZA_MS); }
   document.addEventListener('visibilitychange', function () { if (!document.hidden && !$('painel').hidden && geral && Date.now() - new Date(geral.atualizado) > ATUALIZA_MS) atualizarSozinho(); });
 
-  function entrar() { mostrar('painel'); render(); avisoToken(); ligarAtualizacao(); }
-  function sair(msg) { clearInterval(timerAtualiza); senha = null; guardar(CHAVE, null); geral = null; clientes = {}; mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = ''; if (matchMedia('(pointer:fine)').matches) $('senha').focus(); }
+  function entrar() {
+    $('quem').textContent = eu ? eu.nome + ' · ' + ({ admin: 'Administrador', equipe: 'Equipe', cliente: 'Cliente' }[eu.papel] || '') : '';
+    $('ir-interno').hidden = ehCliente();
+    $('periodos').hidden = false; mostrar('painel'); render(); if (!ehCliente()) avisoToken(); ligarAtualizacao();
+    // Confere o acesso no servidor (papel ou contas podem ter mudado desde o último login).
+    pedir('/eu').then(function (r) { if (JSON.stringify(r.usuario) !== JSON.stringify(eu)) { eu = r.usuario; guardar(CHAVE, JSON.stringify({ token: token, usuario: eu })); geral = null; render(); } }).catch(function () {});
+  }
+  function sair(msg) {
+    if (token && !msg) enviar('/sair', {}).catch(function () {});
+    clearInterval(timerAtualiza); token = null; eu = null; guardar(CHAVE, null); geral = null; clientes = {}; sugs = null;
+    mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = '';
+    if (matchMedia('(pointer:fine)').matches) ($('usuario').value ? $('senha') : $('usuario')).focus();
+  }
 
   $('form-senha').addEventListener('submit', function (ev) {
     ev.preventDefault();
-    senha = $('senha').value; $('erro-senha').textContent = '';
+    $('erro-senha').textContent = '';
     var bt = $('btn-entrar'); bt.disabled = true; bt.textContent = 'Entrando…';
-    pedir('/contas').then(function () { guardar(CHAVE, senha); entrar(); })
-      .catch(function (e) { $('erro-senha').textContent = e.status === 401 ? 'Senha incorreta. Confira e tente de novo.' : 'Não foi possível conectar: ' + e.message; $('senha').focus(); })
-      .then(function () { bt.disabled = false; bt.textContent = 'Entrar'; });
+    fetch(API + '/entrar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: $('usuario').value, senha: $('senha').value }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j.erro || !j.token) throw new Error(j.erro || 'Não foi possível entrar.');
+        token = j.token; eu = j.usuario; guardar(CHAVE, JSON.stringify({ token: token, usuario: eu })); $('senha').value = '';
+        entrar();
+      })
+      .catch(function (e) { $('erro-senha').textContent = e.message === 'Failed to fetch' ? 'Sem conexão. Confira a internet e tente de novo.' : e.message; $('senha').focus(); })
+      .then(function () { bt.disabled = false; bt.innerHTML = 'Entrar <span aria-hidden="true">→</span>'; });
   });
 
-  if (senha) entrar(); else { mostrar('entrar'); if (matchMedia('(pointer:fine)').matches) $('senha').focus(); }
+  if (token) entrar(); else { mostrar('entrar'); if (matchMedia('(pointer:fine)').matches) $('usuario').focus(); }
 })();
 </script>
 </body>
