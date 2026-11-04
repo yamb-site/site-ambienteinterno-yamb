@@ -357,6 +357,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   .abas{width:100%}
 }
 /* acessos */
+.avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--edge-gold,rgba(243,172,47,.4))}
 .quem{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;margin-right:4px}
 .ac-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin:14px 0}
 .ac-grade>div{display:flex;flex-direction:column;gap:6px}
@@ -461,7 +462,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   var API = 'https://yamb-trafego.gabrielsocialm21.workers.dev';
   var CHAVE = 'yamb-trafego-sessao';
   var $ = function (id) { return document.getElementById(id); };
-  var geral = null, clientes = {}, estado = {}, sugs = null;
+  var geral = null, clientes = {}, estado = {}, sugs = null, ig = null, igPerfis = {};
 
   // ------------------------------------------------ armazenamento e rede
   // Sessão de 30 dias neste aparelho (o servidor pode encerrar antes: senha trocada ou acesso bloqueado).
@@ -615,13 +616,14 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   function lerEstado() {
     var e = {}; location.hash.replace(/^#/, '').split('&').forEach(function (p) { if (!p) return; var i = p.indexOf('='); e[decodeURIComponent(p.slice(0, i))] = decodeURIComponent(p.slice(i + 1)); });
     e.aba = e.aba || (e.cliente ? 'cliente' : 'geral'); e.periodo = e.periodo || 'last_7d';
-    if (ehCliente() && ['geral', 'clientes', 'campanhas', 'cliente'].indexOf(e.aba) < 0) e.aba = 'geral';
+    if (ehCliente() && ['geral', 'clientes', 'campanhas', 'cliente', 'relatorios'].indexOf(e.aba) < 0) e.aba = 'geral';
     if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'geral';
     return e;
   }
   function link(mudar) {
     var e = Object.assign({}, estado, mudar), partes = [];
     if (mudar.aba && mudar.aba !== 'cliente') { delete e.cliente; delete e.sub; }
+    if (mudar.aba && !mudar.ig) delete e.ig;
     if (mudar.aba || mudar.cliente || mudar.sub) { delete e.ordem; }
     Object.keys(e).forEach(function (k) { if (e[k] != null && e[k] !== '' && !(k === 'periodo' && e[k] === 'last_7d') && !(k === 'aba' && e[k] === 'geral')) partes.push(encodeURIComponent(k) + '=' + encodeURIComponent(e[k])); });
     return '#' + partes.join('&');
@@ -657,6 +659,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       if (!ehCliente()) carregarSugestoes().then(function () { desenharAbas(g); }).catch(function () {});
       if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);
       if (estado.aba === 'acessos') return pedir('/acessos').then(telaAcessos);
+      if (estado.aba === 'relatorios') return telaRelatorios();
       if (estado.aba === 'ajustes') return pedir('/config').then(telaAjustes);
       if (estado.aba === 'sugestoes') return carregarSugestoes().then(function (d) { desenharAbas(g); telaSugestoes(d, g); });
       ({ geral: telaGeral, clientes: telaClientes, campanhas: telaCampanhas, alertas: telaAlertas }[estado.aba] || telaGeral)(g);
@@ -676,6 +679,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       acessos: ['Acessos', 'Quem entra, e <em>o que cada um vê</em>.'],
       campanhas: ['Campanhas', '<em>' + ativas + ' campanhas</em> no ar agora.'],
       alertas: ['Alertas', na ? 'O que pede <em>atenção</em> hoje.' : 'Nada pedindo <em>atenção</em>.'],
+      relatorios: ['Relatórios', 'Como está o <em>Instagram</em> de cada cliente.'],
       sugestoes: ['Sugestões da YA', 'A YA sugere, <em>você decide</em>.'],
       ajustes: ['Avisos', 'A YA avisa <em>no seu celular</em>.'],
       cliente: ['Cliente', c ? esc(c.nome).replace(/^(.*?)( - .*)?$/, '<em>$1</em>$2') : 'Cliente'],
@@ -698,8 +702,8 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var n = todosAlertas(g).length;
     var ns = sugs && sugs.periodo === estado.periodo ? sugs.sugestoes.length : 0;
     var nCamp = 'Campanhas <span class="meta">(' + g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0) + ' ativas)</span>';
-    var abas = ehCliente() ? [['geral', 'Visão geral'], ['clientes', (g.contas.length === 1 ? 'Conta' : 'Contas <span class="meta">(' + g.contas.length + ')</span>')], ['campanhas', nCamp]]
-      : [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', nCamp], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Avisos']];
+    var abas = ehCliente() ? [['geral', 'Visão geral'], ['clientes', (g.contas.length === 1 ? 'Conta' : 'Contas <span class="meta">(' + g.contas.length + ')</span>')], ['campanhas', nCamp], ['relatorios', 'Relatórios']]
+      : [['geral', 'Visão geral'], ['sugestoes', 'Sugestões' + (ns ? '<span class="cont">' + ns + '</span>' : '')], ['clientes', 'Clientes <span class="meta">(' + g.contas.length + ')</span>'], ['campanhas', nCamp], ['relatorios', 'Relatórios'], ['alertas', 'Alertas' + (n ? '<span class="cont">' + n + '</span>' : '')], ['ajustes', 'Avisos']];
     if (ehAdmin()) abas.push(['acessos', 'Acessos']);
     var atual = estado.aba === 'cliente' ? 'clientes' : estado.aba;
     $('abas').innerHTML = abas.map(function (a) { return '<a href="' + link({ aba: a[0] }) + '"' + (a[0] === atual ? ' aria-current="page"' : '') + '>' + a[1] + '</a>'; }).join('');
@@ -900,6 +904,104 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   }
 
 
+
+  // ------------------------------------------------ relatórios do Instagram
+  var GUIA_IG = {
+    seguidores: { nome: 'Seguidores', oque: 'Quantas pessoas seguem o perfil hoje.', dica: 'O que importa é o saldo de novos seguidores no período, não só o total.', frase: function (v) { return N(v.seguidores) + ' pessoas seguem este perfil.'; } },
+    novos: { nome: 'Novos seguidores', oque: 'Quantos seguidores o perfil ganhou no período, já descontando quem deixou de seguir.', dica: 'Positivo é crescimento; negativo significa que mais gente saiu do que entrou.', frase: function (v) { return v.novos == null ? 'O Meta não informou o saldo de seguidores neste período.' : (v.novos >= 0 ? 'O perfil ganhou ' + N(v.novos) + ' seguidores no período.' : 'O perfil perdeu ' + N(-v.novos) + ' seguidores no período.'); } },
+    alcance: { nome: 'Pessoas alcançadas', oque: 'Quantas pessoas diferentes viram posts, Reels ou stories do perfil.', dica: 'Mostra o tamanho do público que o conteúdo atingiu, sem contar repetição.', frase: function (v) { return N(v.alcance) + ' pessoas diferentes viram o conteúdo do perfil.'; } },
+    visualizacoes: { nome: 'Visualizações', oque: 'Quantas vezes o conteúdo apareceu na tela, contando quando a mesma pessoa vê de novo.', dica: 'É sempre maior ou igual às pessoas alcançadas.', frase: function (v) { return 'O conteúdo foi visto ' + N(v.visualizacoes) + ' vezes.'; } },
+    visitasPerfil: { nome: 'Visitas ao perfil', oque: 'Quantas vezes alguém abriu a página do perfil.', dica: 'Sinal de interesse: a pessoa viu um post e quis saber mais.', frase: function (v) { return 'O perfil foi aberto ' + N(v.visitasPerfil) + ' vezes.'; } },
+    interacoes: { nome: 'Interações', oque: 'Soma de curtidas, comentários, compartilhamentos e salvamentos do período.', dica: 'Quanto mais, melhor. O que conta é a proporção em relação ao alcance.', frase: function (v) { return 'O público interagiu ' + N(v.interacoes) + ' vezes com o conteúdo.'; } },
+    taxaEngajamento: { nome: 'Taxa de engajamento', oque: 'De cada 100 pessoas alcançadas, quantas interagiram (curtiram, comentaram, compartilharam ou salvaram).', dica: 'Entre 3% e 6% costuma ser bom para perfis de empresas; acima disso é excelente.', frase: function (v) { return v.taxaEngajamento == null ? 'Sem alcance para calcular.' : 'De cada 100 pessoas alcançadas, ' + D(v.taxaEngajamento).replace(',00', '') + ' interagiram.'; } },
+  };
+  function rotuloIG(k) { return GUIA_IG[k].nome; }
+  function kpiIG(k, valor, v, d, destaque) {
+    var g = GUIA_IG[k];
+    return '<div class="kpi vidro' + (destaque ? ' destaque' : '') + '"><span class="r">' + g.nome + '</span><b class="num">' + valor + '</b><p class="frase">' + esc(g.frase(v)) + '</p>' + (d || '') +
+      '<details class="ajuda"><summary>O que é isso?</summary><p>' + esc(g.oque) + '</p><p class="bom">' + esc(g.dica) + '</p></details></div>';
+  }
+  function kpisIG(perfil, d) {
+    var t = d.totais || perfil.totais || {}, ant = d.anterior || perfil.anterior || {};
+    var v = Object.assign({ seguidores: perfil.seguidores, novos: d.seguidoresNovos }, t);
+    return '<div class="kpis">' +
+      kpiIG('seguidores', N(perfil.seguidores), v, d.seguidoresNovos == null ? '' : '<span class="delta ' + (d.seguidoresNovos > 0 ? 'bom' : d.seguidoresNovos < 0 ? 'ruim' : 'neutro') + '">' + (d.seguidoresNovos > 0 ? '▲ +' : d.seguidoresNovos < 0 ? '▼ ' : '• ') + N(d.seguidoresNovos) + ' no período</span>', true) +
+      kpiIG('alcance', N(t.alcance), v, delta(t.alcance, ant.alcance)) +
+      kpiIG('visualizacoes', N(t.visualizacoes), v, delta(t.visualizacoes, ant.visualizacoes)) +
+      kpiIG('visitasPerfil', N(t.visitasPerfil), v, delta(t.visitasPerfil, ant.visitasPerfil)) +
+      kpiIG('interacoes', N(t.interacoes), v, delta(t.interacoes, ant.interacoes)) +
+      kpiIG('taxaEngajamento', P(t.taxaEngajamento), v, delta(t.taxaEngajamento, ant.taxaEngajamento)) + '</div>';
+  }
+  function guiaIG() {
+    return '<details class="guia vidro"><summary><span class="over">Glossário</span> Como ler os números do Instagram</summary><dl>' +
+      ['alcance', 'visualizacoes', 'visitasPerfil', 'interacoes', 'taxaEngajamento', 'novos'].map(function (k) { var g = GUIA_IG[k]; return '<div><dt>' + g.nome + '</dt><dd>' + esc(g.oque) + ' <span class="bom">' + esc(g.dica) + '</span></dd></div>'; }).join('') +
+      '</dl><p class="meta">“vs anterior” compara com o mesmo número de dias logo antes. Os dados vêm do próprio Instagram, pelo Meta.</p></details>';
+  }
+  function carregarIG() {
+    if (ig && ig.periodo === estado.periodo) return Promise.resolve(ig);
+    return pedir('/instagram?periodo=' + estado.periodo).then(function (d) { ig = d; return d; });
+  }
+  function telaRelatorios() {
+    if (estado.ig) return carregarIG().then(function (g) { return carregarPerfilIG(estado.ig).then(function (d) { telaPerfilIG(g, d); }); }).catch(erroRelatorio);
+    return carregarIG().then(telaListaIG).catch(erroRelatorio);
+  }
+  function erroRelatorio(e) {
+    if (e.status === 401) { sair('Sua sessão terminou. Entre de novo.'); return; }
+    $('conteudo').innerHTML = '<p class="erro">Não foi possível carregar o relatório: ' + esc(e.message) + '</p><p class="meta">Tente “Atualizar”.</p>';
+  }
+  function carregarPerfilIG(id) {
+    var k = id + ':' + estado.periodo;
+    if (igPerfis[k]) return Promise.resolve(igPerfis[k]);
+    return pedir('/instagram/perfil?id=' + encodeURIComponent(id) + '&periodo=' + estado.periodo).then(function (d) { igPerfis[k] = d; return d; });
+  }
+  function avatar(p) { return p.foto ? '<img class="avatar" src="' + esc(p.foto) + '" alt="" width="44" height="44" referrerpolicy="no-referrer">' : '<span class="mono" aria-hidden="true">' + esc(iniciais(p.nome || p.usuario)) + '</span>'; }
+  function telaListaIG(g) {
+    var h = '';
+    if (g.faltaPermissao) h += '<div class="aviso-chave">O token do Meta ainda não tem a permissão do Instagram (<b>instagram_basic</b> e <b>instagram_manage_insights</b>). Gere um token novo com essas duas permissões marcadas e guarde de novo nos segredos do Worker (peça ao YA - Tráfego).</div>';
+    (g.erros || []).forEach(function (e) { h += '<p class="erro">' + esc(e.conta) + ': ' + esc(e.erro) + '</p>'; });
+    if (!g.perfis.length && !g.faltaPermissao) h += '<section class="cartao vidro"><p class="vazio">Nenhum perfil de Instagram ligado às contas de anúncio ainda. No Meta, o perfil precisa estar conectado à conta de anúncio do cliente.</p></section>';
+    h += '<p class="meta" style="margin:0 0 14px">Um relatório por perfil de Instagram. Os números são do próprio Instagram, no período escolhido acima.</p><div class="clientes">';
+    g.perfis.forEach(function (p) {
+      var t = p.totais, ant = p.anterior || {};
+      h += '<a class="cli vidro" href="' + link({ aba: 'relatorios', ig: p.id }) + '"><div class="cab">' + avatar(p) + '<div><h3>' + esc(p.nome || p.usuario || 'Perfil') + '</h3><span class="emp">' + (p.usuario ? '@' + esc(p.usuario) + ' · ' : '') + esc(p.contas.map(function (c) { return c.nome; }).join(', ')) + '</span></div></div>';
+      if (p.erro) h += '<p class="erro" style="margin:10px 0 0">' + esc(p.erro) + '</p>';
+      else h += '<dl><div><dt>Seguidores</dt><dd>' + N(p.seguidores) + '</dd></div><div><dt>Pessoas alcançadas</dt><dd>' + N(t && t.alcance) + '</dd></div><div><dt>Interações</dt><dd>' + N(t && t.interacoes) + '</dd></div><div><dt>Taxa de engajamento</dt><dd>' + P(t && t.taxaEngajamento) + '</dd></div></dl>' +
+        '<div class="rodape-cli">' + delta(t && t.alcance, ant.alcance) + '</div>';
+      h += '</a>';
+    });
+    h += '</div>';
+    if ((g.semPerfil || []).length && !ehCliente()) h += '<section class="cartao vidro" style="margin-top:16px"><h2>Sem Instagram ligado<small>' + g.semPerfil.length + '</small></h2><p class="meta">Estas contas de anúncio não têm perfil de Instagram conectado no Meta, então não entram nos relatórios:</p><p>' + g.semPerfil.map(function (c) { return esc(c.nome); }).join(' · ') + '</p></section>';
+    h += guiaIG();
+    $('conteudo').innerHTML = h;
+  }
+  function graficoAlcance(dias) {
+    if (!dias || !dias.length) return '<p class="vazio">Sem dados por dia no período.</p>';
+    var W = 760, H = 200, pe = 44, pt = 12, pb = 28, n = dias.length, max = Math.max.apply(null, dias.map(function (x) { return x.alcance; }).concat([1])), bw = (W - pe - 16) / n, svg = '';
+    for (var i = 0; i <= 4; i++) { var y = pt + (H - pt - pb) * i / 4; svg += '<line x1="' + pe + '" x2="' + (W - 16) + '" y1="' + y + '" y2="' + y + '" stroke="rgba(247,228,206,.07)"/><text x="' + (pe - 6) + '" y="' + (y + 4) + '" fill="rgba(247,228,206,.5)" font-size="10" text-anchor="end">' + N(max * (1 - i / 4)) + '</text>'; }
+    dias.forEach(function (x, i) {
+      var h = (H - pt - pb) * x.alcance / max, x0 = pe + i * bw;
+      svg += '<rect x="' + (x0 + bw * .15) + '" y="' + (H - pb - h) + '" width="' + (bw * .7) + '" height="' + h + '" rx="3" fill="url(#ouroig)"><title>' + esc(data(x.dia) + ': ' + N(x.alcance) + ' pessoas alcançadas') + '</title></rect>';
+      if (n <= 14 || i % Math.ceil(n / 10) === 0) svg += '<text x="' + (x0 + bw / 2) + '" y="' + (H - 8) + '" fill="rgba(247,228,206,.5)" font-size="10" text-anchor="middle">' + data(x.dia) + '</text>';
+    });
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc('Gráfico de pessoas alcançadas por dia, de ' + N(Math.min.apply(null, dias.map(function (x) { return x.alcance; }))) + ' a ' + N(max) + '.') + '"><defs><linearGradient id="ouroig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F5C86F"/><stop offset="1" stop-color="#845721"/></linearGradient></defs>' + svg + '</svg>';
+  }
+  function telaPerfilIG(g, d) {
+    var p = d.perfil, h = '<a class="voltar" href="' + link({ aba: 'relatorios', ig: '' }) + '">← Todos os perfis</a><div class="cabcli">' + avatar(p) + '<div><h2>' + esc(p.nome || p.usuario) + '</h2><span class="emp">' + (p.usuario ? '@' + esc(p.usuario) + ' · ' : '') + N(p.posts) + ' posts publicados · ' + N(p.seguindo) + ' seguindo</span></div></div>';
+    if (d.erroTotais) h += '<p class="erro">' + esc(d.erroTotais) + '</p>';
+    h += kpisIG(p, d) + guiaIG();
+    if (d.diario && d.diario.length) h += '<section class="cartao vidro grafico"><h2>Pessoas alcançadas por dia</h2>' + graficoAlcance(d.diario) + '</section>';
+    if (d.ideias && d.ideias.length && !ehCliente()) h += '<section class="cartao vidro"><h2>Ideias de post da YA<small>' + d.ideias.length + '</small></h2><p class="meta">A YA lê os posts do período e sugere o que fazer. Nada é publicado: é só orientação para a equipe.</p><div class="sugs">' + d.ideias.map(function (x) {
+      return '<article class="sug"><span class="ponto ' + x.nivel + '" title="' + NIVEL[x.nivel] + '"></span><div><span class="over" style="font-size:10px">A YA sugere</span><h3>' + esc(x.titulo) + '</h3><p>' + esc(x.motivo) + '</p>' + listaPassos({ passos: x.passos }) + '</div></article>';
+    }).join('') + '</div></section>';
+    if (d.aviso) h += '<p class="erro">' + esc(d.aviso) + '</p>';
+    h += '<section class="cartao vidro"><h2>Posts do período<small>' + d.posts.length + '</small></h2>' + (d.posts.length ? '<p class="meta">Do que mais gerou interação para o que menos gerou. Toque no post para abrir no Instagram.</p><div class="anuncios">' + d.posts.map(function (x, i) {
+      return '<article class="anu vidro"><div class="midia">' + (x.miniatura ? '<img src="' + esc(x.miniatura) + '" alt="Prévia do post de ' + esc(data(x.publicado.slice(0, 10))) + '" width="320" height="180"' + (i > 5 ? ' loading="lazy"' : '') + ' referrerpolicy="no-referrer">' : '<div class="semimg">Sem prévia</div>') + '</div><div class="c"><span class="tag">' + esc(x.formato) + '</span> <span class="meta">' + esc(data(x.publicado.slice(0, 10))) + '</span>' +
+        '<p>' + esc(x.legenda || 'Sem legenda') + '</p><dl><div><dt>Alcance</dt><dd>' + N(x.alcance) + '</dd></div><div><dt>Interações</dt><dd>' + N(x.interacoes) + '</dd></div><div><dt>Engajamento</dt><dd>' + P(x.taxaEngajamento) + '</dd></div><div><dt>Curtidas</dt><dd>' + N(x.curtidas) + '</dd></div><div><dt>Comentários</dt><dd>' + N(x.comentarios) + '</dd></div><div><dt>Salvos</dt><dd>' + N(x.salvamentos) + '</dd></div></dl>' +
+        (x.link ? '<a class="mais" href="' + esc(x.link) + '" target="_blank" rel="noopener noreferrer">Abrir no Instagram</a>' : '') + '</div></article>';
+    }).join('') + '</div>' : '<p class="vazio">Nenhum post publicado neste período.</p>') + '</section>';
+    $('conteudo').innerHTML = h;
+  }
+
   // ------------------------------------------------ sugestões
   var ROTULO_ESTADO = { aplicada: 'Aplicada no Meta', recusada: 'Recusada', tarefa: 'Virou tarefa', desfeita: 'Desfeita', editada: 'Editada no Meta', ajustes: 'Ajustes' };
   function textoAcao(x) {
@@ -985,7 +1087,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       : p.tipo === 'editar-sug' ? enviar('/decidir', { id: p.x.id, decisao: 'aceitar', valor: Number($('dlg-valor').value), autor: autor, periodo: estado.periodo })
       : p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
       : enviar('/decidir', { id: p.x.id, decisao: p.tipo === 'recusar' ? 'recusar' : 'aceitar', autor: autor, motivo: $('dlg-motivo').value, periodo: estado.periodo });
-    req.then(function () { dlg.close(); geral = null; clientes = {}; return carregarSugestoes(true).then(function () { render(); }); })
+    req.then(function () { dlg.close(); geral = null; clientes = {}; ig = null; igPerfis = {}; return carregarSugestoes(true).then(function () { render(); }); })
       .catch(function (e) { $('dlg-erro').textContent = e.message; })
       .then(function () { bt.disabled = false; bt.textContent = txt; });
   });
@@ -1141,7 +1243,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   });
   $('conteudo').addEventListener('toggle', function (e) { if (e.target.id === 'guia') gravarLocal('yamb-trafego-guia', e.target.open ? '1' : '0'); }, true);
   $('periodos').addEventListener('click', function (e) { var b = e.target.closest('[data-p]'); if (b) ir({ periodo: b.getAttribute('data-p') }); });
-  $('atualizar').addEventListener('click', function () { geral = null; clientes = {}; sugs = null; render(); });
+  $('atualizar').addEventListener('click', function () { geral = null; clientes = {}; ig = null; igPerfis = {}; sugs = null; render(); });
   $('sair').addEventListener('click', function () { sair(); });
   window.addEventListener('hashchange', function () { var cli = estado.cliente, aba = estado.aba, sub = estado.sub; render(); if (lerEstado().cliente !== cli || lerEstado().aba !== aba || lerEstado().sub !== sub) window.scrollTo(0, 0); });
 
@@ -1172,7 +1274,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     var foco = document.activeElement;
     if (foco && /^(INPUT|SELECT|TEXTAREA)$/.test(foco.tagName)) return;
     var y = window.scrollY;
-    geral = null; clientes = {}; sugs = null;
+    geral = null; clientes = {}; ig = null; igPerfis = {}; sugs = null;
     Promise.resolve(render(true)).then(function () { window.scrollTo(0, y); });
   }
   function ligarAtualizacao() { clearInterval(timerAtualiza); timerAtualiza = setInterval(atualizarSozinho, ATUALIZA_MS); }
@@ -1187,7 +1289,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   }
   function sair(msg) {
     if (token && !msg) enviar('/sair', {}).catch(function () {});
-    clearInterval(timerAtualiza); token = null; eu = null; guardar(CHAVE, null); geral = null; clientes = {}; sugs = null;
+    clearInterval(timerAtualiza); token = null; eu = null; guardar(CHAVE, null); geral = null; clientes = {}; ig = null; igPerfis = {}; sugs = null;
     mostrar('entrar'); $('erro-senha').textContent = msg || ''; $('senha').value = '';
     if (matchMedia('(pointer:fine)').matches) ($('usuario').value ? $('senha') : $('usuario')).focus();
   }

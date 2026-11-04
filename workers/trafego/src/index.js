@@ -21,6 +21,8 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 //   /cliente?id=act_123&periodo=...  detalhe de uma conta: campanhas, conjuntos, anúncios, público, dia a dia
 //   /contas                          lista de contas · /token  validade da chave
 //   /sugestoes?periodo=last_7d       sugestões (regras sobre os números de cada conta) + histórico de decisões
+//   GET /instagram?periodo=...           relatório do Instagram de cada cliente (números do período e do período anterior)
+//   GET /instagram/perfil?id=<ig>&periodo=...  detalhe de um perfil: dia a dia, posts, ideias da YA (só leitura)
 //   POST /decidir  {id, decisao}          aceitar (aplica no Meta) ou recusar uma sugestão
 //   POST /desfazer {registro, autor}      desfaz uma mudança aplicada
 //   POST /editar   {objeto, nivel, acao, valor, autor}  ativar, pausar ou mudar orçamento (campanha, conjunto, anúncio)
@@ -42,7 +44,7 @@ const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES",
 const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
 const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste", "/entrar", "/sair", "/acessos/salvar", "/acessos/remover"];
 // O que o cliente pode pedir (tudo só leitura e filtrado pelas contas dele).
-const ROTAS_CLIENTE = ["/eu", "/sair", "/contas", "/painel", "/cliente"];
+const ROTAS_CLIENTE = ["/eu", "/sair", "/contas", "/painel", "/cliente", "/instagram", "/instagram/perfil"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
 const RESULTADOS = [
   ["onsite_conversion.messaging_conversation_started_7d", "Conversas iniciadas"],
@@ -107,6 +109,19 @@ export default {
       if (url.pathname === "/painel") {
         const g = await comCache(ctx, "painel4:" + periodo, () => painel(env, periodo));
         return json(quem.papel === "cliente" ? painelDoCliente(g, quem.contas) : g, 200, cors);
+      }
+      if (url.pathname === "/instagram") {
+        const g = await comCache(ctx, "ig1:" + periodo, () => instagramGeral(env, ctx, periodo));
+        return json(quem.papel === "cliente" ? instagramDoCliente(g, quem.contas) : g, 200, cors);
+      }
+      if (url.pathname === "/instagram/perfil") {
+        const id = url.searchParams.get("id") || "";
+        if (!/^\d+$/.test(id)) return json({ erro: "Perfil inválido." }, 400, cors);
+        const g = await comCache(ctx, "ig1:" + periodo, () => instagramGeral(env, ctx, periodo));
+        const perfil = (quem.papel === "cliente" ? instagramDoCliente(g, quem.contas) : g).perfis.find((x) => x.id === id);
+        if (!perfil) return json({ erro: "Esse perfil não é do seu acesso." }, 403, cors);
+        const det = await comCache(ctx, "ig2:" + id + ":" + periodo, () => instagramPerfil(env, perfil, periodo));
+        return json(quem.papel === "cliente" ? { ...det, ideias: [] } : det, 200, cors); // as ideias da YA são da equipe
       }
       if (url.pathname === "/cliente") {
         const id = url.searchParams.get("id") || "";
@@ -848,6 +863,205 @@ async function checagemAgendada(env, ctx) {
     url: "/interno/trafego/#aba=sugestoes", tag: "yamb-trafego",
   });
   for (const x of novas) await env.YAMB_TRAFEGO.put("notif:" + x.id, "1", { expirationTtl: 3 * 86400 });
+}
+
+// ---------------------------------------------------------------- Instagram (relatórios, só leitura)
+// Dados da Graph API do Instagram com o mesmo META_TOKEN (precisa de instagram_basic e instagram_manage_insights).
+// Cada conta de anúncio é ligada ao(s) perfil(is) pela conta de anúncio no Meta (edge instagram_accounts).
+const IG_PERFIL = "id,username,name,followers_count,follows_count,media_count,profile_picture_url";
+const IG_TOTAIS = ["reach", "views", "profile_views", "accounts_engaged", "total_interactions"];
+const FORMATOS = { REELS: "Reels", CAROUSEL_ALBUM: "Carrossel", IMAGE: "Foto", VIDEO: "Vídeo", FEED: "Feed" };
+const DIAS_SEMANA = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+
+// Graph API em lote que devolve o corpo inteiro de cada resposta ({corpo} ou {erro, codigo}).
+async function loteBruto(env, consultas) {
+  const v = env.GRAPH_VERSION || "v25.0";
+  const saida = [];
+  for (let i = 0; i < consultas.length; i += 50) {
+    const corpo = new URLSearchParams({ access_token: env.META_TOKEN, include_headers: "false", batch: JSON.stringify(consultas.slice(i, i + 50).map((u) => ({ method: "GET", relative_url: `${v}/${u}` }))) });
+    const resp = await fetch("https://graph.facebook.com/", { method: "POST", body: corpo });
+    const dados = await resp.json();
+    if (dados.error) {
+      if (dados.error.code === 190) throw new Error("O token do Meta venceu ou foi revogado — gere um novo e atualize META_TOKEN.");
+      throw new Error(`Meta: ${dados.error.message} (código ${dados.error.code})`);
+    }
+    for (const r of dados) {
+      let b = {};
+      try { b = JSON.parse((r && r.body) || "{}"); } catch (e) {}
+      saida.push(b.error ? { erro: erroIG(b.error), codigo: b.error.code } : { corpo: b });
+    }
+  }
+  return saida;
+}
+function erroIG(e) {
+  const msg = String(e.message || "");
+  if ([10, 200, 283].includes(e.code) || /permission|permiss/i.test(msg)) return "Falta permissão do Instagram no token do Meta (instagram_basic e instagram_manage_insights). Gere um token novo com essas permissões.";
+  if (e.code === 17 || e.code === 80004 || e.code === 613 || e.code === 4) return "O Meta limitou as consultas por alguns minutos. Tente de novo daqui a pouco.";
+  if (e.code === 100 && /instagram_manage_insights|metric/i.test(msg)) return "O Meta não liberou essa métrica para este perfil.";
+  return `Meta: ${msg}`;
+}
+
+// Segundos de início/fim do dia no fuso de Brasília (UTC-3). O Instagram aceita no máximo 30 dias por consulta.
+function janelaIG(intervalo) {
+  const ini = Date.parse(intervalo.since + "T03:00:00Z") / 1000;
+  const fim = Date.parse(intervalo.until + "T03:00:00Z") / 1000 + 86400;
+  return { since: Math.max(ini, fim - 30 * 86400), until: fim };
+}
+
+async function perfisInstagram(env, ctx) {
+  const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
+  const ativas = lista.filter((c) => c.ativa);
+  const liga = await loteBruto(env, ativas.map((c) => rel(`${c.id}/instagram_accounts`, { fields: "id,username", limit: "25" })));
+  const porPerfil = {}, erros = [];
+  ativas.forEach((c, i) => {
+    const r = liga[i];
+    if (r.erro) { erros.push({ contaId: c.id, conta: c.nome, erro: r.erro, codigo: r.codigo }); return; }
+    for (const x of (r.corpo.data || [])) (porPerfil[x.id] = porPerfil[x.id] || { id: x.id, contas: [] }).contas.push({ id: c.id, nome: c.nome });
+  });
+  const ids = Object.keys(porPerfil);
+  const comPerfil = new Set(Object.values(porPerfil).flatMap((x) => x.contas.map((c) => c.id)));
+  const semPerfil = ativas.filter((c) => !comPerfil.has(c.id) && !erros.some((e) => e.contaId === c.id)).map((c) => ({ id: c.id, nome: c.nome }));
+  const dets = await loteBruto(env, ids.map((id) => rel(id, { fields: IG_PERFIL })));
+  const perfis = ids.map((id, i) => {
+    const d = dets[i];
+    if (d.erro) return { id, usuario: null, nome: null, erro: d.erro, contas: porPerfil[id].contas };
+    const b = d.corpo;
+    return { id, usuario: b.username || null, nome: b.name || b.username || null, foto: b.profile_picture_url || null, seguidores: num(b.followers_count), seguindo: num(b.follows_count), posts: num(b.media_count), contas: porPerfil[id].contas };
+  });
+  return { perfis, erros, semPerfil };
+}
+
+// Totais do período para vários perfis de uma vez; se o Meta recusar alguma métrica, tenta uma por uma.
+async function totaisIG(env, perfis, janela) {
+  const base = { period: "day", metric_type: "total_value", since: String(janela.since), until: String(janela.until) };
+  const r = await loteBruto(env, perfis.map((p) => rel(`${p.id}/insights`, { ...base, metric: IG_TOTAIS.join(",") })));
+  const saida = [];
+  for (let i = 0; i < perfis.length; i++) {
+    let dados = r[i].corpo && r[i].corpo.data, erro = r[i].erro || null;
+    if (!dados) {
+      const un = await loteBruto(env, IG_TOTAIS.map((m) => rel(`${perfis[i].id}/insights`, { ...base, metric: m })));
+      dados = un.flatMap((x) => (x.corpo && x.corpo.data) || []);
+      erro = dados.length ? null : (un[0].erro || erro);
+    }
+    const t = {}; for (const m of dados) t[m.name] = num(m.total_value && m.total_value.value);
+    saida.push(erro ? { erro } : montarTotais(t));
+  }
+  return saida;
+}
+function montarTotais(t) {
+  return {
+    alcance: t.reach || 0, visualizacoes: t.views || 0, visitasPerfil: t.profile_views || 0, contasEngajadas: t.accounts_engaged || 0, interacoes: t.total_interactions || 0,
+    taxaEngajamento: t.reach ? (t.total_interactions || 0) / t.reach * 100 : null,
+  };
+}
+
+async function instagramGeral(env, ctx, periodo) {
+  const r = intervalos(periodo);
+  const { perfis, erros, semPerfil } = await comCache(ctx, "igperfis", () => perfisInstagram(env, ctx));
+  const ok = perfis.filter((p) => !p.erro);
+  const [atual, anterior] = ok.length ? await Promise.all([totaisIG(env, ok, janelaIG(r.atual)), totaisIG(env, ok, janelaIG(r.anterior))]) : [[], []];
+  const resultado = perfis.map((p) => {
+    const i = ok.indexOf(p);
+    if (i < 0) return p;
+    const a = atual[i], b = anterior[i];
+    return { ...p, ...(a.erro ? { erro: a.erro } : { totais: a }), anterior: b && !b.erro ? b : null };
+  });
+  const faltaPermissao = (resultado.length && resultado.every((p) => p.erro && /permiss/i.test(p.erro))) || (!perfis.length && erros.length && erros.every((e) => /permiss/i.test(e.erro)));
+  return { atualizado: new Date().toISOString(), periodo, intervalo: r, perfis: resultado, semPerfil, erros: faltaPermissao ? [] : erros.slice(0, 5), faltaPermissao: !!faltaPermissao };
+}
+function instagramDoCliente(g, ids) {
+  const perfis = g.perfis.filter((p) => p.contas.some((c) => ids.includes(c.id))).map((p) => ({ ...p, contas: p.contas.filter((c) => ids.includes(c.id)) }));
+  return { ...g, perfis, erros: [], semPerfil: (g.semPerfil || []).filter((c) => ids.includes(c.id)) };
+}
+
+async function instagramPerfil(env, perfil, periodo) {
+  const r = intervalos(periodo), j = janelaIG(r.atual);
+  const fim = j.until;
+  const dia = { period: "day", since: String(j.since), until: String(j.until) };
+  const [serie, novos, midiaResp] = await Promise.all([
+    loteBruto(env, [rel(`${perfil.id}/insights`, { ...dia, metric: "reach" })]),
+    loteBruto(env, [rel(`${perfil.id}/insights`, { ...dia, metric: "follower_count" })]),
+    pegar(env, `${perfil.id}/media`, { fields: "id,caption,media_type,media_product_type,permalink,thumbnail_url,media_url,timestamp,like_count,comments_count", limit: "50" }).catch((e) => ({ erro: e.message })),
+  ]);
+  const valores = (x) => ((x.corpo && x.corpo.data && x.corpo.data[0] && x.corpo.data[0].values) || []);
+  const diario = valores(serie[0]).map((v) => ({ dia: String(v.end_time).slice(0, 10), alcance: num(v.value) }));
+  const seguidoresNovos = novos[0].erro ? null : valores(novos[0]).reduce((s, v) => s + num(v.value), 0);
+  const seguidoresDia = valores(novos[0]).map((v) => ({ dia: String(v.end_time).slice(0, 10), novos: num(v.value) }));
+
+  let posts = [], aviso = null;
+  if (midiaResp.erro) aviso = "Não foi possível ler os posts: " + midiaResp.erro;
+  else {
+    const noPeriodo = (midiaResp.data || []).filter((m) => { const t = Date.parse(m.timestamp) / 1000; return t >= j.since && t < fim; }).slice(0, 30);
+    const ins = await loteBruto(env, noPeriodo.map((m) => rel(`${m.id}/insights`, { metric: "reach,saves,shares,total_interactions,views" })));
+    const reler = noPeriodo.map((m, i) => ins[i].erro ? i : -1).filter((i) => i >= 0);
+    const ins2 = reler.length ? await loteBruto(env, reler.map((i) => rel(`${noPeriodo[i].id}/insights`, { metric: "reach,total_interactions" }))) : [];
+    reler.forEach((i, k) => { ins[i] = ins2[k]; });
+    posts = noPeriodo.map((m, i) => {
+      const t = {}; for (const x of ((ins[i].corpo && ins[i].corpo.data) || [])) t[x.name] = num(x.values && x.values[0] && x.values[0].value);
+      const formato = m.media_product_type === "REELS" ? "Reels" : (FORMATOS[m.media_type] || "Feed");
+      const inter = t.total_interactions != null ? t.total_interactions : num(m.like_count) + num(m.comments_count);
+      return {
+        id: m.id, legenda: (m.caption || "").slice(0, 160), formato, link: m.permalink, miniatura: m.thumbnail_url || (m.media_type === "IMAGE" ? m.media_url : null) || null, publicado: m.timestamp,
+        alcance: t.reach || 0, visualizacoes: t.views || 0, curtidas: num(m.like_count), comentarios: num(m.comments_count), salvamentos: t.saves || 0, compartilhamentos: t.shares || 0, interacoes: inter,
+        taxaEngajamento: t.reach ? inter / t.reach * 100 : null,
+      };
+    }).sort((a, b) => b.interacoes - a.interacoes);
+  }
+  const [totais] = await totaisIG(env, [perfil], j);
+  const anterior = perfil.anterior || null;
+  return {
+    atualizado: new Date().toISOString(), periodo, intervalo: r, perfil: { id: perfil.id, usuario: perfil.usuario, nome: perfil.nome, foto: perfil.foto, seguidores: perfil.seguidores, seguindo: perfil.seguindo, posts: perfil.posts, contas: perfil.contas },
+    totais: totais.erro ? null : totais, erroTotais: totais.erro || null, anterior, seguidoresNovos, seguidoresDia, diario, posts, aviso,
+    ideias: ideiasInstagram({ posts, totais: totais.erro ? null : totais, anterior, dias: r.dias, seguidoresNovos }),
+  };
+}
+
+// Ideias de conteúdo da YA a partir dos próprios números do perfil. Só sugere: nada é publicado.
+function ideiasInstagram({ posts, totais, anterior, dias, seguidoresNovos }) {
+  const ideias = [], media = (l, f) => l.length ? l.reduce((s, x) => s + f(x), 0) / l.length : 0;
+  const arred = (v) => Math.round(v).toLocaleString("pt-BR");
+  if (!posts.length) {
+    ideias.push({ nivel: "alto", titulo: "Nenhum post no período", motivo: "O perfil não publicou neste período, então o alcance depende só do que já está no ar.",
+      passos: ["Definir 3 posts por semana para as próximas 2 semanas.", "Começar com 1 Reels, 1 carrossel e 1 foto ou bastidor.", "Combinar com o cliente os dias e os horários de publicação."] });
+    return ideias;
+  }
+  // 1. melhor formato
+  const porFormato = {};
+  for (const p of posts) (porFormato[p.formato] = porFormato[p.formato] || []).push(p);
+  const formatos = Object.entries(porFormato).map(([nome, l]) => ({ nome, n: l.length, alcance: media(l, (x) => x.alcance), inter: media(l, (x) => x.interacoes) })).sort((a, b) => b.alcance - a.alcance);
+  if (formatos.length > 1 && formatos[0].n >= 2 && formatos[0].alcance > formatos[1].alcance * 1.3) {
+    ideias.push({ nivel: "medio", titulo: `${formatos[0].nome} alcança mais gente neste perfil`, motivo: `Cada ${formatos[0].nome.toLowerCase()} alcançou em média ${arred(formatos[0].alcance)} pessoas, contra ${arred(formatos[1].alcance)} de ${formatos[1].nome.toLowerCase()}.`,
+      passos: [`Aumentar a quantidade de ${formatos[0].nome.toLowerCase()} na próxima semana.`, "Manter 1 post de outro formato para não perder variedade.", "Comparar o alcance de novo daqui a 2 semanas."] });
+  }
+  // 2. melhor dia e horário (Brasília)
+  if (posts.length >= 6) {
+    const dias7 = {}, horas = {};
+    for (const p of posts) { const d = new Date(Date.parse(p.publicado) - 3 * 3600e3); (dias7[d.getUTCDay()] = dias7[d.getUTCDay()] || []).push(p); const h = d.getUTCHours(); (horas[h] = horas[h] || []).push(p); }
+    const melhorDia = Object.entries(dias7).filter(([, l]) => l.length >= 2).map(([d, l]) => ({ d: Number(d), inter: media(l, (x) => x.interacoes) })).sort((a, b) => b.inter - a.inter)[0];
+    const melhorHora = Object.entries(horas).filter(([, l]) => l.length >= 2).map(([h, l]) => ({ h: Number(h), inter: media(l, (x) => x.interacoes) })).sort((a, b) => b.inter - a.inter)[0];
+    if (melhorDia && melhorHora) ideias.push({ nivel: "baixo", titulo: `Melhor momento para postar: ${DIAS_SEMANA[melhorDia.d]}, por volta das ${melhorHora.h}h`, motivo: "Os posts desse dia e horário tiveram mais interações em média no período.",
+      passos: [`Agendar o próximo post importante para ${DIAS_SEMANA[melhorDia.d]} perto das ${melhorHora.h}h.`, "Testar mais um horário na semana seguinte para confirmar."] });
+  }
+  // 3. repetir o melhor post
+  const top = posts[0];
+  if (top && top.interacoes > 0) ideias.push({ nivel: "medio", titulo: "Repetir o tema do post que mais funcionou", motivo: `O post “${(top.legenda || "sem legenda").slice(0, 70)}” teve ${arred(top.interacoes)} interações e alcançou ${arred(top.alcance)} pessoas.`,
+    passos: ["Fazer uma continuação do mesmo assunto, com outro ângulo.", "Reaproveitar o gancho da primeira frase da legenda.", "Chamar a ação que mais funcionou (comentar, salvar ou enviar para alguém)."] });
+  // 4. salvamentos e compartilhamentos
+  const salv = posts.reduce((s, p) => s + p.salvamentos, 0), comp = posts.reduce((s, p) => s + p.compartilhamentos, 0), alc = posts.reduce((s, p) => s + p.alcance, 0);
+  if (alc > 0 && (salv + comp) / alc > 0.03) ideias.push({ nivel: "baixo", titulo: "O público salva e compartilha: faça mais conteúdo útil", motivo: `${arred(salv)} salvamentos e ${arred(comp)} compartilhamentos mostram que o conteúdo está sendo guardado e repassado.`,
+    passos: ["Produzir mais dicas, passo a passo e listas.", "Terminar o post pedindo para salvar ou enviar a alguém."] });
+  // 5. queda de alcance
+  if (anterior && anterior.alcance > 100 && totais && totais.alcance < anterior.alcance * 0.8) ideias.push({ nivel: "alto", titulo: "O alcance do perfil caiu", motivo: `Caiu ${Math.round((1 - totais.alcance / anterior.alcance) * 100)}% em relação ao período anterior (${arred(totais.alcance)} contra ${arred(anterior.alcance)} pessoas).`,
+    passos: ["Conferir se a frequência de posts diminuiu.", "Publicar mais Reels nesta semana.", "Revisar os horários e testar os de melhor resultado."] });
+  // 6. frequência
+  const porSemana = posts.length / Math.max(1, dias / 7);
+  if (porSemana < 2) ideias.push({ nivel: "medio", titulo: "Poucos posts por semana", motivo: `Foram ${posts.length} post${posts.length > 1 ? "s" : ""} em ${dias} dias (cerca de ${porSemana.toFixed(1).replace(".", ",")} por semana).`,
+    passos: ["Subir para pelo menos 3 posts por semana.", "Montar um calendário simples de 2 semanas com os temas."] });
+  // 7. seguidores
+  if (seguidoresNovos != null && seguidoresNovos < 0) ideias.push({ nivel: "medio", titulo: "O perfil perdeu seguidores no período", motivo: `Saldo de ${arred(seguidoresNovos)} seguidores. Pode ser sinal de conteúdo fora do que o público espera.`,
+    passos: ["Rever os últimos posts antes da queda.", "Fazer 1 post de enquete ou pergunta para entender o que o público quer ver."] });
+  const peso = { alto: 0, medio: 1, baixo: 2 };
+  return ideias.sort((a, b) => peso[a.nivel] - peso[b.nivel]);
 }
 
 // ---------------------------------------------------------------- usuários e sessões

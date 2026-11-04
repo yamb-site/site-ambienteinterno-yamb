@@ -2,6 +2,13 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-04 — Relatórios do Instagram
+- Nova aba **Relatórios** (equipe, administrador e cliente): um cartão por perfil de Instagram ligado às contas de anúncio; detalhe com seguidores, pessoas alcançadas, visualizações, visitas ao perfil, interações e taxa de engajamento (com comparação com o período anterior), gráfico de alcance por dia e posts do período do que mais para o que menos gerou interação. Cada número com explicação simples e glossário.
+- **Ideias de post da YA** (só equipe e administrador; cliente não vê): regras sobre os posts do período — melhor formato, melhor dia e horário (Brasília), repetir o post que mais funcionou, salvamentos e compartilhamentos, queda de alcance, poucos posts por semana, perda de seguidores. Só sugere, nunca publica.
+- Fonte: Graph API do Instagram com o mesmo `META_TOKEN` (decisão do dono: direto do Meta, não pelo Windsor). Rotas `GET /instagram` e `GET /instagram/perfil`, ambas liberadas ao cliente só para os perfis das contas dele. Perfil ↔ conta de anúncio pela edge `act_<id>/instagram_accounts`; contas sem perfil ligado aparecem para a equipe.
+- **Precisa de token com as permissões `instagram_basic` e `instagram_manage_insights`** (além de `ads_read`, `ads_management`, `pages_show_list`, `pages_read_engagement`, `business_management`). Sem elas o painel mostra o aviso de permissão. Refazer o processo do token (Explorador → Estender → `wrangler secret put META_TOKEN` e `META_TOKEN_GERENCIAR`).
+- Limites: o Instagram aceita no máximo 30 dias por consulta (períodos maiores são cortados nos 30 dias mais recentes); posts lidos entre os 50 mais recentes do perfil; stories não entram. Escrito sem acesso ao token: conferir ao vivo no primeiro uso e ajustar métricas que o Meta recusar.
+
 ## 2026-11-04 — token do Meta renovado
 - O painel parou de carregar: o Meta derrubou o token ("venceu ou foi revogado") antes da data prevista (27/12). Causas comuns: troca de senha do Facebook ou mudança de permissão do app.
 - Renovado pelo dono: Explorador da Graph API (app "YAMB Painel de Trafego", permissões `ads_read` + `ads_management`, "Generate Access Token") → Depurador de Token de Acesso → "Estender token de acesso" (vira longo, ~60 dias) → copiar o token do campo "Token de acesso" do depurador → `wrangler secret put META_TOKEN` e `META_TOKEN_GERENCIAR` no terminal (o dono cola; o token nunca passa pelo chat nem por arquivo).
