@@ -2,6 +2,14 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-04 — token do Meta renovado
+- O painel parou de carregar: o Meta derrubou o token ("venceu ou foi revogado") antes da data prevista (27/12). Causas comuns: troca de senha do Facebook ou mudança de permissão do app.
+- Renovado pelo dono: Explorador da Graph API (app "YAMB Painel de Trafego", permissões `ads_read` + `ads_management`, "Generate Access Token") → Depurador de Token de Acesso → "Estender token de acesso" (vira longo, ~60 dias) → copiar o token do campo "Token de acesso" do depurador → `wrangler secret put META_TOKEN` e `META_TOKEN_GERENCIAR` no terminal (o dono cola; o token nunca passa pelo chat nem por arquivo).
+- Cuidado: o token curto (do Explorador) vale ~1h. Se o painel avisar "vence em 0 dia(s)", foi guardado o curto: repetir com o token estendido. O depurador não mostra mais "Estender" quando o token já é longo.
+- Novo token vale até cerca de 03/01/2027. O painel avisa quando faltarem 10 dias ou menos, e agora também mostra o erro quando a chave é recusada (antes o aviso sumia) e quando a chave de gerenciar é inválida.
+- Ajustes no painel: aviso único (não repete), nome do administrador sem repetir.
+- Lembrete: renovar o token uns dias antes de 03/01/2027.
+
 ## 2026-10-29 — números explicados
 - Siglas viraram nomes simples, com a sigla pequena ao lado: Taxa de clique (CTR), Custo por clique (CPC), Custo por mil exibições (CPM), Pessoas alcançadas, Exibições, Frequência.
 - Cada cartão traz uma frase com o número do período ("Cada clique custou, em média, R$ 0,92") e um "O que é isso?" com a explicação e o que é um número bom.
