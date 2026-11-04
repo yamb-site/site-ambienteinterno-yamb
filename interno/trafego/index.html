@@ -1146,17 +1146,22 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   window.addEventListener('hashchange', function () { var cli = estado.cliente, aba = estado.aba, sub = estado.sub; render(); if (lerEstado().cliente !== cli || lerEstado().aba !== aba || lerEstado().sub !== sub) window.scrollTo(0, 0); });
 
   function mostrar(qual) { $('entrar').hidden = qual !== 'entrar'; $('painel').hidden = qual !== 'painel'; }
+  // Um aviso só: se o painel entrar de novo, troca o texto em vez de repetir.
+  function mostrarAviso(texto) {
+    document.querySelectorAll('.aviso-token').forEach(function (n) { n.remove(); });
+    $('info').insertAdjacentHTML('afterend', '<p class="erro aviso-token" role="status">' + esc(texto) + '</p>');
+  }
   function avisoToken() {
     pedir('/token').then(function (t) {
       var aviso = null;
       if (!t.valido) aviso = 'A chave do Meta não é mais válida. Gere uma nova e atualize no cofre da Cloudflare (peça ao YA - Tráfego).';
       else if (t.venceEm && t.venceEm !== 'sem vencimento') { var dias = Math.floor((new Date(t.venceEm) - new Date()) / 864e5); if (dias <= 10) aviso = 'A chave do Meta vence em ' + dias + ' dia(s). Gere uma nova antes disso (peça ao YA - Tráfego).'; }
       if (!aviso && t.gerenciar && !t.gerenciar.valido) aviso ='A chave de gerenciar do Meta não é mais válida: aceitar sugestões não vai funcionar até gerar uma nova (peça ao YA - Tráfego).';
-      if (aviso) $('info').insertAdjacentHTML('afterend', '<p class="erro" role="status">' + esc(aviso) + '</p>');
+      if (aviso) mostrarAviso(aviso);
     }).catch(function (e) {
       // Token vencido: o Meta recusa até a consulta de validade; antes o aviso sumia em silêncio.
       if (e.status === 401 || e.status === 403) return;
-      $('info').insertAdjacentHTML('afterend', '<p class="erro" role="status">' + esc(e.message) + '</p>');
+      mostrarAviso(e.message);
     });
   }
   // Painel aberto: atualiza sozinho a cada 2 minutos, sem piscar a tela nem perder a rolagem.
