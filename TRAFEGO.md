@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-04 — token renovado com as permissões do Instagram (use `workers/trafego/token.sh`)
+- Para os relatórios do Instagram, o app "YAMB Painel de Trafego" ganhou o caso de uso "Gerenciar mensagens e conteúdo no Instagram" (20 permissões de Instagram liberadas no app, a pedido do dono). O token só pede as que o painel usa: `instagram_basic` e `instagram_manage_insights`, além de `ads_read`, `ads_management`, `pages_show_list`, `pages_read_engagement` e `business_management`.
+- Colar o token à mão no `wrangler secret put` deu "token venceu ou foi revogado" (texto errado colado). Agora: gerar no Explorador → colar no Depurador → "Estender token de acesso" → copiar o token da caixa **abaixo** de "novo token de vida longa" (não o campo do topo) → `./token.sh` na pasta `workers/trafego`. O script lê a área de transferência, confere no Meta (tamanho, validade, permissões; nunca mostra o token) e só então guarda em `META_TOKEN` e `META_TOKEN_GERENCIAR`. Recusa token curto, inválido ou sem as permissões.
+- Token atual: 212 caracteres, válido, vence em 03/01/2027.
+
 ## 2026-11-04 — Relatórios do Instagram
 - Nova aba **Relatórios** (equipe, administrador e cliente): um cartão por perfil de Instagram ligado às contas de anúncio; detalhe com seguidores, pessoas alcançadas, visualizações, visitas ao perfil, interações e taxa de engajamento (com comparação com o período anterior), gráfico de alcance por dia e posts do período do que mais para o que menos gerou interação. Cada número com explicação simples e glossário.
 - **Ideias de post da YA** (só equipe e administrador; cliente não vê): regras sobre os posts do período — melhor formato, melhor dia e horário (Brasília), repetir o post que mais funcionou, salvamentos e compartilhamentos, queda de alcance, poucos posts por semana, perda de seguidores. Só sugere, nunca publica.
