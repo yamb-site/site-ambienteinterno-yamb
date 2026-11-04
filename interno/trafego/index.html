@@ -1179,7 +1179,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   document.addEventListener('visibilitychange', function () { if (!document.hidden && !$('painel').hidden && geral && Date.now() - new Date(geral.atualizado) > ATUALIZA_MS) atualizarSozinho(); });
 
   function entrar() {
-    $('quem').textContent = eu ? eu.nome + ' · ' + ({ admin: 'Administrador', equipe: 'Equipe', cliente: 'Cliente' }[eu.papel] || '') : '';
+    var rotuloPapel = { admin: 'Administrador', equipe: 'Equipe', cliente: 'Cliente' }[eu && eu.papel] || ''; $('quem').textContent = eu ? (eu.nome === rotuloPapel ? eu.nome : eu.nome + ' · ' + rotuloPapel) : '';
     $('ir-interno').hidden = ehCliente();
     $('periodos').hidden = false; mostrar('painel'); render(); if (!ehCliente()) avisoToken(); ligarAtualizacao();
     // Confere o acesso no servidor (papel ou contas podem ter mudado desde o último login).
