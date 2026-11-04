@@ -1151,8 +1151,13 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       var aviso = null;
       if (!t.valido) aviso = 'A chave do Meta não é mais válida. Gere uma nova e atualize no cofre da Cloudflare (peça ao YA - Tráfego).';
       else if (t.venceEm && t.venceEm !== 'sem vencimento') { var dias = Math.floor((new Date(t.venceEm) - new Date()) / 864e5); if (dias <= 10) aviso = 'A chave do Meta vence em ' + dias + ' dia(s). Gere uma nova antes disso (peça ao YA - Tráfego).'; }
+      if (!aviso && t.gerenciar && !t.gerenciar.valido) aviso ='A chave de gerenciar do Meta não é mais válida: aceitar sugestões não vai funcionar até gerar uma nova (peça ao YA - Tráfego).';
       if (aviso) $('info').insertAdjacentHTML('afterend', '<p class="erro" role="status">' + esc(aviso) + '</p>');
-    }).catch(function () {});
+    }).catch(function (e) {
+      // Token vencido: o Meta recusa até a consulta de validade; antes o aviso sumia em silêncio.
+      if (e.status === 401 || e.status === 403) return;
+      $('info').insertAdjacentHTML('afterend', '<p class="erro" role="status">' + esc(e.message) + '</p>');
+    });
   }
   // Painel aberto: atualiza sozinho a cada 2 minutos, sem piscar a tela nem perder a rolagem.
   // Não atualiza com a janela de confirmação aberta, com alguém digitando, na aba Avisos ou com o painel em segundo plano.
