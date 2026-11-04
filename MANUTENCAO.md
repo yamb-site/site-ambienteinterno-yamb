@@ -8,6 +8,11 @@ Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). 
 
 ## Revisões
 
+### 2026-11-04 — projeto fora do OneDrive
+- O repositório saiu da pasta sincronizada pelo OneDrive (`Área de Trabalho/Claude/PROJETOS/yamb`) para `~/Projetos/yamb`. Motivo: o OneDrive travava o `.git` ("Operation timed out"), deixava `index.lock` e trocava as permissões de 128 arquivos (644→755), o que quase entrou num commit. `core.fileMode=false` fica ligado por segurança.
+- Os links `~/.claude/agents/ya-*.md` (exceto o do Guardião, que está no `yamb-backup`) e o `~/.claude/CLAUDE.md` apontam para o lugar novo. A cópia antiga está desatualizada e não deve ser usada.
+- O backup das planilhas (`yamb-backup`) continua na pasta do OneDrive; vale mudar também se der problema.
+
 ### 2026-10-29 — visual premium (site + interno)
 - Site: `scripts/tema-premium.css` (mesmo visual do Painel de Tráfego) entra pelo `otimizar.py`; as seções claras ganham `data-tema` e as variáveis da marca são redefinidas dentro delas. Campos de formulário escuros.
 - Conteúdo: depoimentos de exemplo removidos; Yngra Lyriel (Diretora de Brand Culture) na Equipe; fotos da equipe em sépia, como no interno.
