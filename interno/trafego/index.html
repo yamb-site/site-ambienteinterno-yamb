@@ -449,6 +449,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     <h2 id="dlg-titulo"></h2>
     <p id="dlg-texto"></p>
     <div class="mudanca" id="dlg-mudanca" hidden></div>
+    <div id="dlg-fim-caixa" hidden><label for="dlg-fim">Termina em</label><select id="dlg-fim-tipo"><option value="sem">Sem data de término (roda até acabar o orçamento)</option><option value="data">Escolher uma data</option></select><input id="dlg-fim" type="date" hidden></div>
     <div id="dlg-valor-caixa" hidden><label for="dlg-valor">Novo orçamento diário (R$)</label><input id="dlg-valor" name="valor" type="number" inputmode="decimal" min="1" step="1"></div>
     <p class="meta" id="dlg-quem"></p>
     <div id="dlg-motivo-caixa" hidden><label for="dlg-motivo">Motivo (opcional)</label><textarea id="dlg-motivo" name="motivo" maxlength="300" placeholder="Ex.: cliente pediu para manter…"></textarea></div>
@@ -808,9 +809,10 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
   var itens = {};
   function controles(k, nivel, m, pode) {
     if (!pode || !k.statusConfig) return '';
-    itens[k.id] = { id: k.id, nome: k.nome, nivel: nivel, orcamentoDiario: k.orcamentoDiario, moeda: m, status: k.statusConfig };
+    itens[k.id] = { id: k.id, nome: k.nome, nivel: nivel, orcamentoDiario: k.orcamentoDiario, moeda: m, status: k.statusConfig, fim: k.fim || null };
     var h = k.statusConfig === 'ACTIVE' ? '<button type="button" class="mini-btn pausar" data-editar="' + k.id + '" data-acao="pausar">Pausar</button>' : '<button type="button" class="mini-btn ativar" data-editar="' + k.id + '" data-acao="ativar">Ativar</button>';
     if (nivel !== 'anuncio' && k.orcamentoDiario) h += '<button type="button" class="mini-btn" data-editar="' + k.id + '" data-acao="orcamento">Orçamento</button>';
+    if (nivel !== 'anuncio') h += '<button type="button" class="mini-btn" data-editar="' + k.id + '" data-acao="termino">' + (k.fim && new Date(k.fim) < new Date() ? 'Terminou em ' + new Date(k.fim).toLocaleDateString('pt-BR') + ' · Reabrir' : 'Término') + '</button>';
     return '<div class="ctrl">' + h + '</div>';
   }
   var NIVEL_NOME = { campanha: 'campanha', conjunto: 'conjunto', anuncio: 'anúncio' };
@@ -1044,7 +1046,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     $('dlg-quem').textContent = 'Fica registrado em nome de ' + (eu ? eu.nome : '') + '.';
     $('dlg-motivo').value = '';
     $('dlg-motivo-caixa').hidden = tipo !== 'recusar';
-    var m = $('dlg-mudanca'); m.hidden = true; $('dlg-valor-caixa').hidden = true; m.style.display = '';
+    var m = $('dlg-mudanca'); m.hidden = true; $('dlg-valor-caixa').hidden = true; $('dlg-fim-caixa').hidden = true; m.style.display = '';
     if (tipo === 'recusar') { $('dlg-sobre').textContent = 'Recusar sugestão'; $('dlg-titulo').textContent = x.titulo; $('dlg-texto').textContent = x.conta + ' · ' + x.campanha + '. Ela some por 7 dias.'; $('dlg-ok').textContent = 'Recusar'; }
     else if (tipo === 'editar-sug') {
       $('dlg-sobre').textContent = 'Editar sugestão da YA'; $('dlg-titulo').textContent = x.titulo;
@@ -1056,7 +1058,14 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     else if (tipo === 'editar') {
       var it = x.item, n = NIVEL_NOME[it.nivel];
       $('dlg-sobre').textContent = 'Editar no Meta'; $('dlg-titulo').textContent = it.nome;
-      if (x.acao === 'orcamento') {
+      if (x.acao === 'termino') {
+        var fimTxt = it.fim ? new Date(it.fim).toLocaleDateString('pt-BR') : 'sem data';
+        $('dlg-texto').textContent = 'Define até quando ' + (it.nivel === 'campanha' ? 'a ' : 'o ') + n + ' veicula. Fica registrado, com opção de desfazer.';
+        $('dlg-fim-caixa').hidden = false; $('dlg-fim-tipo').value = 'sem'; $('dlg-fim').hidden = true; $('dlg-fim').value = '';
+        $('dlg-fim').min = new Date(Date.now() + 864e5).toISOString().slice(0, 10);
+        m.hidden = false; m.innerHTML = '<span>Hoje: <b>' + (it.fim && new Date(it.fim) < new Date() ? 'terminou em ' + fimTxt : 'termina em ' + fimTxt) + '</b></span>';
+        $('dlg-ok').textContent = 'Salvar no Meta';
+      } else if (x.acao === 'orcamento') {
         $('dlg-texto').textContent = 'Muda o orçamento diário d' + (it.nivel === 'campanha' ? 'a ' : 'o ') + n + ' agora no Meta. Fica registrado, com opção de desfazer.';
         $('dlg-valor-caixa').hidden = false; $('dlg-valor').value = Math.round(it.orcamentoDiario);
         m.hidden = false; m.innerHTML = '<span>Hoje: <b>' + R(it.orcamentoDiario, it.moeda) + '/dia</b></span>';
@@ -1076,14 +1085,15 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       if (!x.acao && x.passos && x.passos.length) { m.hidden = false; m.innerHTML = listaPassos(x); m.style.display = 'block'; } else { m.style.display = ''; }
       $('dlg-ok').textContent = x.acao ? 'Aplicar no Meta' : 'Aceitar';
     }
-    dlg.showModal(); ($('dlg-valor-caixa').hidden ? $('dlg-ok') : $('dlg-valor')).focus();
+    dlg.showModal(); ($('dlg-fim-caixa').hidden ? ($('dlg-valor-caixa').hidden ? $('dlg-ok') : $('dlg-valor')) : $('dlg-fim-tipo')).focus();
   }
+  $('dlg-fim-tipo').addEventListener('change', function () { $('dlg-fim').hidden = this.value !== 'data'; $('dlg-fim').required = this.value === 'data'; });
   $('dlg-cancelar').addEventListener('click', function () { dlg.close(); });
   $('dlg-form').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var autor = eu ? eu.nome : '';
     var bt = $('dlg-ok'), txt = bt.textContent; bt.disabled = true; bt.textContent = 'Aplicando…';
-    var p = pendente, req = p.tipo === 'editar' ? enviar('/editar', { objeto: p.x.item.id, nivel: p.x.item.nivel, acao: p.x.acao, valor: Number($('dlg-valor').value), autor: autor })
+    var p = pendente, req = p.tipo === 'editar' ? enviar('/editar', { objeto: p.x.item.id, nivel: p.x.item.nivel, acao: p.x.acao, valor: p.x.acao === 'termino' ? ($('dlg-fim-tipo').value === 'sem' ? '' : $('dlg-fim').value) : Number($('dlg-valor').value), autor: autor })
       : p.tipo === 'editar-sug' ? enviar('/decidir', { id: p.x.id, decisao: 'aceitar', valor: Number($('dlg-valor').value), autor: autor, periodo: estado.periodo })
       : p.tipo === 'desfazer' ? enviar('/desfazer', { registro: p.x.registro, autor: autor })
       : enviar('/decidir', { id: p.x.id, decisao: p.tipo === 'recusar' ? 'recusar' : 'aceitar', autor: autor, motivo: $('dlg-motivo').value, periodo: estado.periodo });

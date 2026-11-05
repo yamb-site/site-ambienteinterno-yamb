@@ -36,7 +36,7 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 const PERIODOS = ["today", "yesterday", "last_7d", "last_30d", "this_month", "last_month"];
 const METRICAS = "spend,impressions,reach,frequency,clicks,inline_link_clicks,ctr,cpc,cpm,actions";
 const CAMPOS_CAMPANHA = "id,name,objective,status,effective_status,daily_budget,lifetime_budget,budget_remaining,start_time,stop_time";
-const CAMPOS_CONJUNTO = "id,name,campaign_id,status,effective_status,daily_budget,lifetime_budget,optimization_goal,billing_event,targeting{age_min,age_max,genders,geo_locations{cities,regions,countries}}";
+const CAMPOS_CONJUNTO = "id,name,campaign_id,status,effective_status,daily_budget,lifetime_budget,optimization_goal,billing_event,start_time,end_time,targeting{age_min,age_max,genders,geo_locations{cities,regions,countries}}";
 const CAMPOS_ANUNCIO = "id,name,adset_id,campaign_id,status,effective_status,creative{id,title,body,thumbnail_url,image_url,object_type,call_to_action_type}";
 const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,timezone_name,disable_reason";
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
@@ -346,7 +346,7 @@ async function cliente(env, id, periodo) {
     const t = s.targeting || {};
     return {
       id: s.id, nome: s.name, campanha: nomeCamp[s.campaign_id] || null, campanhaId: s.campaign_id, status: s.effective_status, statusConfig: s.status, ativaAgora: NO_AR.has(s.effective_status),
-      otimizacao: s.optimization_goal || null, orcamentoDiario: centavos(s.daily_budget), orcamentoTotal: centavos(s.lifetime_budget),
+      otimizacao: s.optimization_goal || null, inicio: s.start_time || null, fim: s.end_time || null, orcamentoDiario: centavos(s.daily_budget), orcamentoTotal: centavos(s.lifetime_budget),
       publico: resumoPublico(t), ...m, alertas: alertas(s, m, null),
     };
   }).sort((a, b) => b.gasto - a.gasto);
@@ -727,6 +727,23 @@ async function decidir(env, ctx, corpo) {
   if (sug.acao.tipo === "pausar") {
     if (atual.status !== "ACTIVE") return { erro: "A campanha já não está ativa." };
     antes = { status: "ACTIVE" }; depois = { status: "PAUSED" };
+  } else if (acao === "termino") {
+    // valor vazio ou "sem" = rodar sem data de término; senão uma data futura AAAA-MM-DD (vale até o fim desse dia, fuso de Brasília)
+    const v = String(corpo.valor ?? "").trim();
+    const de = atual[CAMPO_FIM] || null;
+    const fmt = (t) => new Date(t).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    if (!v || v === "sem") {
+      if (!de) return { erro: "Já está sem data de término." };
+      antes = { [CAMPO_FIM]: de }; depois = { [CAMPO_FIM]: 0 };
+      descricao = `Tirou a data de término (era ${fmt(de)})`;
+    } else {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return { erro: "Data inválida." };
+      const novo = `${v}T23:59:59-0300`;
+      if (!(new Date(novo) > new Date())) return { erro: "A data de término precisa ser futura." };
+      if (de && new Date(de).getTime() === new Date(novo).getTime()) return { erro: "O término já é essa data." };
+      antes = de ? { [CAMPO_FIM]: de } : { [CAMPO_FIM]: 0 }; depois = { [CAMPO_FIM]: novo };
+      descricao = de ? `Término ${fmt(de)} → ${fmt(novo)}` : `Definiu término em ${fmt(novo)}`;
+    }
   } else {
     const deMinor = Number(atual.daily_budget || 0);
     if (Math.round(deMinor / 100) !== Math.round(sug.acao.de)) return { erro: "O orçamento mudou desde a sugestão. Atualize o painel." };
@@ -770,9 +787,11 @@ async function editar(env, ctx, corpo) {
   if (!env.META_TOKEN_GERENCIAR || !env.YAMB_TRAFEGO) return { erro: "A edição ainda não está configurada (falta a chave de gerenciar)." };
   const objeto = String(corpo.objeto || ""), nivel = corpo.nivel, acao = corpo.acao;
   if (!/^\d+$/.test(objeto) || !NIVEIS[nivel]) return { erro: "Item inválido." };
-  if (!["ativar", "pausar", "orcamento"].includes(acao)) return { erro: "Ação inválida." };
+  if (!["ativar", "pausar", "orcamento", "termino"].includes(acao)) return { erro: "Ação inválida." };
   if (acao === "orcamento" && nivel === "anuncio") return { erro: "Anúncio não tem orçamento próprio." };
-  const atual = await pegar(env, objeto, { fields: "id,name,status,effective_status,account_id" + (nivel === "anuncio" ? "" : ",daily_budget") });
+  if (acao === "termino" && nivel === "anuncio") return { erro: "Anúncio não tem data de término própria (vale a do conjunto)." };
+  const CAMPO_FIM = nivel === "campanha" ? "stop_time" : "end_time";
+  const atual = await pegar(env, objeto, { fields: "id,name,status,effective_status,account_id" + (nivel === "anuncio" ? "" : ",daily_budget," + CAMPO_FIM) });
   const { contas: lista } = await comCache(ctx, "contas", () => contas(env));
   const conta = lista.find((c) => c.id === "act_" + atual.account_id);
   if (!conta) return { erro: "Esse item não é de uma conta que o painel acompanha." };
