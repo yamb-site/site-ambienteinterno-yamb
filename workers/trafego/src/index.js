@@ -727,23 +727,6 @@ async function decidir(env, ctx, corpo) {
   if (sug.acao.tipo === "pausar") {
     if (atual.status !== "ACTIVE") return { erro: "A campanha já não está ativa." };
     antes = { status: "ACTIVE" }; depois = { status: "PAUSED" };
-  } else if (acao === "termino") {
-    // valor vazio ou "sem" = rodar sem data de término; senão uma data futura AAAA-MM-DD (vale até o fim desse dia, fuso de Brasília)
-    const v = String(corpo.valor ?? "").trim();
-    const de = atual[CAMPO_FIM] || null;
-    const fmt = (t) => new Date(t).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
-    if (!v || v === "sem") {
-      if (!de) return { erro: "Já está sem data de término." };
-      antes = { [CAMPO_FIM]: de }; depois = { [CAMPO_FIM]: 0 };
-      descricao = `Tirou a data de término (era ${fmt(de)})`;
-    } else {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return { erro: "Data inválida." };
-      const novo = `${v}T23:59:59-0300`;
-      if (!(new Date(novo) > new Date())) return { erro: "A data de término precisa ser futura." };
-      if (de && new Date(de).getTime() === new Date(novo).getTime()) return { erro: "O término já é essa data." };
-      antes = de ? { [CAMPO_FIM]: de } : { [CAMPO_FIM]: 0 }; depois = { [CAMPO_FIM]: novo };
-      descricao = de ? `Término ${fmt(de)} → ${fmt(novo)}` : `Definiu término em ${fmt(novo)}`;
-    }
   } else {
     const deMinor = Number(atual.daily_budget || 0);
     if (Math.round(deMinor / 100) !== Math.round(sug.acao.de)) return { erro: "O orçamento mudou desde a sugestão. Atualize o painel." };
@@ -801,6 +784,23 @@ async function editar(env, ctx, corpo) {
     if (atual.status === para) return { erro: acao === "ativar" ? "Já está ativo." : "Já está pausado." };
     antes = { status: atual.status }; depois = { status: para };
     descricao = `${acao === "ativar" ? "Ativou" : "Pausou"} ${NIVEIS[nivel].toLowerCase()}`;
+  } else if (acao === "termino") {
+    // valor vazio ou "sem" = rodar sem data de término; senão uma data futura AAAA-MM-DD (vale até o fim desse dia, fuso de Brasília)
+    const v = String(corpo.valor ?? "").trim();
+    const de = atual[CAMPO_FIM] || null;
+    const fmt = (t) => new Date(t).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    if (!v || v === "sem") {
+      if (!de) return { erro: "Já está sem data de término." };
+      antes = { [CAMPO_FIM]: de }; depois = { [CAMPO_FIM]: 0 };
+      descricao = `Tirou a data de término (era ${fmt(de)})`;
+    } else {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return { erro: "Data inválida." };
+      const novo = `${v}T23:59:59-0300`;
+      if (!(new Date(novo) > new Date())) return { erro: "A data de término precisa ser futura." };
+      if (de && new Date(de).getTime() === new Date(novo).getTime()) return { erro: "O término já é essa data." };
+      antes = de ? { [CAMPO_FIM]: de } : { [CAMPO_FIM]: 0 }; depois = { [CAMPO_FIM]: novo };
+      descricao = de ? `Término ${fmt(de)} → ${fmt(novo)}` : `Definiu término em ${fmt(novo)}`;
+    }
   } else {
     const deMinor = Number(atual.daily_budget || 0);
     if (!deMinor) return { erro: "Esse item não tem orçamento diário próprio (o orçamento fica no outro nível)." };
