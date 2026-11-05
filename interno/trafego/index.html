@@ -828,7 +828,6 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
       return '<a href="' + link({ sub: s[0] }) + '"' + (s[0] === sub ? ' aria-current="page"' : '') + '>' + s[1] + (n != null ? ' <span class="meta">(' + n + ')</span>' : '') + '</a>';
     }).join('') + '</nav>';
     if (sub === 'resumo') h += resumoCliente(d, m);
-    else if (sub !== 'anuncios' && sub !== 'publico' && sub !== 'diario') h += guia();
     else if (sub === 'campanhas') h += tabela('ccamp', d.campanhas, [
       ['Campanha', 'nome', function (k) { return esc(k.nome) + '<span class="sub-l">' + esc(OBJETIVOS[k.objetivo] || k.objetivo || '') + '</span><span class="tag">' + esc(STATUS[k.status] || k.status) + '</span>' + tags(k); }],
       ['Orçamento', 'orcamentoDiario', function (k) { return orcamento(k, m); }, { nao: 1 }],
@@ -840,6 +839,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
     else if (sub === 'anuncios') h += anunciosCliente(d, m);
     else if (sub === 'publico') h += publicoCliente(d, m);
     else if (sub === 'diario') h += diarioCliente(d, m);
+    if (sub === 'campanhas' || sub === 'conjuntos') h += guia();
     $('conteudo').innerHTML = h;
   }
 
