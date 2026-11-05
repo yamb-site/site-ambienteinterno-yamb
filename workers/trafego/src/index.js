@@ -33,7 +33,7 @@ import { buildPushHTTPRequest } from "@pushforge/builder";
 // Escrita no Meta: SÓ por /decidir e /desfazer, com o segredo separado META_TOKEN_GERENCIAR (ads_management),
 // só nas ações listadas em ACOES, e sempre conferindo o estado atual da campanha antes de mudar.
 
-const PERIODOS = ["today", "yesterday", "last_7d", "last_30d", "this_month", "last_month"];
+const PERIODOS = ["today", "yesterday", "last_7d", "last_30d", "this_month", "last_month", "tudo"];
 const METRICAS = "spend,impressions,reach,frequency,clicks,inline_link_clicks,ctr,cpc,cpm,actions";
 const CAMPOS_CAMPANHA = "id,name,objective,status,effective_status,daily_budget,lifetime_budget,budget_remaining,start_time,stop_time";
 const CAMPOS_CONJUNTO = "id,name,campaign_id,status,effective_status,daily_budget,lifetime_budget,optimization_goal,billing_event,start_time,end_time,targeting{age_min,age_max,genders,geo_locations{cities,regions,countries}}";
@@ -155,7 +155,9 @@ function intervalos(periodo) {
   else if (periodo === "last_30d") { ini = d(hoje, -30); fim = d(hoje, -1); }
   else if (periodo === "this_month") { ini = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 1)); fim = d(hoje, 0); }
   else if (periodo === "last_month") { ini = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth() - 1, 1)); fim = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), 0)); }
+  else if (periodo === "tudo") { ini = d(hoje, -1000); fim = d(hoje, 0); } // histórico (o Meta guarda até 37 meses)
   else { ini = d(hoje, -7); fim = d(hoje, -1); }
+  if (periodo === "tudo") return { atual: { since: iso(ini), until: iso(fim) }, anterior: { since: iso(d(hoje, -1)), until: iso(d(hoje, -1)) }, dias: 1000 };
   const dias = Math.round((fim - ini) / 864e5) + 1;
   const antFim = d(ini, -1), antIni = d(ini, -dias);
   return {
