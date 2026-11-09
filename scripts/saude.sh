@@ -5,9 +5,8 @@
 set -uo pipefail
 
 BASES=("$@")
-# yamb.com.br ainda está no servidor antigo (fora deste repositório); quando o domínio
-# for ligado à Cloudflare Pages, troque o padrão para https://yamb.com.br.
-[ ${#BASES[@]} -eq 0 ] && BASES=(https://site-yamb.pages.dev)
+# yamb.com.br está na Cloudflare Pages (conta diretoria@yamb.com.br, desde 2026-11-09).
+[ ${#BASES[@]} -eq 0 ] && BASES=(https://yamb.com.br)
 
 falhas=0
 avisos=0
