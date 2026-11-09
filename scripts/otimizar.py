@@ -392,6 +392,9 @@ def cabecalho(html, pag):
         (r"<title>[^<]*</title>", "<title>%s</title>" % esc(pag["titulo"])),
         (r'<meta name="description" content="[^"]*">', '<meta name="description" content="%s">' % esc(pag["descricao"])),
         (r'<link rel="canonical" href="[^"]*">', '<link rel="canonical" href="%s">' % url),
+        # Favicon: arquivos reais na raiz (/favicon.ico é o que navegadores e o Google pedem)
+        (r'<link rel="icon" href="[^"]*">', '<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">'),
+        (r'<link rel="apple-touch-icon" href="[^"]*">', '<link rel="apple-touch-icon" href="/apple-touch-icon.png">'),
         (r'<meta property="og:title" content="[^"]*">', '<meta property="og:title" content="%s">' % esc(pag["titulo"])),
         (r'<meta property="og:description" content="[^"]*">', '<meta property="og:description" content="%s">' % esc(pag["descricao"])),
         (r'<meta property="og:url" content="[^"]*">', '<meta property="og:url" content="%s">' % url),
