@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-10 — painel do cliente em formato dashboard
+- A tela de cada cliente (`#aba=cliente`) agora é um dashboard: menu lateral (Visão geral, Campanhas, Conjuntos, Anúncios, Público, Dia a dia), troca de cliente no topo (busca + setas anterior/próximo), indicadores com minigráficos, funil, medidores de custo, gráfico por dia, rosca dos melhores anúncios e tabela de campanhas.
+- Clicar em uma campanha abre um painel flutuante (link direto com `&camp=<id>`; Esc fecha) com indicadores, funil, conjuntos, anúncios e os botões de editar. Botão Exportar baixa as campanhas em CSV.
+- Só front-end (`interno/trafego/index.html`); o Worker não mudou. Ainda não há gráfico dia a dia por campanha: precisaria de um parâmetro novo no Worker. Não testado no celular antes de publicar.
+
 ## 2026-11-04 — token renovado com as permissões do Instagram (use `workers/trafego/token.sh`)
 - Para os relatórios do Instagram, o app "YAMB Painel de Trafego" ganhou o caso de uso "Gerenciar mensagens e conteúdo no Instagram" (20 permissões de Instagram liberadas no app, a pedido do dono). O token só pede as que o painel usa: `instagram_basic` e `instagram_manage_insights`, além de `ads_read`, `ads_management`, `pages_show_list`, `pages_read_engagement` e `business_management`.
 - Colar o token à mão no `wrangler secret put` deu "token venceu ou foi revogado" (texto errado colado). Agora: gerar no Explorador → colar no Depurador → "Estender token de acesso" → copiar o token da caixa **abaixo** de "novo token de vida longa" (não o campo do topo) → `./token.sh` na pasta `workers/trafego`. O script lê a área de transferência, confere no Meta (tamanho, validade, permissões; nunca mostra o token) e só então guarda em `META_TOKEN` e `META_TOKEN_GERENCIAR`. Recusa token curto, inválido ou sem as permissões.
