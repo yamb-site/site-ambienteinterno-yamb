@@ -2,6 +2,10 @@
 
 Memória do agente `ya-manutencao` entre revisões. Mais recente primeiro.
 
+## 2026-11-10 — avisos de postagens obrigatórios (push às 8h) no ambiente interno
+- Bloco `<script>/* Avisos de postagens …` injetado no fim de `interno/index.html` e `interno/app/index.html`: tela que trava o app até a pessoa ligar as notificações; service worker próprio `interno/sw-avisos.js` (escopo `/interno/avisos-postagens/`, separado do `sw.js` do OneSignal). **Reaplicar o bloco depois de cada exportação nova do interno.**
+- Servidor: Worker `yamb-trafego` (rotas `/avisos/*`, segredo `AVISOS_TOKEN`, variável `SHEET_URL`). Todo dia às 8h (cron */15, primeira checagem da hora) envia push com postagens do dia ainda não "Postado" e stories do dia ainda não marcados.
+
 ## Correções feitas no HTML exportado (reaplicar a cada exportação nova)
 
 Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). Nenhuma manual.

@@ -88195,4 +88195,64 @@ function App() {
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 if(!("_extends" in window))window["_extends"]=_extends;if(!("KEY" in window))window["KEY"]=KEY;if(!("glassBtn" in window))window["glassBtn"]=glassBtn;if(!("NOTIF_BY_STATUS" in window))window["NOTIF_BY_STATUS"]=NOTIF_BY_STATUS;if(!("normDb" in window))window["normDb"]=normDb;if(!("normDb0" in window))window["normDb0"]=normDb0;if(!("SHEET_URL" in window))window["SHEET_URL"]=SHEET_URL;if(!("App" in window))window["App"]=App;
-})();</script></body></html>
+})();</script><script>/* Avisos de postagens (push às 8h) — OBRIGATÓRIOS. Bloco injetado no interno: reaplicar depois de cada exportação nova (ver MANUTENCAO.md). */
+(function () {
+  var W = 'https://yamb-trafego.gabrielsocialm21.workers.dev', TOKEN = '1cf8679d27e86dd71b7864656568b3d2', VAPID = 'BJdCUQPFq4hH0jjQqjwoC_T6j7CYH2bXdk0-2NNF9Sip2jj-xsKqscjBbJxEpjij7Q1aVoNmuoXMNTmLVVN9YQ4';
+  var ok = ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window);
+  var reg = null, tela = null, caixa = null, falhouRede = false;
+  function chave(b) { var p = '='.repeat((4 - b.length % 4) % 4), s = atob((b + p).replace(/-/g, '+').replace(/_/g, '/')), o = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) o[i] = s.charCodeAt(i); return o; }
+  function enviar(rota, corpo) { corpo.token = TOKEN; return fetch(W + rota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) }).then(function (r) { return r.json(); }); }
+  function ios() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+  function app() { return (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone; }
+  function fechar() { if (tela) { tela.remove(); tela = null; document.documentElement.style.overflow = ''; } }
+  function abrir(titulo, texto, botao, acao, extra) {
+    if (!tela) {
+      tela = document.createElement('div'); tela.id = 'yamb-avisos-obrigatorio'; tela.setAttribute('role', 'dialog'); tela.setAttribute('aria-modal', 'true'); tela.setAttribute('aria-labelledby', 'yamb-av-t');
+      tela.style.cssText = 'position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:20px;background:rgba(6,6,6,.94);color:#F7E4CE;font:300 15px/1.55 system-ui,sans-serif;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)';
+      caixa = document.createElement('div'); caixa.style.cssText = 'max-width:440px;width:100%;padding:28px 26px;border-radius:24px;border:1px solid rgba(243,172,47,.45);background:#141414;box-shadow:0 30px 80px rgba(0,0,0,.7)';
+      tela.appendChild(caixa); document.body.appendChild(tela); document.documentElement.style.overflow = 'hidden';
+    }
+    caixa.innerHTML = '<span style="font:600 11px/1 system-ui;letter-spacing:.3em;text-transform:uppercase;color:#F3AC2F">Obrigatório</span><h2 id="yamb-av-t" style="margin:12px 0 10px;font:400 22px/1.25 system-ui;color:#FEF8EE">' + titulo + '</h2><p style="margin:0 0 18px;color:rgba(247,228,206,.8)">' + texto + '</p>' +
+      (botao ? '<button type="button" id="yamb-av-b" style="width:100%;min-height:48px;border:0;border-radius:999px;background:linear-gradient(135deg,#FDEBC9,#F5C86F 55%,#E09A24);color:#121212;font:600 15px system-ui;cursor:pointer">' + botao + '</button>' : '') + (extra || '');
+    var b = caixa.querySelector('#yamb-av-b'); if (b) { b.addEventListener('click', acao); b.focus(); }
+    var c = caixa.querySelector('#yamb-av-c'); if (c) c.addEventListener('click', fechar);
+  }
+  function pedirLigar() {
+    abrir('Ligue os avisos de postagens', 'Todo dia às <b>8h</b> você recebe aqui o que precisa ser postado hoje: posts e stories. Os stories começam às 8h e vão até 12h. Sem os avisos ligados, o ambiente interno não abre.', 'Ligar avisos agora', ligar);
+  }
+  function negado() {
+    abrir('Os avisos estão bloqueados neste navegador', 'Libere assim: clique no <b>cadeado</b> ao lado do endereço do site, abra <b>Notificações</b>, escolha <b>Permitir</b> e depois recarregue. No celular: Ajustes do navegador ou do app › Notificações › Permitir.', 'Já liberei, recarregar', function () { location.reload(); });
+  }
+  function semSuporte() {
+    if (ios() && !app()) abrir('Instale o ambiente interno no iPhone', 'No iPhone os avisos só funcionam com o ambiente na tela inicial. Toque em <b>Compartilhar</b> (quadrado com seta) › <b>Adicionar à Tela de Início</b>, depois abra pelo ícone novo e ligue os avisos.', null, null);
+    else abrir('Este navegador não recebe avisos', 'Abra o ambiente interno no <b>Chrome</b>, <b>Edge</b> ou <b>Safari</b> atualizado para ligar os avisos de postagens.', null, null);
+  }
+  function erroRede() {
+    abrir('Não consegui ligar os avisos agora', 'O servidor de avisos não respondeu. Tente de novo; se continuar, dá para entrar nesta vez e ligar depois.', 'Tentar de novo', ligar, '<button type="button" id="yamb-av-c" style="width:100%;margin-top:10px;min-height:44px;border-radius:999px;border:1px solid rgba(247,228,206,.25);background:transparent;color:#F7E4CE;font:400 14px system-ui;cursor:pointer">Entrar sem avisos desta vez</button>');
+  }
+  function registrar(sub) {
+    return enviar('/avisos/inscrever', { subscription: sub.toJSON(), aparelho: (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '' });
+  }
+  function ligar() {
+    Notification.requestPermission().then(function (p) {
+      if (p === 'denied') { negado(); return; }
+      if (p !== 'granted') { pedirLigar(); return; }
+      return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chave(VAPID) }).then(registrar).then(function (r) {
+        if (r && r.ok) { fechar(); enviar('/avisos/teste', {}); } else erroRede();
+      });
+    }).catch(function () { erroRede(); });
+  }
+  function iniciar() {
+    if (!ok) { semSuporte(); return; }
+    if (Notification.permission === 'denied') { negado(); return; }
+    navigator.serviceWorker.register('/interno/sw-avisos.js', { scope: '/interno/avisos-postagens/' }).then(function (r) { reg = r; return navigator.serviceWorker.ready; })
+      .then(function () { return reg.pushManager.getSubscription(); })
+      .then(function (s) {
+        if (s && Notification.permission === 'granted') { registrar(s).catch(function () {}); return; } // confirma a inscrição no servidor sem incomodar
+        pedirLigar();
+      }).catch(function () { erroRede(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+})();
+</script>
+</body></html>

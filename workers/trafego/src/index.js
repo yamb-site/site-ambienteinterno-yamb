@@ -42,7 +42,7 @@ const CAMPOS_CONTA = "id,account_id,name,account_status,currency,business_name,t
 const ATIVOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
 const ATIVOS_E_PAUSADOS = JSON.stringify(["ACTIVE", "IN_PROCESS", "WITH_ISSUES", "PAUSED", "ADSET_PAUSED", "CAMPAIGN_PAUSED"]);
 const NO_AR = new Set(["ACTIVE", "IN_PROCESS", "WITH_ISSUES"]);
-const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste", "/entrar", "/sair", "/acessos/salvar", "/acessos/remover"];
+const ROTAS_ESCRITA = ["/decidir", "/desfazer", "/editar", "/config", "/push/inscrever", "/push/sair", "/push/teste", "/avisos/inscrever", "/avisos/sair", "/avisos/teste", "/entrar", "/sair", "/acessos/salvar", "/acessos/remover"];
 // O que o cliente pode pedir (tudo só leitura e filtrado pelas contas dele).
 const ROTAS_CLIENTE = ["/eu", "/sair", "/contas", "/painel", "/cliente", "/instagram", "/instagram/perfil"];
 // Resultados que o painel destaca, na ordem de prioridade (o primeiro encontrado vira "resultado").
@@ -76,6 +76,17 @@ export default {
 
     const url = new URL(request.url);
     if (!env.YAMB_TRAFEGO) return json({ erro: "Armazenamento (KV) não configurado no Worker." }, 500, cors);
+    if (url.pathname.startsWith("/avisos/")) {
+      const corpo = request.method === "POST" ? await request.json().catch(() => ({})) : {};
+      if (!tokenAvisosOk(env, corpo.token || url.searchParams.get("token"))) return json({ erro: "Não autorizado." }, 401, cors);
+      try {
+        if (url.pathname === "/avisos/inscrever") return json(await inscreverAvisos(env, corpo), 200, cors);
+        if (url.pathname === "/avisos/sair") return json(await sairAvisos(env, corpo), 200, cors);
+        if (url.pathname === "/avisos/teste") return json(await testeAvisos(env), 200, cors);
+        if (url.pathname === "/avisos/hoje") { const d = await postagensDoDia(env); return json({ ...d, mensagem: mensagemAvisos(d) }, 200, cors); }
+      } catch (e) { return json({ erro: e.message }, 500, cors); }
+      return json({ erro: "Rota não encontrada." }, 404, cors);
+    }
     if (url.pathname === "/entrar") {
       const corpo = await request.json().catch(() => ({}));
       const r = await entrar(env, request, corpo);
@@ -837,16 +848,16 @@ async function contarInscritos(env) {
   return (await env.YAMB_TRAFEGO.list({ prefix: "push:" })).keys.length;
 }
 
-async function enviarPush(env, mensagem) {
+async function enviarPush(env, mensagem, prefixo = "push:", topico = "yamb-trafego") {
   if (!env.VAPID_PRIVATE_JWK || !env.YAMB_TRAFEGO) return { enviados: 0, erro: "Push não configurado." };
-  const chaves = (await env.YAMB_TRAFEGO.list({ prefix: "push:" })).keys;
+  const chaves = (await env.YAMB_TRAFEGO.list({ prefix: prefixo })).keys;
   let enviados = 0;
   for (const k of chaves) {
     const reg = await env.YAMB_TRAFEGO.get(k.name, "json");
     if (!reg) continue;
     try {
       const req = await buildPushHTTPRequest({ privateJWK: env.VAPID_PRIVATE_JWK, subscription: reg.subscription,
-        message: { payload: mensagem, options: { ttl: 6 * 3600, urgency: "high", topic: "yamb-trafego" }, adminContact: "mailto:diretoria@yamb.com.br" } });
+        message: { payload: mensagem, options: { ttl: 6 * 3600, urgency: "high", topic: topico }, adminContact: "mailto:diretoria@yamb.com.br" } });
       const r = await fetch(req.endpoint, { method: "POST", headers: req.headers, body: req.body });
       if (r.status === 404 || r.status === 410) await env.YAMB_TRAFEGO.delete(k.name); // inscrição expirada
       else if (r.ok) enviados++;
@@ -860,7 +871,70 @@ async function pushTeste(env) {
   return r.erro ? { erro: r.erro } : { ok: true, ...r };
 }
 
+
+// ---------------------------------------------------------------- avisos de postagens do ambiente interno
+// O planejamento (postagens por dia e horário, stories por dia da semana e o que já foi marcado) mora no Apps Script do
+// ambiente interno. Todo dia às 8h (Brasília) a equipe recebe o que precisa ser postado hoje e ainda não foi marcado.
+function tokenAvisosOk(env, t) {
+  const certo = String(env.AVISOS_TOKEN || ""), enviado = String(t || "");
+  if (!certo || certo.length !== enviado.length) return false;
+  let d = 0; for (let i = 0; i < certo.length; i++) d |= certo.charCodeAt(i) ^ enviado.charCodeAt(i);
+  return d === 0;
+}
+async function postagensDoDia(env) {
+  if (!env.SHEET_URL) throw new Error("SHEET_URL não configurado no Worker.");
+  const r = await fetch(env.SHEET_URL, { redirect: "follow", headers: { "User-Agent": "Mozilla/5.0 YAMB-avisos" } });
+  if (!r.ok) throw new Error("Ambiente interno respondeu " + r.status);
+  const banco = (await r.json()).data || {};
+  const br = new Date(Date.now() - 3 * 3600e3);
+  const dd = String(br.getUTCDate()).padStart(2, "0"), mm = String(br.getUTCMonth() + 1).padStart(2, "0"), hoje = dd + "/" + mm + "/" + br.getUTCFullYear();
+  const idx = (br.getUTCDay() + 6) % 7; // 0 = segunda … 6 = domingo, igual ao ambiente interno
+  const feitos = new Set((banco.storiesFeitos || []).filter((f) => f.ok).map((f) => f.id));
+  const planejados = (banco.stories || []).filter((x) => (x.dias || []).includes(idx));
+  const stories = planejados.filter((x) => !feitos.has(x.cliente + "|" + hoje)).map((x) => x.cliente);
+  const posts = (banco.items || []).filter((i) => i.data === hoje && i.tipo !== "Stories" && i.status !== "Postado")
+    .map((i) => ({ cliente: i.cliente, tipo: i.tipo, hora: i.hora || "", status: i.status }))
+    .sort((a, b) => (parseInt(a.hora) || 99) - (parseInt(b.hora) || 99));
+  return { hoje, diaSemana: DIAS_SEMANA[br.getUTCDay()], stories: { planejados: planejados.length, feitos: planejados.length - stories.length, pendentes: stories }, posts: { pendentes: posts } };
+}
+function mensagemAvisos(d) {
+  const lista = (nomes, max) => nomes.slice(0, max).join(", ") + (nomes.length > max ? " e mais " + (nomes.length - max) : "");
+  const nomes = (arr) => [...new Set(arr.map((x) => x.cliente))];
+  const ate12 = d.posts.pendentes.filter((p) => parseInt(p.hora) && parseInt(p.hora) <= 12), depois = d.posts.pendentes.filter((p) => parseInt(p.hora) > 12), semHora = d.posts.pendentes.filter((p) => !parseInt(p.hora));
+  const partes = [];
+  if (ate12.length) partes.push("Posts até 12h (" + ate12.length + "): " + lista(nomes(ate12), 4));
+  if (d.stories.pendentes.length) partes.push("Stories até 12h (" + d.stories.pendentes.length + "): " + lista(d.stories.pendentes, 4));
+  if (depois.length) partes.push("Posts à tarde/noite (" + depois.length + ")");
+  if (semHora.length) partes.push("Sem horário (" + semHora.length + ")");
+  return { title: "Hoje para postar · comece agora", body: partes.join(" · ") + ".", url: "/interno/", tag: "yamb-postagens" };
+}
+async function avisoPostagensManha(env) {
+  const br = new Date(Date.now() - 3 * 3600e3);
+  if (br.getUTCHours() !== 8 || br.getUTCMinutes() >= 15) return;
+  const chave = "avmanha:" + br.toISOString().slice(0, 10);
+  if (await env.YAMB_TRAFEGO.get(chave)) return;
+  const d = await postagensDoDia(env);
+  await env.YAMB_TRAFEGO.put(chave, "1", { expirationTtl: 2 * 86400 }); // um aviso por dia, mesmo que a checagem rode de novo
+  if (!d.posts.pendentes.length && !d.stories.pendentes.length) return;
+  await enviarPush(env, mensagemAvisos(d), "avpush:", "yamb-postagens");
+}
+async function inscreverAvisos(env, corpo) {
+  const sub = corpo.subscription || {};
+  if (!sub.endpoint || !/^https:\/\//.test(sub.endpoint) || !sub.keys || !sub.keys.p256dh || !sub.keys.auth) return { erro: "Inscrição inválida." };
+  await env.YAMB_TRAFEGO.put("avpush:" + (await hashCurto(sub.endpoint)), JSON.stringify({ subscription: { endpoint: sub.endpoint, keys: sub.keys }, nome: limpaAutor(corpo.nome) || "Sem nome", em: new Date().toISOString(), aparelho: String(corpo.aparelho || "").slice(0, 80) }));
+  return { ok: true, inscritos: (await env.YAMB_TRAFEGO.list({ prefix: "avpush:" })).keys.length };
+}
+async function sairAvisos(env, corpo) {
+  if (corpo.endpoint) await env.YAMB_TRAFEGO.delete("avpush:" + (await hashCurto(String(corpo.endpoint))));
+  return { ok: true, inscritos: (await env.YAMB_TRAFEGO.list({ prefix: "avpush:" })).keys.length };
+}
+async function testeAvisos(env) {
+  const r = await enviarPush(env, { title: "Avisos de postagens ligados", body: "Todo dia às 8h você recebe aqui o que precisa ser postado hoje (posts e stories). Prazo das postagens da manhã: 12h.", url: "/interno/", tag: "yamb-postagens" }, "avpush:", "yamb-postagens");
+  return r.erro ? { erro: r.erro } : { ok: true, ...r };
+}
+
 async function checagemAgendada(env, ctx) {
+  ctx.waitUntil(avisoPostagensManha(env).catch((e) => console.log("avisos falhou:", e.message)));
   const cfg = await lerConfig(env);
   const n = cfg.notificacoes;
   const agora = new Date(Date.now() - 3 * 3600e3); // Brasília

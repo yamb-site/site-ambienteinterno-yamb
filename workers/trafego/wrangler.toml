@@ -5,6 +5,8 @@ workers_dev = true
 
 [vars]
 GRAPH_VERSION = "v25.0"
+# Banco do ambiente interno (Apps Script): de lá vêm os stories planejados e os já marcados
+SHEET_URL = "https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec"
 ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev"
 # Chave pública do push (a privada fica no cofre: VAPID_PRIVATE_JWK)
 VAPID_PUBLIC = "BJdCUQPFq4hH0jjQqjwoC_T6j7CYH2bXdk0-2NNF9Sip2jj-xsKqscjBbJxEpjij7Q1aVoNmuoXMNTmLVVN9YQ4"
