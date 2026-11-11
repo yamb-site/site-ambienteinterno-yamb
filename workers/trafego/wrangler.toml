@@ -9,14 +9,14 @@ GRAPH_VERSION = "v25.0"
 SHEET_URL = "https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec"
 ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev"
 # Chave pública do push (a privada fica no cofre: VAPID_PRIVATE_JWK)
-VAPID_PUBLIC = "BJdCUQPFq4hH0jjQqjwoC_T6j7CYH2bXdk0-2NNF9Sip2jj-xsKqscjBbJxEpjij7Q1aVoNmuoXMNTmLVVN9YQ4"
+VAPID_PUBLIC = "BESqHueztiN9enwSMvFC3JPn31XhKbxUNwWnKc4LHVUfHk10aJSeKAr7eZCpelS_RZcTIc9xNOr8OKp_iIImLeU"
 
 # Segredos (nunca aqui): npx wrangler secret put META_TOKEN · npx wrangler secret put PAINEL_SENHA
 
 # Decisões das sugestões (aceita/recusada/desfeita) e histórico de mudanças aplicadas no Meta
 [[kv_namespaces]]
 binding = "YAMB_TRAFEGO"
-id = "e19d2510d2d14e7ba4e0e3372e8f95ee"
+id = "14ec801dab234cbdacf3df9434f18ae3"
 
 # Segredo extra para aplicar sugestões: npx wrangler secret put META_TOKEN_GERENCIAR (token com ads_management)
 
