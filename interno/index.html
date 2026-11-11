@@ -69819,6 +69819,9 @@ function Indicadores({
     return d && d.getMonth() === mesRef.getMonth() && d.getFullYear() === mesRef.getFullYear();
   });
   const postadasMes = doMes.filter(i => i.status === 'Postado').length;
+  const hojeStr = window.fmtData(hoje);
+  const doDia = feed.filter(i => i.data === hojeStr);
+  const postadasDia = doDia.filter(i => i.status === 'Postado').length;
   const feitoSet = new Set((storiesFeitos || []).filter(f => f.ok).map(f => f.id));
   const rows = window.CLIENTS.map(c => {
     const l = per.filter(i => i.cliente === c);
@@ -70007,6 +70010,10 @@ function Indicadores({
     label: 'Postagens ' + periodo,
     note: 'de ' + per.length + ' previstas'
   }), /*#__PURE__*/React.createElement(IndKpi, {
+    value: postadasDia,
+    label: 'Hoje · ' + hojeStr.slice(0, 5),
+    note: 'de ' + doDia.length + ' previstas para hoje'
+    }), /*#__PURE__*/React.createElement(IndKpi, {
     value: postadasMes,
     label: 'Total do mês · ' + IND_MESES[mesRef.getMonth()],
     note: 'de ' + doMes.length + ' previstas no mês'
@@ -84295,6 +84302,9 @@ function Indicadores({
     return d && d.getMonth() === mesRef.getMonth() && d.getFullYear() === mesRef.getFullYear();
   });
   const postadasMes = doMes.filter(i => i.status === 'Postado').length;
+  const hojeStr = window.fmtData(hoje);
+  const doDia = feed.filter(i => i.data === hojeStr);
+  const postadasDia = doDia.filter(i => i.status === 'Postado').length;
   const feitoSet = new Set((storiesFeitos || []).filter(f => f.ok).map(f => f.id));
   const rows = window.CLIENTS.map(c => {
     const l = per.filter(i => i.cliente === c);
@@ -84483,6 +84493,10 @@ function Indicadores({
     label: 'Postagens ' + periodo,
     note: 'de ' + per.length + ' previstas'
   }), React.createElement(IndKpi, {
+    value: postadasDia,
+    label: 'Hoje · ' + hojeStr.slice(0, 5),
+    note: 'de ' + doDia.length + ' previstas para hoje'
+    }), React.createElement(IndKpi, {
     value: postadasMes,
     label: 'Total do mês · ' + IND_MESES[mesRef.getMonth()],
     note: 'de ' + doMes.length + ' previstas no mês'
