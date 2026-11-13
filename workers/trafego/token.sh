@@ -7,7 +7,7 @@
 # segredos META_TOKEN e META_TOKEN_GERENCIAR do Worker. O token nunca aparece na tela:
 # só tamanho, validade e permissões.
 cd "$(dirname "$0")" || exit 1
-T=$(pbpaste | tr -d '[:space:]')
+T=$(printf %s "${TOKEN_IN:-$(pbpaste)}" | tr -d '[:space:]')
 if [ -z "$T" ]; then echo "A área de transferência está vazia. Copie o token longo e rode de novo."; exit 1; fi
 RESP=$(curl -s -G "https://graph.facebook.com/v25.0/debug_token" --data-urlencode "input_token=$T" --data-urlencode "access_token=$T")
 python3 - "$RESP" "${#T}" <<'EOF'

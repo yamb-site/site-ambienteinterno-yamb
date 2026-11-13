@@ -2,6 +2,12 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-13 — resultados separados por tipo e Visão geral em dashboard
+- Problema: o Worker escolhe um único "resultado" por linha (conversas > leads > compras > cliques no link > engajamento > vídeo) e o painel somava tipos diferentes, misturando conversas iniciadas com cliques no link, leads e engajamento no funil, no cartão de resultados e no custo por resultado.
+- Agora o dashboard agrupa as campanhas pelo tipo de resultado e mostra **um funil por tipo** (Conversas iniciadas, Cliques no link, Leads, Engajamento…), o cartão de resultados só com conversas e o custo por conversa separado. A taxa "por clique" só aparece onde o resultado nasce do clique (conversas, leads, compras, cliques no link).
+- A Visão geral (todos os clientes) ganhou o mesmo formato: menu lateral, indicadores, funis por tipo, investimento por cliente/objetivo/plataforma e tabela de clientes com conversas e custo por conversa.
+- Pendente (precisa do Worker): conversas por dia no gráfico e totais por tipo no mesmo dia (o `diario` do Worker mistura tipos); por isso o gráfico do dia a dia mostra investimento e cliques no link.
+
 ## 2026-11-10 — painel do cliente em formato dashboard
 - A tela de cada cliente (`#aba=cliente`) agora é um dashboard: menu lateral (Visão geral, Campanhas, Conjuntos, Anúncios, Público, Dia a dia), troca de cliente no topo (busca + setas anterior/próximo), indicadores com minigráficos, funil, medidores de custo, gráfico por dia, rosca dos melhores anúncios e tabela de campanhas.
 - Clicar em uma campanha abre um painel flutuante (link direto com `&camp=<id>`; Esc fecha) com indicadores, funil, conjuntos, anúncios e os botões de editar. Botão Exportar baixa as campanhas em CSV.

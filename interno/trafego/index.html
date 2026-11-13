@@ -424,7 +424,7 @@ tr.pausada td{opacity:.62} tr.pausada td:last-child{opacity:1}
 .dk-ic svg{width:22px;height:22px}
 .dk-t{grid-area:t;min-width:0}
 .dk-r{display:block;font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dk-t b{display:block;font-size:clamp(20px,2vw,28px);font-weight:300;letter-spacing:-.02em;margin:2px 0 2px;color:var(--text)}
+.dk-t b{display:block;font-size:clamp(18px,1.6vw,26px);font-weight:300;letter-spacing:-.02em;margin:2px 0 2px;color:var(--text)}
 .dk .delta{font-size:11px;padding:2px 8px}
 .dk .delta .meta{display:none}
 .spark{grid-area:sp;width:100%;height:38px;color:var(--gold);display:block}
@@ -533,6 +533,23 @@ body.fl-aberto{overflow:hidden}
 .fl-corpo th,.fl-corpo td{padding:11px 9px}
 .fl-corpo .ctrl{flex-wrap:wrap;gap:6px}
 
+/* funis por tipo de resultado + visão geral dashboard */
+.funis{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:12px}
+.fnl{padding:16px 16px 12px;border-radius:var(--r-lg);background:rgba(247,228,206,.035);border:1px solid var(--edge);min-width:0}
+.fnl header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.fnl header i{width:12px;height:12px;border-radius:50%;flex:none}
+.fnl header b{display:block;font-weight:500;font-size:15px}
+.fnl header span{display:block;font-size:12px;color:var(--muted)}
+.fnl .funil{margin:8px 0 10px}
+.fnl-c{margin:10px 0 0;font-size:11.5px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere}
+.fnl-n{margin:12px 0 0;font-size:12px}
+.fn.fim{background:linear-gradient(180deg,rgba(245,200,111,.55),rgba(224,154,36,.30))}
+.fn:last-child:not(.fim){background:linear-gradient(180deg,rgba(243,172,47,.30),rgba(243,172,47,.10))}
+.dg1{grid-template-columns:minmax(190px,.6fr) minmax(300px,1.6fr) minmax(250px,1fr)}
+.dg1.dg-geral{grid-template-columns:minmax(190px,.6fr) minmax(250px,1fr) minmax(300px,1.5fr)}
+.dg-geral .barra{grid-template-columns:minmax(80px,140px) 1fr auto}
+@media (max-width:1280px){.dg1,.dg1.dg-geral{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){.dg1,.dg1.dg-geral{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -813,7 +830,7 @@ body.fl-aberto{overflow:hidden}
 
   function render(silencioso) {
     estado = lerEstado();
-    $('painel').classList.toggle('dash-on', estado.aba === 'cliente'); if (estado.aba !== 'cliente') fecharCampanha(true);
+    $('painel').classList.toggle('dash-on', estado.aba === 'cliente' || estado.aba === 'geral'); if (estado.aba !== 'cliente') fecharCampanha(true);
     document.querySelectorAll('#periodos [data-p]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === estado.periodo)); });
     if (!silencioso) $('conteudo').innerHTML = '<p class="carregando">Carregando…</p>';
     return carregarGeral().then(function (g) {
@@ -876,24 +893,6 @@ body.fl-aberto{overflow:hidden}
   }
 
   // ------------------------------------------------ telas
-  function telaGeral(g) {
-    var m = (g.contas[0] && g.contas[0].moeda) || 'BRL';
-    var ranking = g.contas.slice().sort(function (a, b) { return b.totais.gasto - a.totais.gasto; }).slice(0, 10);
-    var alertas = todosAlertas(g);
-    var h = kpis(g.totais, g.anterior, m) + guia();
-    h += '<div class="grade2"><section class="cartao vidro"><h2>Por objetivo<small>investimento e resultados</small></h2>' + barras(g.categorias, 'gasto', function (x) { return x.nome; }, m) + '</section>' +
-      '<section class="cartao vidro"><h2>Por plataforma</h2>' + barras(g.plataformas, 'gasto', function (x) { return x.nome; }, m) + '</section></div>';
-    if (ehCliente()) {
-      var top = g.contas.flatMap(function (c) { return c.campanhas; }).sort(function (a, b) { return b.gasto - a.gasto; }).slice(0, 8);
-      h += '<section class="cartao vidro"><h2>Campanhas que mais investiram</h2>' + (top.length ? barras(top, 'gasto', function (x) { return x.nome; }, m) + '<a class="mais" href="' + link({ aba: 'campanhas' }) + '">Ver todas as campanhas</a>' : '<p class="vazio">Nenhuma campanha no período.</p>') + '</section>';
-      $('conteudo').innerHTML = h; return;
-    }
-    h += '<div class="grade2"><section class="cartao vidro"><h2>Clientes que mais investiram</h2>' + barras(ranking.map(function (c) { return Object.assign({ nome: c.nome }, c.totais); }), 'gasto', function (x) { return x.nome; }, m) +
-      '<a class="mais" href="' + link({ aba: 'clientes' }) + '">Ver todos os clientes</a></section>' +
-      '<section class="cartao vidro"><h2>Alertas<small>' + alertas.length + '</small></h2>' + (alertas.length ? alertas.slice(0, 6).map(linhaAlerta).join('') + '<a class="mais" href="' + link({ aba: 'alertas' }) + '">Ver todos os alertas</a>' : '<p class="vazio">Nada pedindo atenção agora.</p>') + '</section></div>';
-    $('conteudo').innerHTML = h;
-  }
-
   function telaClientes(g) {
     var busca = (estado.busca || '').toLowerCase();
     var lista = g.contas.filter(function (c) { return !busca || (c.nome + ' ' + (c.empresa || '')).toLowerCase().indexOf(busca) >= 0; });
@@ -1027,11 +1026,52 @@ body.fl-aberto{overflow:hidden}
   }
   function freq(t) { return t.alcance ? t.impressoes / t.alcance : null; }
 
-  function funil(t, rot) {
-    var et = [['Impressões', t.impressoes], ['Alcance', t.alcance], ['Cliques', t.cliques], [rot || 'Resultados', t.resultados]];
-    var taxa = t.cliques ? t.resultados / t.cliques * 100 : null, h = '<div class="funil" role="img" aria-label="' + esc('Funil: ' + et.map(function (e) { return e[0] + ' ' + N(e[1]); }).join(', ')) + '">';
-    et.forEach(function (e, i) { h += '<div class="fn" style="--w:' + (100 - i * 15) + '%"><span>' + esc(e[0]) + '</span><b class="num">' + N(e[1]) + '</b></div>'; });
-    return h + '</div><dl class="funil-m"><div><dt>Taxa de clique</dt><dd>' + P(t.ctr) + '</dd></div><div><dt>Taxa de resultado</dt><dd>' + P(taxa) + '</dd></div><div><dt>Frequência</dt><dd>' + D(freq(t)) + '</dd></div><div><dt>CPM</dt><dd>' + R(t.cpm || null, t.moeda) + '</dd></div></dl>';
+  // ---- resultados separados por tipo (conversas, leads, cliques no link…): nunca somar tipos diferentes
+  var SEM_RES = 'Sem resultado registrado';
+  var SING = { 'Conversas iniciadas': 'conversa', 'Leads': 'lead', 'Compras': 'compra', 'Cliques no link': 'clique no link', 'Engajamento': 'engajamento', 'Visualizações de vídeo': 'visualização' };
+  function tiposDe(lista) {
+    var g = {};
+    lista.forEach(function (k) {
+      var n = k.resultado || SEM_RES, x = g[n] = g[n] || { nome: n, gasto: 0, impressoes: 0, alcance: 0, cliques: 0, cliquesLink: 0, resultados: 0, campanhas: [] };
+      ['gasto', 'impressoes', 'alcance', 'cliques', 'cliquesLink', 'resultados'].forEach(function (c) { x[c] += k[c] || 0; });
+      x.campanhas.push(k.nome);
+    });
+    return Object.keys(g).map(function (n) {
+      var x = g[n]; x.ctr = x.impressoes ? x.cliques / x.impressoes * 100 : null; x.cpc = x.cliques ? x.gasto / x.cliques : null;
+      x.cpm = x.impressoes ? x.gasto / x.impressoes * 1000 : null; x.custoPorResultado = x.resultados ? x.gasto / x.resultados : null; return x;
+    }).sort(function (a, b) { return b.gasto - a.gasto; });
+  }
+  function principal(tipos) { return tipos.filter(function (x) { return x.nome === 'Conversas iniciadas'; })[0] || tipos.filter(function (x) { return x.nome !== SEM_RES; })[0] || tipos[0] || null; }
+  function funil(t, rot, exata) {
+    var res = rot && rot !== SEM_RES ? rot : null, link = res === 'Cliques no link';
+    var et = [['Impressões', t.impressoes], ['Alcance', t.alcance], ['Cliques', t.cliques]];
+    if (!link && t.cliquesLink) et.push(['Cliques no link', t.cliquesLink]);
+    if (res) et.push([res, t.resultados]);
+    var base = !link && t.cliquesLink ? t.cliquesLink : t.cliques, taxa = base && res ? t.resultados / base * 100 : null;
+    var h = '<div class="funil" role="img" aria-label="' + esc('Funil: ' + et.map(function (e) { return e[0] + ' ' + N(e[1]); }).join(', ')) + '">';
+    et.forEach(function (e, i) { h += '<div class="fn' + (res && i === et.length - 1 ? ' fim' : '') + '" style="--w:' + Math.max(52, 100 - i * 12) + '%"><span>' + esc(e[0]) + '</span><b class="num">' + N(e[1]) + '</b></div>'; });
+    h += '</div><dl class="funil-m"><div><dt>Taxa de clique</dt><dd>' + P(t.ctr) + '</dd></div>';
+    var COM_TAXA = { 'Conversas iniciadas': 1, 'Leads': 1, 'Compras': 1, 'Cliques no link': 1 };
+    if (res && COM_TAXA[res]) h += '<div><dt>' + esc(res) + ' por clique' + (!link && t.cliquesLink ? ' no link' : '') + '</dt><dd>' + P(taxa) + '</dd></div>';
+    if (res) h += '<div><dt>Custo por ' + esc(SING[res] || 'resultado') + '</dt><dd>' + R(t.custoPorResultado, t.moeda) + '</dd></div>';
+    h += '<div><dt>CPM</dt><dd>' + R(t.cpm || null, t.moeda) + '</dd></div>';
+    if (exata) h += '<div><dt>Frequência</dt><dd>' + D(freq(t)) + '</dd></div>';
+    return h + '</dl>';
+  }
+  function funisPorTipo(lista, m, titulo) {
+    var L = tiposDe(lista).filter(function (x) { return x.gasto > 0 || x.impressoes > 0; });
+    if (!L.length) return '<section class="cartao vidro"><h2>' + titulo + '</h2><p class="vazio">Nenhuma campanha com atividade neste período.</p></section>';
+    var h = '<section class="cartao vidro funis-cx"><h2>' + titulo + '<small>um funil para cada tipo de resultado, sem misturar</small></h2><div class="funis">';
+    L.forEach(function (x, i) {
+      var nomes = x.campanhas.slice(0, 3).map(esc).join(' · ') + (x.campanhas.length > 3 ? ' e mais ' + (x.campanhas.length - 3) : '');
+      h += '<article class="fnl"><header><i style="background:' + PAL[i % PAL.length] + '" aria-hidden="true"></i><div><b>' + esc(x.nome) + '</b><span>' + x.campanhas.length + (x.campanhas.length === 1 ? ' campanha' : ' campanhas') + ' · ' + R(x.gasto, m) + '</span></div></header>' +
+        funil(Object.assign({ moeda: m }, x), x.nome, x.campanhas.length === 1) + '<p class="fnl-c" title="' + esc(x.campanhas.join(' · ')) + '">' + nomes + '</p></article>';
+    });
+    return h + '</div><p class="meta fnl-n">Cada funil usa só as campanhas cujo resultado é daquele tipo. O alcance é a soma entre campanhas: a mesma pessoa pode aparecer em mais de uma.</p></section>';
+  }
+  function medidorTipo(x, m) {
+    if (!x) return '';
+    return '<div class="med vidro"><span class="dk-r">Custo por ' + esc(SING[x.nome] || 'resultado') + '</span><b class="num">' + R(x.custoPorResultado, m) + '</b><small>' + N(x.resultados) + ' ' + esc(x.nome.toLowerCase()) + ' · ' + R(x.gasto, m) + ' investidos</small></div>';
   }
   function medidor(rot, valor, atual, ant, menorMelhor, nota) {
     var pct = ant && atual != null ? Math.max(6, Math.min(100, atual / Math.max(atual, ant) * 100)) : 100;
@@ -1039,24 +1079,24 @@ body.fl-aberto{overflow:hidden}
       '<div class="trilho2" role="img" aria-label="' + esc(rot + ' em relação ao período anterior') + '"><i style="width:' + pct.toFixed(0) + '%"></i></div>' + (nota ? '<small>' + esc(nota) + '</small>' : '') + '</div>';
   }
 
-  function linhas(dias, rotA, rotB) {
+  function linhas(dias, A, B) {
     if (!dias || !dias.length) return '<p class="vazio">Sem dados por dia no período.</p>';
-    var W = 760, H = 250, pe = 40, pd = 40, pt = 16, pb = 32, n = dias.length;
-    var A = dias.map(function (x) { return x.resultados || 0; }), B = dias.map(function (x) { return x.cliquesLink != null ? x.cliquesLink : (x.cliques || 0); });
-    var mA = Math.max.apply(null, A.concat([1])), mB = Math.max.apply(null, B.concat([1])), cw = W - pe - pd, ch = H - pt - pb;
+    var W = 760, H = 250, pe = 44, pd = 40, pt = 16, pb = 32, n = dias.length;
+    var va = dias.map(function (x) { return x[A.k] || 0; }), vb = dias.map(function (x) { return x[B.k] || 0; });
+    var mA = Math.max.apply(null, va.concat([1])), mB = Math.max.apply(null, vb.concat([1])), cw = W - pe - pd, ch = H - pt - pb;
     var X = function (i) { return n === 1 ? pe + cw / 2 : pe + cw * i / (n - 1); }, YA = function (v) { return pt + ch - ch * v / mA; }, YB = function (v) { return pt + ch - ch * v / mB; };
     var svg = '';
-    for (var i = 0; i <= 4; i++) { var y = pt + ch * i / 4; svg += '<line x1="' + pe + '" x2="' + (W - pd) + '" y1="' + y + '" y2="' + y + '" stroke="rgba(247,228,206,.07)"/><text x="' + (pe - 6) + '" y="' + (y + 4) + '" fill="rgba(245,200,111,.8)" font-size="10" text-anchor="end">' + N(mA * (4 - i) / 4) + '</text><text x="' + (W - pd + 6) + '" y="' + (y + 4) + '" fill="rgba(247,228,206,.55)" font-size="10">' + N(mB * (4 - i) / 4) + '</text>'; }
-    var pa = A.map(function (v, i) { return X(i).toFixed(1) + ',' + YA(v).toFixed(1); }).join(' '), pb2 = B.map(function (v, i) { return X(i).toFixed(1) + ',' + YB(v).toFixed(1); }).join(' ');
+    for (var i = 0; i <= 4; i++) { var y = pt + ch * i / 4; svg += '<line x1="' + pe + '" x2="' + (W - pd) + '" y1="' + y + '" y2="' + y + '" stroke="rgba(247,228,206,.07)"/><text x="' + (pe - 6) + '" y="' + (y + 4) + '" fill="rgba(245,200,111,.8)" font-size="10" text-anchor="end">' + A.eixo(mA * (4 - i) / 4) + '</text><text x="' + (W - pd + 6) + '" y="' + (y + 4) + '" fill="rgba(247,228,206,.55)" font-size="10">' + N(mB * (4 - i) / 4) + '</text>'; }
+    var pa = va.map(function (v, i) { return X(i).toFixed(1) + ',' + YA(v).toFixed(1); }).join(' '), pb2 = vb.map(function (v, i) { return X(i).toFixed(1) + ',' + YB(v).toFixed(1); }).join(' ');
     svg += '<defs><linearGradient id="dgA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3AC2F" stop-opacity=".38"/><stop offset="1" stop-color="#F3AC2F" stop-opacity="0"/></linearGradient></defs>';
     svg += '<polygon points="' + X(0) + ',' + (pt + ch) + ' ' + pa + ' ' + X(n - 1) + ',' + (pt + ch) + '" fill="url(#dgA)"/>';
     svg += '<polyline points="' + pb2 + '" fill="none" stroke="#F7E4CE" stroke-width="2" stroke-dasharray="5 4" stroke-linejoin="round"/><polyline points="' + pa + '" fill="none" stroke="#F3AC2F" stroke-width="2.4" stroke-linejoin="round"/>';
     dias.forEach(function (x, i) {
-      svg += '<circle cx="' + X(i).toFixed(1) + '" cy="' + YA(A[i]).toFixed(1) + '" r="4" fill="#F3AC2F" stroke="#0A0A0A" stroke-width="1.5"><title>' + esc(data(x.dia) + ': ' + N(A[i]) + ' ' + rotA.toLowerCase() + ' · ' + N(B[i]) + ' ' + rotB.toLowerCase()) + '</title></circle>';
+      svg += '<circle cx="' + X(i).toFixed(1) + '" cy="' + YA(va[i]).toFixed(1) + '" r="4" fill="#F3AC2F" stroke="#0A0A0A" stroke-width="1.5"><title>' + esc(data(x.dia) + ': ' + A.fmt(va[i]) + ' · ' + N(vb[i]) + ' ' + B.rot.toLowerCase()) + '</title></circle>';
       if (n <= 10 || i % Math.ceil(n / 8) === 0) svg += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 9) + '" fill="rgba(247,228,206,.55)" font-size="10" text-anchor="middle">' + data(x.dia) + '</text>';
     });
-    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc('Gráfico de ' + n + ' dias: ' + rotA.toLowerCase() + ' (até ' + N(mA) + ' por dia) e ' + rotB.toLowerCase() + ' (até ' + N(mB) + ' por dia).') + '">' + svg + '</svg>' +
-      '<p class="leg"><span><i style="background:#F3AC2F"></i>' + esc(rotA) + '</span><span><i style="background:#F7E4CE"></i>' + esc(rotB) + '</span></p>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc('Gráfico de ' + n + ' dias: ' + A.rot.toLowerCase() + ' (até ' + A.fmt(mA) + ' por dia) e ' + B.rot.toLowerCase() + ' (até ' + N(mB) + ' por dia).') + '">' + svg + '</svg>' +
+      '<p class="leg"><span><i style="background:#F3AC2F"></i>' + esc(A.rot) + '</span><span><i style="background:#F7E4CE"></i>' + esc(B.rot) + '</span></p>';
   }
 
   function donut(lista, campo, nomeFn, centro) {
@@ -1071,14 +1111,13 @@ body.fl-aberto{overflow:hidden}
     });
     return '<div class="donut"><svg viewBox="0 0 140 140" role="img" aria-label="' + esc('Participação de cada item no total de ' + (centro || 'resultados') + ': ' + N(tot)) + '">' + seg + '<text x="70" y="68" text-anchor="middle" fill="#F7E4CE" font-size="20" font-weight="300">' + N(tot) + '</text><text x="70" y="84" text-anchor="middle" class="centro">' + esc(centro || 'resultados') + '</text></svg><ul>' + leg + '</ul></div>';
   }
-  function topAnuncios(d) {
-    var l = d.anuncios.filter(function (a) { return a.resultados > 0; }).sort(function (a, b) { return b.resultados - a.resultados; });
+  function topAnuncios(d, nome) {
+    var l = d.anuncios.filter(function (a) { return a.resultados > 0 && (!nome || a.resultado === nome); }).sort(function (a, b) { return b.resultados - a.resultados; });
     var top = l.slice(0, 5).map(function (a) { return { nome: a.titulo || a.nome, resultados: a.resultados }; });
     var resto = l.slice(5).reduce(function (s, a) { return s + a.resultados; }, 0);
     if (resto) top.push({ nome: 'Outros anúncios', resultados: resto });
     return top;
   }
-
   function celBarra(v, max) { return '<span class="cel-barra"><i style="width:' + (max ? Math.max(3, v / max * 100).toFixed(0) : 0) + '%"></i></span>'; }
   function tabelaCamp(d, m) {
     var L = d.campanhas.slice().sort(function (a, b) { return b.gasto - a.gasto; });
@@ -1110,6 +1149,75 @@ body.fl-aberto{overflow:hidden}
     return h + '</div>';
   }
 
+  // ------------------------------------------------ Visão geral (todos os clientes) em formato dashboard
+  IC.sino = SV('<path d="M5 8a5 5 0 0 1 10 0c0 4 1.5 5 1.5 5h-13S5 12 5 8Z"/><path d="M8.5 16a1.6 1.6 0 0 0 3 0"/>');
+  IC.ajustes = SV('<path d="M4 6h8m4 0h0M4 14h2m4 0h6M12 4v4M8 12v4"/>');
+  IC.chave = SV('<circle cx="7.5" cy="12.5" r="3.2"/><path d="m10 10 6-6m-3 3 2 2"/>');
+  IC.sugestao = SV('<path d="M10 3l1.8 4.2L16 9l-4.2 1.8L10 15l-1.8-4.2L4 9l4.2-1.8L10 3Z"/>');
+  function railGeral(g) {
+    var ns = sugs && sugs.periodo === estado.periodo ? sugs.sugestoes.length : 0, na = todosAlertas(g).length;
+    var it = ehCliente() ? [['geral', 'Visão geral', IC.resumo, 0], ['clientes', g.contas.length === 1 ? 'Conta' : 'Contas', IC.publico, 0], ['campanhas', 'Campanhas', IC.campanhas, 0], ['relatorios', 'Relatórios', IC.anuncios, 0]]
+      : [['geral', 'Visão geral', IC.resumo, 0], ['sugestoes', 'Sugestões', IC.sugestao, ns], ['clientes', 'Clientes', IC.publico, 0], ['campanhas', 'Campanhas', IC.campanhas, 0], ['relatorios', 'Relatórios', IC.anuncios, 0], ['alertas', 'Alertas', IC.sino, na], ['ajustes', 'Avisos', IC.ajustes, 0]];
+    if (ehAdmin()) it.push(['acessos', 'Acessos', IC.chave, 0]);
+    return '<nav class="dash-rail" aria-label="Seções do painel">' + it.map(function (x) {
+      return '<a href="' + link({ aba: x[0] }) + '"' + (x[0] === 'geral' ? ' aria-current="page"' : '') + '>' + x[2] + '<span>' + x[1] + '</span>' + (x[3] ? '<span class="n">' + x[3] + '</span>' : '') + '</a>';
+    }).join('') + '</nav>';
+  }
+  function barrasGasto(lista, nomeFn, m) {
+    var max = Math.max.apply(null, lista.map(function (x) { return x.gasto || 0; }).concat([1]));
+    return lista.map(function (x) {
+      return '<div class="barra"><span title="' + esc(nomeFn(x)) + '">' + esc(nomeFn(x)) + '</span><span class="trilho"><i style="width:' + Math.max(3, (x.gasto || 0) / max * 100).toFixed(0) + '%"></i></span><span class="v"><b>' + R(x.gasto, m) + '</b></span></div>';
+    }).join('');
+  }
+  function telaGeral(g) {
+    var m = (g.contas[0] && g.contas[0].moeda) || 'BRL', t = Object.assign({ moeda: m }, g.totais), ant = g.anterior || {};
+    var camps = g.contas.reduce(function (l, c) { return l.concat(c.campanhas); }, []), tipos = tiposDe(camps), pri = principal(tipos);
+    var noAr = g.contas.reduce(function (s, c) { return s + (c.ativas || 0); }, 0), comAnuncio = g.contas.filter(function (c) { return (c.ativas || 0) > 0; }).length;
+    var alertas = todosAlertas(g), iv = g.intervalo;
+    var ranking = g.contas.slice().sort(function (a, b) { return b.totais.gasto - a.totais.gasto; });
+    var topCli = ranking.filter(function (c) { return c.totais.gasto > 0; }).slice(0, 5).map(function (c) { return { nome: c.nome, gasto: c.totais.gasto }; });
+    var restoCli = ranking.filter(function (c) { return c.totais.gasto > 0; }).slice(5).reduce(function (s, c) { return s + c.totais.gasto; }, 0);
+    if (restoCli) topCli.push({ nome: 'Outros clientes', gasto: restoCli });
+    var h = '<div class="dash">' + railGeral(g) + '<div class="dash-main"><header class="dash-top vidro"><div class="dash-tit"><h2>Overview <em>Meta Ads</em></h2><p>' + (ehCliente() ? 'Suas contas' : 'Todos os clientes') + ' · ' + data(iv.atual.since) + (iv.dias > 1 ? ' a ' + data(iv.atual.until) : '') + ' · comparado com ' + data(iv.anterior.since) + (iv.dias > 1 ? ' a ' + data(iv.anterior.until) : '') + ' · atualizado às ' + fmtHora.format(new Date(g.atualizado)) + '</p></div>' +
+      '<div class="dash-acoes"><div class="periodos" role="group" aria-label="Período">' +
+      [['today', 'Hoje'], ['yesterday', 'Ontem'], ['last_7d', '7 dias'], ['last_30d', '30 dias'], ['this_month', 'Este mês'], ['last_month', 'Mês passado']].map(function (p) { return '<button type="button" data-pd="' + p[0] + '" aria-pressed="' + (p[0] === estado.periodo) + '">' + p[1] + '</button>'; }).join('') +
+      '</div><button type="button" class="dash-btn" data-exportar="geral" title="Baixar todas as campanhas deste período em planilha">' + IC.baixar + '<span>Exportar</span></button></div></header>';
+    h += '<div class="dks">' +
+      kpiD(IC.dinheiro, 'Investimento', R(t.gasto, m), delta(t.gasto, ant.gasto, false, true), null, 'Quanto foi gasto em anúncios no período, em todas as contas.') +
+      (pri ? kpiD(IC.check, esc(pri.nome), N(pri.resultados), '<span class="delta neutro">' + R(pri.custoPorResultado, m) + ' por ' + esc(SING[pri.nome] || 'resultado') + '</span>', null, 'Soma só das campanhas desse tipo, sem misturar com outros resultados.') : kpiD(IC.check, 'Resultados', '—', '', null)) +
+      kpiD(IC.campanhas, 'Campanhas no ar', N(noAr), '<span class="delta neutro">' + comAnuncio + (comAnuncio === 1 ? ' cliente' : ' clientes') + '</span>', null, 'Campanhas ativas agora.') +
+      kpiD(IC.cursor, 'Cliques', N(t.cliques), delta(t.cliques, ant.cliques), null) +
+      kpiD(IC.olho, 'Impressões', N(t.impressoes), delta(t.impressoes, ant.impressoes), null, 'Quantas vezes os anúncios apareceram na tela.') + '</div>';
+    h += funisPorTipo(camps, m, 'Funis por tipo de resultado');
+    h += '<div class="dg1 dg-geral"><div class="meds">' + medidorTipo(pri, m) + medidor('Custo por clique', R(t.cpc || null, m), t.cpc, ant.cpc, true, 'Menor é melhor') + '</div>' +
+      '<section class="cartao vidro"><h2>Investimento por cliente</h2>' + donut(topCli, 'gasto', function (x) { return x.nome; }, 'investido') + '</section>' +
+      '<section class="cartao vidro"><h2>Por objetivo<small>investimento</small></h2>' + (g.categorias.length ? barrasGasto(g.categorias, function (x) { return x.nome + ' (' + x.campanhas + ')'; }, m) : '<p class="vazio">Sem campanhas.</p>') + '<h2 style="margin-top:18px">Por plataforma<small>investimento</small></h2>' + barrasGasto(g.plataformas, function (x) { return x.nome; }, m) + '</section></div>';
+    // clientes
+    var mx = Math.max.apply(null, ranking.map(function (c) { return c.totais.gasto || 0; }).concat([1]));
+    h += '<section class="cartao vidro"><h2>' + (ehCliente() ? 'Contas' : 'Clientes') + '<small>' + g.contas.length + '</small></h2><p class="dica-clique">Clique em um cliente para abrir o painel dele.</p><div class="tabela dash-tab"><table><caption class="sr">Clientes no período</caption><thead><tr><th scope="col">Cliente</th><th scope="col">Saúde</th><th scope="col">Campanhas no ar</th><th scope="col">Investimento</th><th scope="col">Conversas iniciadas</th><th scope="col">Custo por conversa</th><th scope="col">Alertas</th></tr></thead><tbody>';
+    ranking.forEach(function (c) {
+      var cv = tiposDe(c.campanhas).filter(function (x) { return x.nome === 'Conversas iniciadas'; })[0];
+      var na = c.campanhas.reduce(function (s, k) { return s + k.alertas.length; }, 0) + (c.erro ? 1 : 0);
+      h += '<tr class="lc" data-go="' + esc(link({ aba: 'cliente', cliente: c.id, sub: '', camp: '' })) + '"><td><a class="camp-ab" href="' + link({ aba: 'cliente', cliente: c.id, sub: '', camp: '' }) + '">' + esc(c.nome) + '</a><span class="sub-l">' + esc(c.empresa || '') + '</span></td><td>' + chipSaude(c.saude) + '</td><td>' + N(c.ativas || 0) + '</td><td>' + celBarra(c.totais.gasto, mx) + R(c.totais.gasto, c.moeda) + '</td><td>' + (cv ? N(cv.resultados) : '—') + '</td><td>' + (cv ? R(cv.custoPorResultado, c.moeda) : '—') + '</td><td>' + (na ? '<span class="tag alto">' + na + '</span>' : '—') + '</td></tr>';
+    });
+    h += '</tbody></table></div></section>';
+    if (!ehCliente()) h += '<section class="cartao vidro"><h2>Alertas<small>' + alertas.length + '</small></h2>' + (alertas.length ? alertas.slice(0, 6).map(linhaAlerta).join('') + '<a class="mais" href="' + link({ aba: 'alertas' }) + '">Ver todos os alertas</a>' : '<p class="vazio">Nada pedindo atenção agora.</p>') + '</section>';
+    h += '</div></div>';
+    $('conteudo').innerHTML = h;
+    fecharCampanha(true);
+  }
+  function exportarCSVGeral() {
+    if (!geral) return;
+    var cab = ['Cliente', 'Campanha', 'Objetivo', 'Situação', 'Orçamento diário', 'Investimento', 'Resultados', 'Tipo de resultado', 'Custo por resultado', 'Impressões', 'Alcance', 'Cliques', 'Taxa de clique (%)', 'Custo por clique', 'CPM'];
+    var num = function (v) { return v == null || isNaN(v) ? '' : String(Math.round(v * 100) / 100).replace('.', ','); };
+    var cel = function (v) { v = String(v == null ? '' : v); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var linhas = [];
+    geral.contas.forEach(function (c) { c.campanhas.forEach(function (k) { linhas.push([c.nome, k.nome, OBJETIVOS[k.objetivo] || k.objetivo || '', STATUS[k.status] || k.status, num(k.orcamentoDiario), num(k.gasto), num(k.resultados), k.resultado || '', num(k.custoPorResultado), num(k.impressoes), num(k.alcance), num(k.cliques), num(k.ctr), num(k.cpc), num(k.cpm)].map(cel).join(';')); }); });
+    var blob = new Blob(['﻿' + [cab.join(';')].concat(linhas).join('\r\n')], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'campanhas-todos-os-clientes-' + estado.periodo + '.csv';
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
   function telaCliente(d) {
     clienteAtual = d;
     var c = d.conta, m = c.moeda, sub = estado.sub || 'resumo', t = Object.assign({ moeda: m }, d.totais), ant = d.anterior || {};
@@ -1125,17 +1233,17 @@ body.fl-aberto{overflow:hidden}
       [['today', 'Hoje'], ['yesterday', 'Ontem'], ['last_7d', '7 dias'], ['last_30d', '30 dias'], ['this_month', 'Este mês'], ['last_month', 'Mês passado']].map(function (p) { return '<button type="button" data-pd="' + p[0] + '" aria-pressed="' + (p[0] === estado.periodo) + '">' + p[1] + '</button>'; }).join('') +
       '</div><button type="button" class="dash-btn" data-exportar="1" title="Baixar as campanhas deste período em planilha">' + IC.baixar + '<span>Exportar</span></button></div></header>';
     if (sub === 'resumo') {
+      var tipos = tiposDe(d.campanhas), pri = principal(tipos);
       h += '<div class="dks">' +
         kpiD(IC.dinheiro, 'Investimento', R(t.gasto, m), delta(t.gasto, ant.gasto, false, true), serie(d, 'gasto'), 'Quanto foi gasto em anúncios no período.') +
-        kpiD(IC.check, esc(rot), N(t.resultados), delta(t.resultados, ant.resultados), serie(d, 'resultados'), 'O resultado que mais recebeu verba nas campanhas.') +
+        (pri ? kpiD(IC.check, esc(pri.nome), N(pri.resultados), '<span class="delta neutro">' + R(pri.custoPorResultado, m) + ' por ' + esc(SING[pri.nome] || 'resultado') + '</span>', null, 'Soma só das campanhas desse tipo, sem misturar com outros resultados.') : kpiD(IC.check, 'Resultados', '—', '', null)) +
         kpiD(IC.cursor, 'Cliques', N(t.cliques), delta(t.cliques, ant.cliques), serie(d, 'cliques')) +
         kpiD(IC.alvo, 'Alcance', N(t.alcance), delta(t.alcance, ant.alcance), serie(d, 'alcance'), 'Pessoas diferentes que viram os anúncios.') +
         kpiD(IC.olho, 'Impressões', N(t.impressoes), delta(t.impressoes, ant.impressoes), serie(d, 'impressoes'), 'Quantas vezes os anúncios apareceram na tela.') + '</div>';
-      h += '<div class="dg1"><section class="cartao vidro"><h2>Funil de tráfego</h2>' + funil(t, rot) + '</section>' +
-        '<div class="meds">' + medidor('Custo por resultado', R(t.custoPorResultado, m), t.custoPorResultado, ant.custoPorResultado, true, 'Menor é melhor') +
-        medidor('Custo por clique', R(t.cpc || null, m), t.cpc, ant.cpc, true, 'Menor é melhor') + '</div>' +
-        '<section class="cartao vidro dgraf"><h2>' + esc(rot) + ' e cliques<small>por dia</small></h2>' + linhas(d.diario, rot, 'Cliques no link') + '</section>' +
-        '<section class="cartao vidro"><h2>Melhores anúncios<small>por resultado</small></h2>' + donut(topAnuncios(d), 'resultados', function (x) { return x.nome; }, 'resultados') + '</section></div>';
+      h += funisPorTipo(d.campanhas, m, 'Funis por tipo de resultado');
+      h += '<div class="dg1"><div class="meds">' + medidorTipo(pri, m) + medidor('Custo por clique', R(t.cpc || null, m), t.cpc, ant.cpc, true, 'Menor é melhor') + '</div>' +
+        '<section class="cartao vidro dgraf"><h2>Investimento e cliques no link<small>por dia</small></h2>' + linhas(d.diario, { k: 'gasto', rot: 'Investimento', fmt: function (v) { return R(v, m); }, eixo: function (v) { return R(v, m).replace(/,\d\d$/, ''); } }, { k: 'cliquesLink', rot: 'Cliques no link' }) + '</section>' +
+        '<section class="cartao vidro"><h2>Melhores anúncios<small>' + (pri ? 'por ' + esc(pri.nome.toLowerCase()) : 'por resultado') + '</small></h2>' + donut(topAnuncios(d, pri && pri.nome), 'resultados', function (x) { return x.nome; }, pri ? pri.nome.toLowerCase() : 'resultados') + '</section></div>';
       h += '<section class="cartao vidro"><h2>Campanhas<small>' + d.campanhas.length + '</small></h2>' + tabelaCamp(d, m) + '</section>';
     } else if (sub === 'campanhas') h += '<section class="cartao vidro"><h2>Campanhas<small>' + d.campanhas.length + '</small></h2>' + tabelaCamp(d, m) + '</section>' + guia();
     else if (sub === 'conjuntos') h += tabela('cconj', d.conjuntos, [
@@ -1164,7 +1272,7 @@ body.fl-aberto{overflow:hidden}
       (d.podeEditar ? controles(k, 'campanha', m, true) : '') + '</div><button type="button" class="fl-x" data-fechar="1" aria-label="Fechar painel da campanha">' + IC.fechar + '</button></div><div class="fl-corpo">';
     h += '<div class="fl-kpis">' + fk('Investimento', R(k.gasto, m), fmtDec.format(part) + '% da conta', true) + fk(esc(k.resultado || 'Resultados'), N(k.resultados), '', true) + fk('Custo por resultado', R(k.custoPorResultado, m)) +
       fk('Cliques', N(k.cliques), k.cliquesLink != null ? N(k.cliquesLink) + ' no link' : '') + fk('Alcance', N(k.alcance)) + fk('Impressões', N(k.impressoes)) + fk('Taxa de clique', P(k.ctr)) + fk('Custo por clique', R(k.cpc || null, m)) + fk('CPM', R(k.cpm || null, m)) + fk('Frequência', D(k.frequencia)) + '</div>';
-    h += '<div class="fl-2"><section class="cartao vidro"><h2>Funil de tráfego</h2>' + funil(tk, k.resultado) + '</section><section class="cartao vidro"><h2>Melhores anúncios<small>por resultado</small></h2>' +
+    h += '<div class="fl-2"><section class="cartao vidro"><h2>Funil de tráfego</h2>' + funil(tk, k.resultado, true) + '</section><section class="cartao vidro"><h2>Melhores anúncios<small>por resultado</small></h2>' +
       donut(anu.filter(function (a) { return a.resultados > 0; }).sort(function (a, b) { return b.resultados - a.resultados; }).slice(0, 6).map(function (a) { return { nome: a.titulo || a.nome, resultados: a.resultados }; }), 'resultados', function (x) { return x.nome; }, 'resultados') + '</section></div>';
     h += '<h3 class="fl-sec">Conjuntos de anúncios <span class="meta">(' + conj.length + ')</span></h3>';
     h += conj.length ? tabela('flconj', conj, [
@@ -1219,7 +1327,8 @@ body.fl-aberto{overflow:hidden}
   $('conteudo').addEventListener('click', function (e) {
     var cp = e.target.closest('[data-camp]'); if (cp && !e.target.closest('a,.ctrl')) { abrirCampanha(cp.getAttribute('data-camp')); return; }
     var pd = e.target.closest('[data-pd]'); if (pd) { ir({ periodo: pd.getAttribute('data-pd') }); return; }
-    if (e.target.closest('[data-exportar]')) { exportarCSV(); return; }
+    var ex = e.target.closest('[data-exportar]'); if (ex) { if (ex.getAttribute('data-exportar') === 'geral') exportarCSVGeral(); else exportarCSV(); return; }
+    var go = e.target.closest('tr[data-go]'); if (go && !e.target.closest('a')) { location.hash = go.getAttribute('data-go'); return; }
     var sb = e.target.closest('#sw-btn'); if (sb) { abrirSeletor($('sw-pop').hidden); return; }
   });
   $('conteudo').addEventListener('input', function (e) { if (e.target.id === 'sw-busca') filtrarClientes(e.target.value); });
