@@ -1099,6 +1099,15 @@ body.fl-aberto{overflow:hidden}
       '<p class="leg"><span><i style="background:#F3AC2F"></i>' + esc(A.rot) + '</span><span><i style="background:#F7E4CE"></i>' + esc(B.rot) + '</span></p>';
   }
 
+  // Gráfico do dia a dia: conversas iniciadas (se o Worker já separa por tipo) ou, senão, investimento; sempre com cliques no link.
+  function graficoDia(d, m, pri) {
+    var dias = d.diario || [], temTipo = dias.some(function (x) { return x.porTipo && x.porTipo['Conversas iniciadas'] != null; }) || (d.totais && d.totais.porTipo && d.totais.porTipo['Conversas iniciadas'] != null);
+    if (temTipo) {
+      dias = dias.map(function (x) { return Object.assign({}, x, { conversas: (x.porTipo && x.porTipo['Conversas iniciadas']) || 0 }); });
+      return '<h2>Conversas iniciadas e cliques no link<small>por dia, conta toda</small></h2>' + linhas(dias, { k: 'conversas', rot: 'Conversas iniciadas', fmt: function (v) { return N(v) + ' conversas'; }, eixo: function (v) { return N(v); } }, { k: 'cliquesLink', rot: 'Cliques no link' });
+    }
+    return '<h2>Investimento e cliques no link<small>por dia</small></h2>' + linhas(dias, { k: 'gasto', rot: 'Investimento', fmt: function (v) { return R(v, m); }, eixo: function (v) { return R(v, m).replace(/,\d\d$/, ''); } }, { k: 'cliquesLink', rot: 'Cliques no link' });
+  }
   function donut(lista, campo, nomeFn, centro) {
     var tot = lista.reduce(function (s, x) { return s + (x[campo] || 0); }, 0);
     if (!tot) return '<p class="vazio">Sem resultados no período.</p>';
@@ -1242,7 +1251,7 @@ body.fl-aberto{overflow:hidden}
         kpiD(IC.olho, 'Impressões', N(t.impressoes), delta(t.impressoes, ant.impressoes), serie(d, 'impressoes'), 'Quantas vezes os anúncios apareceram na tela.') + '</div>';
       h += funisPorTipo(d.campanhas, m, 'Funis por tipo de resultado');
       h += '<div class="dg1"><div class="meds">' + medidorTipo(pri, m) + medidor('Custo por clique', R(t.cpc || null, m), t.cpc, ant.cpc, true, 'Menor é melhor') + '</div>' +
-        '<section class="cartao vidro dgraf"><h2>Investimento e cliques no link<small>por dia</small></h2>' + linhas(d.diario, { k: 'gasto', rot: 'Investimento', fmt: function (v) { return R(v, m); }, eixo: function (v) { return R(v, m).replace(/,\d\d$/, ''); } }, { k: 'cliquesLink', rot: 'Cliques no link' }) + '</section>' +
+        '<section class="cartao vidro dgraf">' + graficoDia(d, m, pri) + '</section>' +
         '<section class="cartao vidro"><h2>Melhores anúncios<small>' + (pri ? 'por ' + esc(pri.nome.toLowerCase()) : 'por resultado') + '</small></h2>' + donut(topAnuncios(d, pri && pri.nome), 'resultados', function (x) { return x.nome; }, pri ? pri.nome.toLowerCase() : 'resultados') + '</section></div>';
       h += '<section class="cartao vidro"><h2>Campanhas<small>' + d.campanhas.length + '</small></h2>' + tabelaCamp(d, m) + '</section>';
     } else if (sub === 'campanhas') h += '<section class="cartao vidro"><h2>Campanhas<small>' + d.campanhas.length + '</small></h2>' + tabelaCamp(d, m) + '</section>' + guia();

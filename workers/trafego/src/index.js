@@ -401,7 +401,7 @@ function metricas(i) {
   return {
     gasto, impressoes: num(i.impressions), alcance: num(i.reach), frequencia: num(i.frequency),
     cliques: num(i.clicks), cliquesLink: num(i.inline_link_clicks), ctr: num(i.ctr), cpc: num(i.cpc), cpm: num(i.cpm),
-    resultado: res.nome, resultados: res.valor, custoPorResultado: res.valor ? gasto / res.valor : null,
+    resultado: res.nome, resultados: res.valor, custoPorResultado: res.valor ? gasto / res.valor : null, porTipo: porTipo(i),
   };
 }
 
@@ -413,6 +413,14 @@ function linhaCampanha(c, i, conta) {
     orcamentoDiario: centavos(c.daily_budget), orcamentoTotal: centavos(c.lifetime_budget), orcamentoRestante: centavos(c.budget_remaining),
     inicio: c.start_time || null, fim: c.stop_time || null, ...m, alertas: alertas(c, m, c),
   };
+}
+
+// Todos os tipos de resultado presentes na linha (um valor por tipo; variantes do mesmo tipo não se somam).
+function porTipo(i) {
+  const acoes = Object.fromEntries((i.actions || []).map((a) => [a.action_type, num(a.value)]));
+  const saida = {};
+  for (const [tipo, nome] of RESULTADOS) if (acoes[tipo] && saida[nome] == null) saida[nome] = acoes[tipo];
+  return saida;
 }
 
 function resultado(i) {
@@ -450,10 +458,17 @@ function alertas(obj, m, campanha) {
 
 const CHAVES = ["gasto", "impressoes", "alcance", "cliques", "cliquesLink", "resultados"];
 
+function somarPorTipo(lista) {
+  const t = {};
+  for (const c of lista) for (const [n, v] of Object.entries(c.porTipo || {})) t[n] = (t[n] || 0) + v;
+  return t;
+}
+
 function somar(lista) {
   const t = { campanhas: lista.length };
   for (const k of CHAVES) t[k] = 0;
   for (const c of lista) for (const k of CHAVES) t[k] += c[k] || 0;
+  t.porTipo = somarPorTipo(lista);
   return derivadas(t);
 }
 
@@ -461,6 +476,7 @@ function somarMetricas(lista) {
   const t = {};
   for (const k of CHAVES) t[k] = 0;
   for (const c of lista) for (const k of CHAVES) t[k] += c[k] || 0;
+  t.porTipo = somarPorTipo(lista);
   return derivadas(t);
 }
 
