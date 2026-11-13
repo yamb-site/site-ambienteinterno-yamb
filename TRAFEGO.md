@@ -2,6 +2,12 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-13 — Worker do tráfego movido para a conta da diretoria
+- `yamb-trafego` agora roda em **https://yamb-trafego.diretoria-c5d.workers.dev** (conta da diretoria, id c5df7978…). O da conta gmail ficou parado e pode ser apagado.
+- Novo KV `YAMB_TRAFEGO` (14ec801d…) e segredos regravados: META_TOKEN e META_TOKEN_GERENCIAR (token longo, vence 12/01/2027), PAINEL_SENHA (senha mestra do admin), VAPID_PRIVATE_JWK (par novo; chave pública em `wrangler.toml`) e AVISOS_TOKEN. Deploy: dentro de `workers/trafego`, com `CLOUDFLARE_API_TOKEN=$(cat ~/.cf-yamb-token)` e `CLOUDFLARE_ACCOUNT_ID=c5df7978f2050db99ed01c1c92d04ba6`, rode `npx wrangler@4 deploy`. Renovar o token do Meta: `./token.sh` com as mesmas duas variáveis.
+- Perdidos na mudança (estavam só no KV antigo): acessos da equipe e dos clientes, histórico de sugestões e de mudanças, preferências de avisos. Só a senha mestra "admin" continua; recriar os demais na aba Acessos.
+- O Worker passou a devolver `porTipo` (resultados separados por tipo) no total e em cada dia.
+
 ## 2026-11-13 — resultados separados por tipo e Visão geral em dashboard
 - Problema: o Worker escolhe um único "resultado" por linha (conversas > leads > compras > cliques no link > engajamento > vídeo) e o painel somava tipos diferentes, misturando conversas iniciadas com cliques no link, leads e engajamento no funil, no cartão de resultados e no custo por resultado.
 - Agora o dashboard agrupa as campanhas pelo tipo de resultado e mostra **um funil por tipo** (Conversas iniciadas, Cliques no link, Leads, Engajamento…), o cartão de resultados só com conversas e o custo por conversa separado. A taxa "por clique" só aparece onde o resultado nasce do clique (conversas, leads, compras, cliques no link).
@@ -74,7 +80,7 @@ Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados d
 
 ## 2026-10-28 — painel com abas e detalhe por cliente
 - App do Meta "YAMB Painel de Trafego" (ID 1871489147340430), sem portfólio, acesso pelo token pessoal do dono (`ads_read`, 60 dias — renovar antes de vencer; o painel avisa com 10 dias).
-- Worker `yamb-trafego` (https://yamb-trafego.gabrielsocialm21.workers.dev): `/painel`, `/cliente`, `/contas`, `/token`; segredos `META_TOKEN` e `PAINEL_SENHA` só no cofre da Cloudflare.
+- Worker `yamb-trafego` (https://yamb-trafego.diretoria-c5d.workers.dev): `/painel`, `/cliente`, `/contas`, `/token`; segredos `META_TOKEN` e `PAINEL_SENHA` só no cofre da Cloudflare.
 - Painel `/interno/trafego/`: abas Visão geral · Clientes · Campanhas · Alertas; por cliente: Resumo · Campanhas · Conjuntos · Anúncios · Público · Dia a dia; categorias por objetivo e plataforma; comparação com o período anterior (mesmo número de dias, logo antes).
 - Limite do Worker gratuito: 50 pedidos externos por chamada. A visão geral usa a API em lote (Graph API batch, 50 consultas por pedido). Com mais de ~12 clientes por lote, ainda cabe (1 pedido por 50 consultas).
 - Totais incluem campanhas que gastaram no período e já não estão ativas (aparecem como "Sem veiculação agora"), para bater com o Gerenciador de Anúncios. Conferido em 2026-10-28: últimos 7 dias = R$ 520,71, 19 campanhas ativas, 13 contas.

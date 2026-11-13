@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Testa o Worker do Painel de Tráfego. Pede a senha do painel sem mostrar na tela
 # e sem guardar no histórico; mostra só um resumo (nunca o token).
-URL="${URL:-https://yamb-trafego.gabrielsocialm21.workers.dev}"
+URL="${URL:-https://yamb-trafego.diretoria-c5d.workers.dev}"
 printf "Senha do painel: "
 IFS= read -rs SENHA
 echo
