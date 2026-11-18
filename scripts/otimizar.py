@@ -489,6 +489,10 @@ def premium(html):
     html = troca_obrigatoria(html, r'/\*#__PURE__\*/React\.createElement\("div", \{\s*style: fundo\s*\}, /\*#__PURE__\*/React\.createElement\(Depoimentos, null\)\)',
                              "null", "o lugar dos depoimentos", contagem=0)
     html = re.sub(r"((?:var|const) DEPOIMENTOS = )\[.*?\];", r"\1[];", html, count=1, flags=re.S)
+    # Contato: sem formulário (decisão do dono em 2026-11-18) — só um botão que abre o WhatsApp.
+    html = troca_obrigatoria(html, r'(lede: "Retornamos com um diagn[^"]*"\s*\}\), )/\*#__PURE__\*/React\.createElement\("div", \{\s*"data-r": "grid1",.*?"Agendar conversa"\)\)',
+                             r'\1/*#__PURE__*/React.createElement(Button, {variant: "primary", size: "lg", onClick: () => window.open("https://wa.me/5579991615056", "_blank", "noopener"), iconAfter: /*#__PURE__*/React.createElement(Icon, {name: "ArrowRight", size: 18})}, "Chamar no WhatsApp")',
+                             "o formulário de contato (WhatsApp em vez do formulário)", flags=re.S)
     # Equipe: quem falta + fotos com o tratamento em sépia do ambiente interno.
     extra = "".join(", " + json.dumps(p, ensure_ascii=False) for p in EQUIPE_EXTRA if ("'%s'" % p["s"]) not in html)
     html = troca_obrigatoria(html, r"(var TEAM = \[.*?r: 'Social Media'\s*\})(\];)", lambda m: m.group(1) + extra + m.group(2), "a lista da equipe", flags=re.S)
