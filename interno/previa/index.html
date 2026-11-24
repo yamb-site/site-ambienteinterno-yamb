@@ -104,7 +104,7 @@ main{align-items:stretch}
 #tela-semana .legenda{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-300);flex-wrap:wrap}
 #tela-semana .legenda i{width:7px;height:7px;border-radius:50%;margin-left:10px}
 #tela-semana .quadro{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:start;margin-top:6px}
-#tela-semana .col{display:flex;flex-direction:column;gap:8px;min-width:0}
+#tela-semana .dcol{display:flex;flex-direction:column;gap:8px;min-width:0}
 #tela-semana .cab{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;border:1px solid rgba(247,228,206,.10);background:rgba(18,18,18,.55)}
 #tela-semana .cab .d{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-300)}
 #tela-semana .cab .d b{color:var(--gold-400);letter-spacing:0}
@@ -665,7 +665,7 @@ main{align-items:stretch}
     // quadro da semana
     $('sQuadro').innerHTML = dias.map((d, k) => {
       const l = doDia(d), hoje = fmt(d) === hs;
-      return '<div class="col"><div class="cab' + (hoje ? ' hoje' : k >= 5 ? ' fds' : '') + '"><span class="d">' + (hoje ? 'Hoje' : NOMES[k]) + '<b>' + l.length + '</b></span><span class="num">' + p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span><small>Padrão ' + HORARIOS[k] + '</small></div>' +
+      return '<div class="dcol"><div class="cab' + (hoje ? ' hoje' : k >= 5 ? ' fds' : '') + '"><span class="d">' + (hoje ? 'Hoje' : NOMES[k]) + '<b>' + l.length + '</b></span><span class="num">' + p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span><small>Padrão ' + HORARIOS[k] + '</small></div>' +
         (l.map((i) => {
           const tag = i.trello ? 'a' : 'div', href = i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '';
           return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
