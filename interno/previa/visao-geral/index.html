@@ -28,6 +28,7 @@
 .st{flex:none;width:96px;text-align:right;font-size:12px;font-weight:600}
 .hora{flex:none;width:44px;font-size:12px;color:var(--ink-300);text-align:right}
 .selo{flex:none;padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600;background:rgba(240,165,148,.12);color:var(--bad);border:1px solid rgba(240,165,148,.3)}
+.longo{backdrop-filter:none;-webkit-backdrop-filter:none;background:linear-gradient(160deg,rgba(30,30,30,.92),rgba(12,12,12,.92));animation:none}
 .vazio{padding:34px 0;text-align:center;color:var(--ink-300);font-size:14px}
 @media (max-width:1100px){.filtros{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){.filtros{grid-template-columns:minmax(0,1fr)}.st{width:auto}.hora{display:none}}
@@ -69,7 +70,7 @@
 <div class="trilhoSt" id="linha"></div>
 </section>
 
-<section class="card l3">
+<section class="card l3 longo">
 <div class="filtros">
 <label class="campo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="busca" type="search" placeholder="Buscar título ou cliente" aria-label="Buscar"></label>
 <label class="campo"><select id="fCliente" aria-label="Cliente"><option value="">Todos os clientes</option></select></label>
