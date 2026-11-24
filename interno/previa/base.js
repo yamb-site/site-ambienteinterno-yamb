@@ -8,13 +8,15 @@
   const FLUXO = ['Pendente', 'Produção', 'Pronto', 'Enviado', 'Ajustar', 'Aprovado', 'Não postado', 'Postado'];
   const COR = { 'Pronto': 'var(--ok)', 'Postado': 'var(--ok)', 'Aprovado': 'var(--ok)', 'Pendente': 'var(--ink-300)', 'Produção': 'var(--gold-300)', 'Enviado': 'var(--gold-200)', 'Ajustar': 'var(--bad)', 'Não postado': 'var(--bad)' };
   // mesmo prazo por etapa do ambiente interno (dias parado na etapa até contar como atrasado)
-  const LIMITE_DIAS = { 'Sem material': 2, 'Pendente': 3, 'Produção': 3, 'Pronto': 1, 'Enviado': 2, 'Aprovado': 1, 'Não postado': 1 };
+  const LIMITE_DIAS = { 'Sem material': 2, 'Pendente': 3, 'Produção': 3, 'Pronto': 1, 'Enviado': 2, 'Ajustar': 1, 'Aprovado': 1, 'Não postado': 1 };
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const p2 = (n) => String(n).padStart(2, '0');
   const fmt = (d) => p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear();
-  const parse = (s) => { const m = String(s || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
+  // aceita dd/mm, dd/mm/aa, dd/mm/aaaa e aaaa-mm-dd, como o interno
+  const parse = (s) => { s = String(s || '').trim(); let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/); if (!m) return null; let a = m[3] ? +m[3] : new Date().getFullYear(); if (a < 100) a += 2000; return new Date(a, +m[2] - 1, +m[1]); };
   const somaDias = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
   const MIN = new Set(['e','de','da','do','das','dos','a','o','em','para','com']);
   const titulo = (s) => String(s || '').toLowerCase().split(/\s+/).map((w, k) => (k && MIN.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

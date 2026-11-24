@@ -328,6 +328,86 @@ main{align-items:stretch}
 #tela-cadastrar .ult{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(247,228,206,.06);font-size:12.5px}
 #tela-cadastrar .ult:first-child{border-top:0}
 @media (max-width:1100px){#tela-cadastrar .g2{grid-template-columns:minmax(0,1fr)}}
+#tela-paineis .kcard .nt{display:block;font-size:11.5px;line-height:1.4;color:var(--bad);margin-top:2px}
+#tela-indicadores .fin-sp{display:flex;flex-direction:column;max-height:360px;overflow-y:auto}
+#tela-indicadores .fin-sp .vid{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid rgba(247,228,206,.06);font-size:13px}
+#tela-indicadores .fin-bar{display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto}
+#tela-indicadores .fb{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;font-size:12.5px;align-items:baseline}
+#tela-indicadores .fb em{font-style:normal;color:var(--ink-300);font-size:11.5px}
+#tela-indicadores .fb .barra{grid-column:1/-1;display:block;flex:none;height:4px}
+/* extras: gaveta, notificações, planejamento, avaliação */
+[data-item]{cursor:pointer}
+.ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
+.ico .cont[hidden]{display:none}
+button.ico{border:0;background:none;cursor:pointer;padding:0}
+.trilho-extra{margin-top:auto;display:flex;flex-direction:column;gap:12px;align-items:center}
+.trilho-extra+.eu{margin-top:12px}
+.gav-fundo{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+.gav-fundo[hidden],.gaveta[hidden],.pop-notif[hidden],.pop-aval[hidden]{display:none!important}
+.gaveta{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(520px,100vw);overflow-y:auto;padding:26px 28px 34px;background:linear-gradient(170deg,#1b1b1b,#0c0c0c);border-left:1px solid rgba(247,228,206,.12);box-shadow:-30px 0 80px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:20px;animation:gavEntra .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes gavEntra{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.gaveta{animation:none}}
+.gtopo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gpill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:600;color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);background:color-mix(in srgb,var(--c) 12%,transparent);white-space:nowrap}
+.gtrello{font-size:12.5px;font-weight:600}
+.gfecha{margin-left:auto;width:36px;height:36px;border-radius:50%;border:1px solid rgba(247,228,206,.16);background:transparent;color:var(--bone);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gcli{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-400);font-weight:600}
+.gaveta h2{margin:6px 0 0;font-size:22px;line-height:1.25;font-weight:600}
+.gaveta h3{margin:0 0 10px;font-size:12px;font-weight:600;color:var(--ink-200)}
+.gaveta h3 span{font-weight:400;color:var(--ink-300)}
+.getapas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.getapas div{padding:9px 10px;border-radius:12px;border:1px solid rgba(247,228,206,.08);display:flex;flex-direction:column;gap:3px;min-width:0}
+.getapas b{font-size:11.5px;font-weight:600;color:var(--ink-300)}
+.getapas span{font-size:10.5px;color:var(--ink-300);line-height:1.35}
+.getapas .feito b{color:var(--bone)}
+.getapas .on{background:rgba(243,172,47,.14);border-color:rgba(243,172,47,.55);box-shadow:0 0 16px rgba(243,172,47,.22)}
+.getapas .on b{color:var(--gold-300)}
+.ginfo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;border-radius:16px;overflow:hidden;background:rgba(247,228,206,.06)}
+.ginfo div{background:#141414;padding:11px 14px;display:flex;flex-direction:column;gap:3px}
+.ginfo span{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-300)}
+.ginfo b{font-size:13.5px;font-weight:600}
+.gavisos{display:flex;flex-direction:column;gap:8px}
+.gavisos p{margin:0;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.45}
+.gavisos .ok{background:rgba(158,214,176,.08);color:var(--ok)}
+.gavisos .ruim{background:rgba(240,165,148,.09);color:var(--bad)}
+.gavisos .ouro{background:rgba(243,172,47,.10);color:var(--gold-300)}
+.gchk{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
+.gchk li{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--ink-300)}
+.gchk li.ok{color:var(--bone)}
+.gchk li i{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(247,228,206,.28);flex:none}
+.gchk li.ok i{border:0;background:#E09A24;box-shadow:0 0 8px rgba(243,172,47,.5)}
+.gnota{margin:0;font-size:12px;color:var(--ink-300);line-height:1.5}
+.pop-notif{position:fixed;left:122px;bottom:26px;z-index:30;width:380px;max-height:70vh;overflow-y:auto;padding:18px 18px 12px;border-radius:20px;background:rgba(18,18,18,.97);border:1px solid rgba(247,228,206,.14);box-shadow:0 30px 70px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:8px}
+.ptit{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.ptit small{margin-left:auto;color:var(--ink-300);font-weight:400}
+.pn{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-top:1px solid rgba(247,228,206,.06);font-size:12.5px;line-height:1.4}
+.pn .k{display:flex;gap:8px;font-weight:600;color:var(--gold-300);font-size:12px}
+.pn .k em{margin-left:auto;font-style:normal;font-weight:400;color:var(--ink-300)}
+.bt-aval{position:fixed;right:26px;bottom:22px;z-index:30;height:44px;padding:0 18px;border-radius:999px;border:1px solid rgba(243,172,47,.45);background:rgba(18,18,18,.92);color:var(--gold-300);font-weight:600;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 0 22px rgba(243,172,47,.25);backdrop-filter:blur(12px)}
+.pop-aval{position:fixed;right:26px;bottom:76px;z-index:30;width:360px;max-height:72vh;overflow-y:auto;padding:18px;border-radius:20px;background:rgba(18,18,18,.97);border:1px solid rgba(247,228,206,.14);box-shadow:0 30px 70px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:12px}
+.pop-aval .est{display:inline-flex;gap:1px;color:rgba(247,228,206,.22);font-size:15px}
+.pop-aval .est i{font-style:normal}.pop-aval .est i.on{color:var(--gold-400)}
+.pop-aval .minha{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(243,172,47,.08);font-size:13px}
+.pop-aval .minha p{flex-basis:100%;margin:0;color:var(--ink-200)}
+.avnav{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.avnav .chip{height:30px;padding:0 12px}
+.avkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.avkpi div{display:flex;flex-direction:column;gap:3px;padding:10px;border-radius:12px;background:rgba(247,228,206,.04)}
+.avkpi .num{font-size:20px}.avkpi .mut{font-size:11px}
+.avl{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.avl .elip{flex:1;min-width:0;white-space:normal}
+#tela-planejamento [hidden]{display:none!important}
+.plkpi{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px}
+.plkpi .pk{padding:18px 20px;gap:6px}.plkpi .num{font-size:30px}.plkpi .mut{font-size:12px}
+.plkpi .alerta .num{color:var(--bad)}
+.plalerta{display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:18px;background:rgba(240,165,148,.08);border:1px solid rgba(240,165,148,.3);color:var(--bad);font-size:13.5px}
+.plalerta b{font-weight:600}
+.pltab{width:100%;border-collapse:collapse;font-size:13.5px}
+.pltab th{text-align:left;padding:12px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-300);font-weight:600}
+.pltab td{padding:11px 14px;border-top:1px solid rgba(247,228,206,.06)}
+.plcli{display:flex;align-items:center;gap:10px;font-weight:600}
+.plav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(243,172,47,.14);color:var(--gold-300);font-size:12px;font-weight:700;flex:none}
+@media (max-width:1100px){.plkpi{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -336,7 +416,7 @@ main{align-items:stretch}
 <div class="app">
 <nav class="trilho" aria-label="Menu">
 <img class="flor" src="/assets/flower-gold-512.png" alt="YAMB">
-<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#paineis" data-tela="paineis" aria-label="Meus painéis"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20l7-7-3-3-7 7zM16 10l-3-3M3 21l2-6 9-9 4 4-9 9z"/></svg><span class="dica">Meus painéis</span></a><a class="ico" href="#aprovacoes" data-tela="aprovacoes" aria-label="Aprovações"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 15l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/></svg><span class="dica">Aprovações</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego</span></a>
+<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#paineis" data-tela="paineis" aria-label="Meus painéis"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20l7-7-3-3-7 7zM16 10l-3-3M3 21l2-6 9-9 4 4-9 9z"/></svg><span class="dica">Meus painéis</span></a><a class="ico" href="#aprovacoes" data-tela="aprovacoes" aria-label="Aprovações"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 15l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/></svg><span class="dica">Aprovações</span></a><a class="ico" href="#planejamento" data-tela="planejamento" aria-label="Planejamento"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4M9 16l2 2 4-4"/></svg><span class="dica">Planejamento</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego</span></a>
 <div class="eu">
 <img id="euFoto" src="/assets/team/gabriel-santos.png" alt="">
 <label><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ver como</span><select id="euSel" aria-label="Ver como"></select></label>
@@ -620,6 +700,14 @@ main{align-items:stretch}
 <span class="mut" id="finStatusTx" style="font-size:12.5px;line-height:1.5"></span>
 <p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e gerar o comprovante continuam no interno.</p>
 </section>
+<section class="card l2 v-fin" hidden>
+<div class="tit">Editados · ainda sem postar<small id="finSPn"></small></div>
+<div id="finSP" class="fin-sp"></div>
+</section>
+<section class="card v-fin" hidden>
+<div class="tit">Por cliente · no mês</div>
+<div id="finBar" class="fin-bar"></div>
+</section>
 </main>
 <main id="tela-paineis" hidden>
 <section class="card l3" style="gap:20px;padding:28px 30px">
@@ -708,6 +796,13 @@ main{align-items:stretch}
 </div>
 </section>
 </main>
+<main id="tela-planejamento" hidden>
+<div class="card l3 plhero"><div><h1 class="num" style="font-size:30px;margin:0">Planejamento</h1><p class="mut" style="margin:6px 0 0">Nenhum cliente pode ficar sem planejamento do mês.</p></div></div>
+<div class="l3 plkpi" id="plKpi"></div>
+<div class="l3 plalerta" id="plAlerta" role="alert" hidden></div>
+<div class="l3" id="plFil" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+<div class="card l3" style="padding:8px 10px"><table class="pltab"><thead><tr><th>Cliente</th><th>Período</th><th>Responsável</th><th>Situação</th><th>Trello</th></tr></thead><tbody id="plTab"><tr><td colspan="5" class="mut">Carregando…</td></tr></tbody></table></div>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
@@ -754,6 +849,8 @@ main{align-items:stretch}
       const r = await fetch(SHEET + '?t=' + Date.now());
       const j = await r.json();
       banco = j.data || j;
+      // mesmas correções do interno: item em Produção com motivo de ajuste conta como Ajustar; datas no formato dd/mm/aaaa
+      (banco.items || []).forEach((i) => { if (i.status === 'Produção' && i.nota) i.status = 'Ajustar'; const d = Y.parse(i.data); if (d) i.data = Y.fmt(d); });
       $('aviso').textContent = 'Dados ao vivo do interno · atualizado às ' + p2(new Date().getHours()) + ':' + p2(new Date().getMinutes()) + ' · só leitura';
       pinta();
       if (window.pintaVisao) window.pintaVisao(banco);
@@ -763,6 +860,7 @@ main{align-items:stretch}
       if (window.pintaPaineis) window.pintaPaineis(banco);
       if (window.pintaAprov) window.pintaAprov(banco);
       if (window.pintaCadastro) window.pintaCadastro(banco);
+      if (window.pintaExtras) window.pintaExtras(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -933,7 +1031,7 @@ main{align-items:stretch}
     $('parN').textContent = par.length;
     $('parN').style.color = par.length ? 'var(--bad)' : 'var(--ok)';
     $('parInfo').textContent = 'prazo por etapa';
-    $('parados').innerHTML = par.slice(0, 4).map((i) => '<div class="parado"><span class="dias">' + atraso(i) + 'd</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut elip" style="font-size:11.5px">' + esc(titulo(i.cliente)) + ' · em ' + esc(i.status) + '</span></div></div>').join('') ||
+    $('parados').innerHTML = par.slice(0, 4).map((i) => '<div class="parado" data-item="' + esc(i.id) + '"><span class="dias">' + atraso(i) + 'd</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut elip" style="font-size:11.5px">' + esc(titulo(i.cliente)) + ' · em ' + esc(i.status) + '</span></div></div>').join('') + (par.length > 4 ? '<p class="mut" style="margin:4px 0 0;font-size:12px">e mais ' + (par.length - 4) + ' parados · use "Só parados" na lista</p>' : '') ||
       '<p class="mut" style="margin:0;font-size:13px">Nada parado. Fluxo em dia.</p>';
     $('soParados').style.display = par.length ? '' : 'none';
 
@@ -978,9 +1076,9 @@ main{align-items:stretch}
       }
       const ok = i.status === 'Postado', at = atraso(i), p = EQUIPE[i.produtor];
       const nome = '<span class="elip" style="font-size:14px">' + esc(i.titulo || '(sem título)') + '</span>';
-      html += '<div class="lin"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? check : '') + '</span>' +
-        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit;min-width:0;display:flex" title="Abrir no Trello">' + nome + '</a>' : nome) +
-        '<span class="mut elip" style="font-size:12px">' + esc(titulo(i.cliente)) + ' · ' + esc(i.tipo) + (i.capa && i.capa.precisa && !i.capa.pronta ? ' · capa pendente' : '') + '</span></div>' +
+      html += '<div class="lin" data-item="' + esc(i.id) + '"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? check : '') + '</span>' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + nome +
+        '<span class="mut elip" style="font-size:12px">' + esc(titulo(i.cliente)) + ' · ' + esc(i.tipo) + (i.capa && i.capa.precisa && !i.capa.pronta ? ' · capa pendente' : '') + ' · Produção: ' + esc(p ? p[0] : titulo(i.produtor || '—')) + ' · Social: ' + esc((EQUIPE[i.social] || [titulo(i.social || '—')])[0]) + '</span></div>' +
         (at ? '<span class="selo">parado ' + at + 'd</span>' : '') +
         (p ? '<img class="av" src="/assets/team/' + p[1] + '.png" alt="' + p[0] + '" title="' + p[0] + '">' : '<span class="av" style="background:#252525"></span>') +
         '<span class="hora">' + esc(i.hora || '') + '</span>' +
@@ -1051,7 +1149,7 @@ main{align-items:stretch}
     // cartão de alerta
     $('sRiscoN').textContent = risco.length; $('sRiscoN').style.color = risco.length ? 'var(--bad)' : 'var(--ok)';
     $('sRiscoL').innerHTML = risco.slice().sort((a, b) => parse(a.data) - parse(b.data)).slice(0, 4).map((i) =>
-      '<div class="risco"><span class="dd">' + esc(String(i.data).slice(0, 5)) + '</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.titulo || i.tipo) + ' · <span style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></span></div></div>').join('') ||
+      '<div class="risco" data-item="' + esc(i.id) + '"><span class="dd">' + esc(String(i.data).slice(0, 5)) + '</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.titulo || i.tipo) + ' · <span style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></span></div></div>').join('') ||
       '<p class="mut" style="margin:0;font-size:13px">Tudo desta semana já está aprovado.</p>';
 
     // quadro da semana
@@ -1060,7 +1158,7 @@ main{align-items:stretch}
       return '<div class="dcol"><div class="cab' + (hoje ? ' hoje' : k >= 5 ? ' fds' : '') + '"><span class="d">' + (hoje ? 'Hoje' : NOMES[k]) + '<b>' + l.length + '</b></span><span class="num">' + p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span><small>Padrão ' + HORARIOS[k] + '</small></div>' +
         (l.map((i) => {
           const tag = i.trello ? 'a' : 'div', href = i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '';
-          return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
+          return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '" data-item="' + esc(i.id) + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
             '<span class="c elip">' + esc(titulo(i.cliente)) + '</span>' + (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
             '<span class="s">' + esc(i.tipo) + ' · <b style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</b></span></' + tag + '>';
         }).join('') || '<div class="vaz">Sem postagem</div>') + '</div>';
@@ -1135,7 +1233,7 @@ main{align-items:stretch}
 /* Indicadores (prévia, só leitura) — mesmas contas da tela Indicadores do interno, com a aba de vídeos editados */
 (() => {
   const { $, esc, p2, fmt, parse, somaDias, titulo, hoje0, MESES, COR, FLUXO } = Y;
-  const EDITADO = ['Pronto', 'Enviado', 'Aprovado', 'Não postado', 'Postado'];
+  const EDITADO = ['Pronto', 'Enviado', 'Ajustar', 'Aprovado', 'Não postado', 'Postado'];
   const SORD = ['Sem conteúdo', 'Em produção', 'Editado, sem postar', 'Postado'];
   const SCOR = { 'Postado': 'var(--ok)', 'Editado, sem postar': 'var(--gold-200)', 'Em produção': 'var(--gold-400)', 'Sem conteúdo': 'var(--bad)' };
   const segundaDe = (d) => somaDias(d, -((d.getDay() + 6) % 7));
@@ -1187,11 +1285,15 @@ main{align-items:stretch}
   // ---------- desenho ----------
   function pinta(b) {
     if (b) banco = b; if (!banco) return;
+    // financeiro: só a direção vê, como no interno
+    const podeFin = ['yasmim', 'gabriel', 'vitor'].includes(($('euSel') || {}).value || 'gabriel');
+    const abaFin = $('inVista').querySelector('[data-v="fin"]'); if (abaFin) abaFin.hidden = !podeFin;
+    if (!podeFin && vista === 'fin') vista = 'post';
     document.querySelectorAll('#tela-indicadores .v-post').forEach((x) => x.hidden = vista !== 'post');
     document.querySelectorAll('#tela-indicadores .v-fin').forEach((x) => x.hidden = vista !== 'fin');
     $('inVista').querySelectorAll('.aba').forEach((x) => { const on = x.dataset.v === vista; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
     $('inModo').style.display = vista === 'fin' ? 'none' : '';
-    $('inSub').textContent = vista === 'fin' ? 'Vídeos editados a partir da planilha · R$ 25 por vídeo' : 'Clientes, postagens e edições da casa';
+    $('inSub').textContent = vista === 'fin' ? 'Vídeos editados a partir da planilha · R$ 25 por vídeo · visível só para a direção' : 'Clientes, postagens e edições da casa';
     if (vista === 'fin') { if (!vids && vidSt !== 'lendo' && vidSt !== 'erro') leVideos(); return pintaFin(); }
     pintaPost();
   }
@@ -1229,8 +1331,8 @@ main{align-items:stretch}
     $('inAlerta').hidden = !semPost.length;
     $('inAlertaTxt').textContent = semPost.length + ' de ' + clientes.length + ' clientes ainda não foram postados ' + periodo + '.';
     $('inAlertaL').innerHTML = semPost.map((r) => '<span class="alerta-cli">' + esc(titulo(r.c)) + '</span>').join('');
-    const tipos = [...new Set(feed.map((i) => i.tipo))].filter(Boolean).sort();
-    const pt = tipos.map((t) => ({ t, n: doMes.filter((i) => i.tipo === t).length, p: doMes.filter((i) => i.tipo === t && i.status === 'Postado').length })).filter((x) => x.n).sort((a, b) => b.n - a.n);
+    const tipos = [...new Set(['Vídeo', 'Reels', 'Foto', 'Carrossel', 'Arte', ...feed.map((i) => i.tipo)])].filter((t) => t && t !== 'Stories');
+    const pt = tipos.map((t) => ({ t, n: doMes.filter((i) => i.tipo === t).length, p: doMes.filter((i) => i.tipo === t && i.status === 'Postado').length })).sort((a, b) => b.n - a.n);
     const mx = Math.max(1, ...pt.map((x) => x.n));
     $('inFmtTit').textContent = Mes(mesRef.getMonth()) + ' por formato · postadas / previstas';
     $('inFmt').innerHTML = pt.map((x) => '<div class="fmt"><div class="l1"><span>' + esc(x.t) + '</span><em>' + pct(x.p, x.n) + '%</em><b><span style="color:var(--gold-300)">' + x.p + '</span><span class="mut">/' + x.n + '</span></b></div><span class="trk"><s style="width:' + Math.round(x.n / mx * 100) + '%"></s><i style="width:' + Math.round(x.p / mx * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada cadastrado no mês.</p>';
@@ -1257,14 +1359,14 @@ main{align-items:stretch}
     const tipos = [...new Set(r.l.map((i) => i.tipo))].map((t) => ({ t, n: r.l.filter((i) => i.tipo === t).length, p: r.l.filter((i) => i.tipo === t && i.status === 'Postado').length }));
     const ord = r.l.slice().sort((a, b) => (parse(a.data) || 0) - (parse(b.data) || 0));
     const big = (v, l) => '<div class="big"><span class="num">' + v + '</span><span>' + l + '</span></div>';
-    return '<div class="det">' + big(r.postados, 'Postadas ' + periodo) + big(r.total, 'Previstas ' + periodo) +
+    return '<div class="det"><h4 style="grid-column:1/-1;margin:0">' + esc(titulo(r.c)) + ' · ' + (sem ? 'Semana de ' + p2(seg.getDate()) + '/' + p2(seg.getMonth() + 1) + ' a ' + p2(somaDias(seg, 6).getDate()) + '/' + p2(somaDias(seg, 6).getMonth() + 1) : MESES[mes.getMonth()].charAt(0).toUpperCase() + MESES[mes.getMonth()].slice(1) + ' ' + mes.getFullYear()) + '</h4>' + big(r.postados, 'Postadas ' + periodo) + big(r.total, 'Previstas ' + periodo) +
       (sem ? big(lm.filter((i) => i.status === 'Postado').length, 'Postadas no mês') : big(lm.filter((i) => EDITADO.includes(i.status)).length, 'Editadas no mês')) +
       big(r.prev ? (sem ? r.feitos + '/' : '') + r.prev : '—', 'Stories ' + (sem ? 'na semana' : 'por semana')) +
       '<div style="grid-column:span 2"><h4>Formatos · postadas/previstas</h4><div class="tags">' + (tipos.map((x) => '<span>' + esc(x.t) + ' <b style="color:var(--gold-300)">' + x.p + '/' + x.n + '</b></span>').join('') || '<span class="mut" style="border:0;padding:0">Nada cadastrado ' + periodo + '.</span>') + '</div></div>' +
-      '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + (FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return n ? '<span style="color:' + COR[s] + '">' + n + ' ' + s + '</span>' : ''; }).join('') || '<span class="mut" style="border:0;padding:0">—</span>') + '</div></div>' +
-      (r.st && r.st.fixo ? '<div style="grid-column:1/-1;font-size:12.5px"><b>Stories fixos:</b> ' + esc(r.st.fixo) + '</div>' : '') +
+      '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + (FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return '<span style="color:' + (n ? COR[s] : 'var(--ink-300)') + '">' + n + ' ' + s + '</span>'; }).join('') || '<span class="mut" style="border:0;padding:0">—</span>') + '</div></div>' +
+      (r.st && r.st.fixo ? '<div style="grid-column:1/-1;font-size:12.5px"><b>Stories fixos:</b> ' + esc(r.st.fixo) + ((r.st.dias || []).length ? ' · ' + r.st.dias.map((d) => ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][d] || d).join(', ') : '') + '</div>' : '') +
       (ord.length ? '<div class="lst"><h4>Conteúdos ' + periodo + '</h4>' + ord.map((i) => { const t = i.trello ? 'a' : 'div';
-        return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener"' : '') + '><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
+        return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener"' : '') + ' data-item="' + esc(i.id) + '"><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
   }
 
   function pintaFin() {
@@ -1297,15 +1399,21 @@ main{align-items:stretch}
     const novos = pg && pg.ids ? per.filter((v) => !pg.ids.includes(chave(v))) : [];
     const saiu = pg && pg.ids ? pg.ids.filter((c) => !chaves.has(c)).length : 0, dif = pg && vids ? q - (pg.qtd || 0) : 0;
     $('finMuda').innerHTML = pg && vids && (dif || novos.length || saiu) ? '<div class="aviso-fin"><b>A planilha mudou depois do pagamento: ' + (dif > 0 ? '+' : '') + dif + ' vídeo' + (Math.abs(dif) === 1 ? '' : 's') + ' (' + (dif > 0 ? '+' : '') + BRL(dif * VAL) + ').</b>' +
-      (novos.length ? '<br>Entraram: ' + esc(novos.slice(0, 6).map((v) => titulo(v.cliente) + ' — ' + (v.titulo || v.link)).join(' · ')) + (novos.length > 6 ? ' · e mais ' + (novos.length - 6) : '') : '') + (saiu ? '<br>' + saiu + (saiu === 1 ? ' linha saiu' : ' linhas saíram') + ' da planilha.' : '') + '</div>' : '';
+      (novos.length ? '<br>Entraram: ' + esc(novos.slice(0, 8).map((v) => titulo(v.cliente) + ' — ' + (v.titulo || v.link)).join(' · ')) + (novos.length > 8 ? ' · e mais ' + (novos.length - 8) : '') : '') + (saiu ? '<br>' + saiu + (saiu === 1 ? ' linha saiu' : ' linhas saíram') + ' da planilha.' : '') + '</div>' : '';
 
     $('finTab').innerHTML = !vids ? '' : gl.length ? gl.map((g) => '<div class="gcli"><span class="ini">' + esc(ini(g.c)) + '</span>' + esc(titulo(g.c)) + '<em>' + g.n + ' vídeo' + (g.n === 1 ? '' : 's') + '</em><b>' + BRL(g.n * VAL) + '</b></div>' +
       g.l.map((v) => { const it = fluxo.get(v.id);
-        return '<div class="vid"><span class="mut">' + (v.data ? fmt(v.data).slice(0, 5) : '—') + '</span>' + (/^https?:/.test(v.link) ? '<a class="elip" href="' + esc(v.link) + '" target="_blank" rel="noopener">' + esc(v.titulo || 'Abrir vídeo') + '</a>' : '<span class="elip">' + esc(v.titulo || v.link || '—') + '</span>') +
+        return '<div class="vid"><span class="mut">' + (v.data ? fmt(v.data).slice(0, 5) : '—') + '</span>' + (/^https?:/.test(v.link) ? '<a class="elip" href="' + esc(v.link) + '" target="_blank" rel="noopener">' + esc(v.titulo || 'Abrir vídeo') + (v.qtd > 1 ? ' ×' + v.qtd : '') + '</a>' : '<span class="elip">' + esc(v.titulo || v.link || '—') + '</span>') +
           '<span style="font-weight:600;color:' + (it ? COR[it.status] || 'inherit' : 'var(--ink-300)') + '">' + (it ? esc(it.status) : 'fora do fluxo') + '</span><span>' + BRL(v.qtd * VAL) + '</span></div>'; }).join('')).join('')
       : '<p class="mut" style="margin:12px 0;font-size:13px">Nenhum vídeo na planilha em ' + MESES[mes.getMonth()] + '.</p>';
 
-    $('finPagTit').textContent = 'Pagamento · ' + Mes(mes.getMonth());
+    const sp = per.filter((v) => { const i = fluxo.get(v.id); return i && i.status !== 'Postado'; }), fora = per.filter((v) => !fluxo.get(v.id)).length;
+    $('finSPn').textContent = vids ? sp.length + ' vídeo' + (sp.length === 1 ? '' : 's') : '';
+    $('finSP').innerHTML = !vids ? '' : (sp.map((v) => { const i = fluxo.get(v.id); return '<div class="vid" data-item="' + esc(i.id) + '"><span class="elip"><b>' + esc(titulo(v.cliente)) + '</b> · ' + esc(v.titulo || v.link || '—') + (v.qtd > 1 ? ' <span class="mut">×' + v.qtd + '</span>' : '') + '</span><span style="font-weight:600;color:' + (COR[i.status] || 'inherit') + '" title="Abrir: ' + esc(i.titulo || '') + '">' + esc(i.status) + '</span></div>'; }).join('') || '<p class="mut" style="margin:0;font-size:13px">Tudo que foi editado e está no fluxo já foi postado.</p>') +
+      '<p class="mut" style="margin:10px 0 0;font-size:11.5px">Cruzado com o fluxo pelo cliente e título.' + (fora ? ' ' + fora + ' sem conteúdo correspondente no fluxo.' : '') + '</p>';
+    const mxb = Math.max(1, ...gl.map((g) => g.n));
+    $('finBar').innerHTML = !vids ? '' : gl.map((g, j) => '<div class="fb"><span class="elip">' + (j + 1) + '. ' + esc(titulo(g.c)) + '</span><b>' + g.n + '</b><em>' + BRL(g.n * VAL) + '</em><span class="barra"><i style="width:' + (g.n / mxb * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada no mês.</p>';
+    $('finPagTit').textContent = 'Pagamento · ' + Mes(mes.getMonth()) + ' ' + mes.getFullYear();
     $('finValor').textContent = vids ? BRL(q * VAL) : '—';
     $('finConta').textContent = vids ? q + ' vídeo' + (q === 1 ? '' : 's') + ' × ' + BRL(VAL) : 'lendo a planilha…';
     $('finStatus').innerHTML = pg ? '<span style="color:var(--ok)">✓ Pago</span>' : 'Em aberto';
@@ -1344,16 +1452,20 @@ main{align-items:stretch}
 
   const card = (i, extra = '') => {
     const t = i.trello ? 'a' : 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
-    return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '') + ' class="kcard" style="--ac:' + ac + '">' +
+    return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '') + ' class="kcard" style="--ac:' + ac + '" data-item="' + esc(i.id) + '">' +
       '<span class="c"><span class="elip">' + esc(titulo(i.cliente)) + '</span><em>' + esc(String(i.data || '').slice(0, 5)) + '</em></span>' +
       (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
-      '<span class="s"><span>' + esc(i.tipo) + '</span>' + (i.status && !['Pendente'].includes(i.status) ? '<span style="color:' + ac + '">· ' + esc(i.status) + '</span>' : '') +
-      (at ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">parado ' + at + 'd</span>' : '') +
-      (i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">falta ' + esc(i.semMaterial.falta || 'material') + '</span>' : '') +
-      (precisaCapa(i) && i.tipo === 'Reels' ? '<span class="tag" style="color:' + (capaPronta(i) ? 'var(--ok)' : 'var(--gold-300)') + ';border-color:currentColor">capa ' + (capaPronta(i) ? 'pronta' : 'pendente') + '</span>' : '') + extra + '</span></' + t + '>';
+      '<span class="s"><span>' + esc(i.tipo) + '</span>' + (i.status ? '<span style="color:' + ac + '">· ' + esc(i.status) + '</span>' : '') +
+      (at && !i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">parado ' + at + 'd</span>' : '') +
+      (i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">sem material · há ' + Math.max(0, Math.floor((Date.now() - i.semMaterial.desde) / 864e5)) + 'd</span>' : '') +
+      (i.adiadoDe ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">adiado de ' + esc(String(i.adiadoDe).slice(0, 5)) + (i.adiado > 1 ? ' · ' + i.adiado + 'x' : '') + '</span>' : '') +
+      (precisaCapa(i) && i.tipo === 'Reels' ? '<span class="tag" style="color:' + (capaPronta(i) ? 'var(--ok)' : 'var(--gold-300)') + ';border-color:currentColor">capa ' + (capaPronta(i) ? 'pronta' : 'pendente') + ' · ' + esc(((EQUIPE[capaDesigner(i)] || ['Marcus'])[0])) + '</span>' : '') + extra + '</span>' +
+      (i.semMaterial ? '<span class="nt">Falta: ' + esc(i.semMaterial.falta || 'material') + '</span>' : '') +
+      (i.nota && ['Ajustar', 'Produção', 'Pendente'].includes(i.status) ? '<span class="nt">Ajuste: ' + esc(i.nota) + '</span>' : '') +
+      (i.status === 'Não postado' && i.naoPostado ? '<span class="nt">Não postado: ' + esc(i.naoPostado.motivo || '—') + '</span>' : '') + '</' + t + '>';
   };
   const coluna = (rot, cor, lista, lim = 12, extra) => '<div class="kcol"><div class="kcab"><span><i style="background:' + cor + ';color:' + cor + '"></i>' + rot + '</span><b>' + lista.length + '</b></div>' +
-    (lista.slice(0, lim).map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">Nada aqui</div>') +
+    (lista.slice(0, lim).map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">Nada nesta etapa</div>') +
     (lista.length > lim ? '<div class="kmais">e mais ' + (lista.length - lim) + '</div>' : '') + '</div>';
 
   function pintaPaineis(b) {
@@ -1438,16 +1550,16 @@ main{align-items:stretch}
     const prods = [...new Set(envAll.map((i) => i.produtor).filter(Boolean))];
     $('apEnvN').innerHTML = '<span class="chips" id="apFiltro" style="justify-content:flex-end">' + ['', ...prods].map((p) => '<button type="button" class="chip' + (apQuem === p ? ' on' : '') + '" data-q="' + p + '">' + (p ? (EQUIPE[p] || [titulo(p)])[0] : 'Todos') + ' <b>' + (p ? envAll.filter((i) => i.produtor === p).length : envAll.length) + '</b></button>').join('') + '</span>';
     $('apEnv').innerHTML = env.map((i) => { const d = diasNaEtapa(i), at = atraso(i);
-      return '<div class="envc"' + (at ? ' style="border-color:rgba(240,165,148,.3)"' : '') + '><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
+      return '<div class="envc" data-item="' + esc(i.id) + '"' + (at ? ' style="border-color:rgba(240,165,148,.3)"' : '') + '><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
         (d != null ? '<span class="dias" style="' + (at ? 'color:var(--bad);background:rgba(240,165,148,.12)' : 'color:var(--gold-300);background:rgba(243,172,47,.12)') + '">' + (d ? 'esperando há ' + d + 'd' : 'enviado hoje') + '</span>' : '') + '</div>' +
         '<div class="meta"><span>' + esc(i.tipo) + '</span><span>Postagem ' + esc(String(i.data).slice(0, 5)) + (i.hora ? ' · ' + esc(i.hora) : '') + '</span>' + (i.produtor && EQUIPE[i.produtor] ? '<span style="display:inline-flex;align-items:center;gap:6px"><img class="av" src="/assets/team/' + EQUIPE[i.produtor][1] + '.png" alt="" style="width:22px;height:22px">' + EQUIPE[i.produtor][0] + '</span>' : '') +
         (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="margin-left:auto">Abrir no Trello →</a>' : '') + '</div></div>'; }).join('') || '<div class="vazio" style="grid-column:1/-1">Nada enviado para avaliação.</div>';
     $('apAjN').textContent = aj.length;
     $('apAj').innerHTML = aj.map((i) => { const d = diasNaEtapa(i), p = EQUIPE[i.produtor];
-      return '<div class="aj"><span style="display:flex;align-items:center;gap:8px;font-weight:600">' + (p ? '<img class="av" src="/assets/team/' + p[1] + '.png" alt="' + p[0] + '" title="' + p[0] + '" style="width:22px;height:22px">' : '') + '<span class="elip" style="flex:1">' + esc(titulo(i.cliente)) + '</span>' + (d != null ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">há ' + d + 'd</span>' : '') + '</span>' +
+      return '<div class="aj" data-item="' + esc(i.id) + '"><span style="display:flex;align-items:center;gap:8px;font-weight:600">' + (p ? '<img class="av" src="/assets/team/' + p[1] + '.png" alt="' + p[0] + '" title="' + p[0] + '" style="width:22px;height:22px">' : '') + '<span class="elip" style="flex:1">' + esc(titulo(i.cliente)) + '</span>' + (d != null ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">há ' + d + 'd</span>' : '') + '</span>' +
         '<span class="elip">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit">' + esc(i.titulo || '(sem título)') + '</a>' : esc(i.titulo || '(sem título)')) + ' <span class="mut">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '<span class="mut" style="font-size:11.5px">Sem motivo anotado</span>') + '</div>'; }).join('') || '<div class="vazio">Nada em ajuste.</div>';
     $('apOk').innerHTML = rec.slice(0, 24).map((i) => { const d = aprovadoEm(i), por = aprovadoPor(i);
-      return card(i, '<span style="color:var(--ok)">· aprovado ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + (por ? ' por ' + esc(por) : '') + '</span>'); }).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação nos últimos 30 dias.</div>';
+      return card(i, '<span style="color:var(--ok)">· aprovado ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + (por ? ' por ' + esc(por) : '') + (i.aprovacao && i.aprovacao.obs ? ' · “' + esc(i.aprovacao.obs) + '”' : '') + '</span>'); }).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação nos últimos 30 dias.</div>';
   }
 
   $('paAbas').onclick = (e) => { const x = e.target.closest('[data-p]'); if (x) { painel = x.dataset.p; pintaPaineis(); } };
@@ -1509,9 +1621,9 @@ main{align-items:stretch}
       '<span class="c">' + esc(titulo($('cCli').value || '')) + '</span><span class="t">' + (tit ? esc(tit) : '<span class="mut">Título do conteúdo</span>') + '</span><span class="s">' + esc(f.tipo) + ' · <b style="color:' + COR.Pendente + '">Pendente</b> · ' + NOMES[p] + (f.tipo === 'Reels' && $('cCapa').checked ? ' · capa pendente' : '') + '</span></div>';
   }
   function ultimos() {
-    const l = (banco.items || []).filter((i) => !i.excluido && /^c\d+$/.test(i.id)).sort((a, b) => +b.id.slice(1) - +a.id.slice(1)).slice(0, 6);
+    const l = (banco.items || []).filter((i) => !i.excluido).slice(-6).reverse();
     $('cUlt').innerHTML = l.map((i) => { const ts = new Date(+i.id.slice(1));
-      return '<div class="ult"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip" style="font-weight:600">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + ' · ' + esc(i.titulo || '') + '</span></div><span class="mut" style="font-size:11px;flex:none">' + String(ts.getDate()).padStart(2, '0') + '/' + String(ts.getMonth() + 1).padStart(2, '0') + '</span><span style="font-size:11.5px;font-weight:600;flex:none;color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></div>'; }).join('') || '<p class="mut" style="margin:0;font-size:12.5px">—</p>';
+      return '<div class="ult" data-item="' + esc(i.id) + '"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip" style="font-weight:600">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + ' · ' + esc(i.titulo || '') + '</span></div><span class="mut" style="font-size:11px;flex:none">' + String(ts.getDate()).padStart(2, '0') + '/' + String(ts.getMonth() + 1).padStart(2, '0') + '</span><span style="font-size:11.5px;font-weight:600;flex:none;color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></div>'; }).join('') || '<p class="mut" style="margin:0;font-size:12.5px">—</p>';
   }
   function pinta(b) { if (b) banco = b; if (!banco) return; if (!montado) monta(); else atualiza(); ultimos(); }
 
@@ -1532,7 +1644,7 @@ main{align-items:stretch}
 (() => {
   const NOMES = {};
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar', 'planejamento'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
@@ -1541,14 +1653,16 @@ main{align-items:stretch}
     document.getElementById('tela-paineis').hidden = t !== 'paineis';
     document.getElementById('tela-aprovacoes').hidden = t !== 'aprovacoes';
     document.getElementById('tela-cadastrar').hidden = t !== 'cadastrar';
+    document.getElementById('tela-planejamento').hidden = t !== 'planejamento';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : t === 'planejamento' ? 'Planejamento' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
 })();
 </script>
+<script src="/interno/previa/extras.js"></script>
 </body>
 </html>
