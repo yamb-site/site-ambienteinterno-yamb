@@ -99,7 +99,7 @@
   const extra = document.createElement('div'); extra.className = 'trilho-extra';
   extra.innerHTML =
     '<button class="ico" type="button" id="btNotif" aria-label="Notificações" aria-expanded="false">' + I('M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0') + '<span class="cont" id="notifN" hidden></span><span class="dica">Notificações</span></button>' +
-    '<button class="ico" type="button" id="btExport" aria-label="Exportar lista de conteúdos">' + I('M12 3v12M7 10l5 5 5-5M5 21h14') + '<span class="dica">Exportar lista de conteúdos</span></button>';
+    '';
   euBox.parentNode.insertBefore(extra, euBox);
   const pop = document.createElement('div'); pop.className = 'pop-notif'; pop.hidden = true; pop.id = 'popNotif';
   document.body.append(pop);
@@ -114,8 +114,8 @@
       '<p class="mut" style="margin:0 0 6px;font-size:11.5px">Na versão final, os avisos também chegam no celular e no computador.</p>' +
       (l.map((n) => '<div class="pn"><span class="k">' + esc(n.kind) + '<em>' + esc(n.ts || '') + '</em></span><span>' + esc(n.text) + '</span></div>').join('') || '<p class="mut">Nenhuma notificação.</p>');
   }
-  $('btExport').onclick = () => {
-    const its = (banco && banco.items || []).filter((i) => !i.excluido);
+  window.exportarLista = (lista) => {
+    const its = lista || (banco && banco.items || []).filter((i) => !i.excluido);
     const c = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
     const rows = [['Cliente', 'Conteúdo', 'Formato', 'Postagem', 'Produção', 'Social', 'Status', 'Trello'], ...its.map((i) => [i.cliente, i.titulo, i.tipo, i.data, nome(i.produtor), nome(i.social), i.status, i.trello || ''])];
     const a = document.createElement('a');
@@ -173,13 +173,8 @@
   /* ---------- Avaliação do dia ---------- */
   const AV_ROT = ['', 'Dia difícil', 'Dia puxado', 'Dia ok', 'Dia bom', 'Dia excelente'];
   const GESTAO = ['gabriel', 'yasmim', 'vitoria'];
-  const bAv = document.createElement('button'); bAv.type = 'button'; bAv.className = 'bt-aval'; bAv.setAttribute('aria-expanded', 'false');
-  bAv.innerHTML = I('M12 2.8l2.8 5.7 6.3.9-4.55 4.43 1.07 6.27L12 17.13 6.38 20.1l1.07-6.27L2.9 9.4l6.3-.9z', 18) + '<span>Avaliação do dia</span>';
-  const pAv = document.createElement('div'); pAv.className = 'pop-aval'; pAv.hidden = true; pAv.setAttribute('role', 'dialog'); pAv.setAttribute('aria-label', 'Avaliação do dia');
-  document.body.append(bAv, pAv);
+  const pAv = $('avDia') || document.createElement('div');
   let avDia = hoje0();
-  bAv.onclick = (e) => { e.stopPropagation(); pAv.hidden = !pAv.hidden; bAv.setAttribute('aria-expanded', String(!pAv.hidden)); if (!pAv.hidden) pintaAval(); };
-  document.addEventListener('click', (e) => { if (!pAv.hidden && !pAv.contains(e.target) && e.target !== bAv) { pAv.hidden = true; bAv.setAttribute('aria-expanded', 'false'); } });
   const est = (n) => '<span class="est">' + [1, 2, 3, 4, 5].map((k) => '<i class="' + (k <= n ? 'on' : '') + '">★</i>').join('') + '</span>';
   const f1 = (n) => n.toFixed(1).replace('.', ',');
   function pintaAval() {
@@ -190,8 +185,7 @@
     const med = (l) => l.reduce((s, a) => s + (+a.nota || 0), 0) / (l.length || 1);
     const gestao = GESTAO.includes(u), ehHoje = +avDia === +hoje0();
     const faltam = Object.keys(TEAM).filter((k) => !doDia.some((a) => a.usuario === k));
-    let h = '<div class="ptit">Avaliação do dia</div>' +
-      '<p style="margin:0;font-size:13px">Oi, ' + esc(primeiro(u)) + '! De 1 a 5 estrelas, como foi seu dia de trabalho ' + (ehHoje ? 'hoje' : 'em ' + ds.slice(0, 5)) + '?</p>' +
+    let h = '<p style="margin:0;font-size:13px">Oi, ' + esc(primeiro(u)) + '! De 1 a 5 estrelas, como foi seu dia de trabalho ' + (ehHoje ? 'hoje' : 'em ' + ds.slice(0, 5)) + '?</p>' +
       (minha ? '<div class="minha">' + est(minha.nota) + '<b>' + AV_ROT[minha.nota] + '</b><span class="mut">registrada às ' + esc(minha.ts || '—') + '</span>' + (minha.comentario ? '<p>“' + esc(minha.comentario) + '”</p>' : '') + '</div>'
         : '<div class="minha vazia">' + est(0) + '<span class="mut">' + (ehHoje ? 'Ainda sem avaliação. Na versão final, é só tocar nas estrelas e enviar.' : 'Sem avaliação neste dia.') + '</span></div>');
     if (gestao) {
@@ -202,11 +196,11 @@
     }
     pAv.innerHTML = h;
     if (gestao) {
-      $('avAnt').onclick = (e) => { e.stopPropagation(); avDia = somaDias(avDia, -1); pintaAval(); };
-      $('avProx').onclick = (e) => { e.stopPropagation(); if (!ehHoje) { avDia = somaDias(avDia, 1); pintaAval(); } };
+      $('avAnt').onclick = (e) => { avDia = somaDias(avDia, -1); pintaAval(); };
+      $('avProx').onclick = (e) => { if (!ehHoje) { avDia = somaDias(avDia, 1); pintaAval(); } };
     }
   }
 
-  window.pintaExtras = (b) => { banco = b; contadores(); pintaPlan(); if (!pop.hidden) pintaNotif(); if (!pAv.hidden) pintaAval(); };
-  $('euSel').addEventListener('change', () => { contadores(); if (!pAv.hidden) pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
+  window.pintaExtras = (b) => { banco = b; contadores(); pintaPlan(); if (!pop.hidden) pintaNotif(); pintaAval(); };
+  $('euSel').addEventListener('change', () => { contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
 })();

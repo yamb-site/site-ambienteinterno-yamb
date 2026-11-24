@@ -335,6 +335,18 @@ main{align-items:stretch}
 #tela-indicadores .fb{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;font-size:12.5px;align-items:baseline}
 #tela-indicadores .fb em{font-style:normal;color:var(--ink-300);font-size:11.5px}
 #tela-indicadores .fb .barra{grid-column:1/-1;display:block;flex:none;height:4px}
+.av-dia{display:flex;flex-direction:column;gap:12px}
+.av-dia .est{display:inline-flex;gap:1px;color:rgba(247,228,206,.22);font-size:15px}
+.av-dia .est i{font-style:normal}.av-dia .est i.on{color:var(--gold-400)}
+.av-dia .minha{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(243,172,47,.08);font-size:13px}
+.av-dia .minha p{flex-basis:100%;margin:0;color:var(--ink-200)}
+.av-dia .avnav{display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.av-dia .avnav .chip{height:30px;padding:0 12px}
+.av-dia .avkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.av-dia .avkpi div{display:flex;flex-direction:column;gap:3px;padding:10px;border-radius:12px;background:rgba(247,228,206,.04)}
+.av-dia .avkpi .num{font-size:20px}.av-dia .avkpi .mut{font-size:11px}
+.av-dia .avl{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.av-dia .avl .elip{flex:1;min-width:0;white-space:normal}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -416,7 +428,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div class="app">
 <nav class="trilho" aria-label="Menu">
 <img class="flor" src="/assets/flower-gold-512.png" alt="YAMB">
-<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#paineis" data-tela="paineis" aria-label="Meus painéis"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20l7-7-3-3-7 7zM16 10l-3-3M3 21l2-6 9-9 4 4-9 9z"/></svg><span class="dica">Meus painéis</span></a><a class="ico" href="#aprovacoes" data-tela="aprovacoes" aria-label="Aprovações"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 15l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/></svg><span class="dica">Aprovações</span></a><a class="ico" href="#planejamento" data-tela="planejamento" aria-label="Planejamento"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4M9 16l2 2 4-4"/></svg><span class="dica">Planejamento</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego</span></a>
+<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#paineis" data-tela="paineis" aria-label="Meus painéis"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20l7-7-3-3-7 7zM16 10l-3-3M3 21l2-6 9-9 4 4-9 9z"/></svg><span class="dica">Meus painéis</span></a><a class="ico" href="#aprovacoes" data-tela="aprovacoes" aria-label="Aprovações"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 15l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/></svg><span class="dica">Aprovações</span></a><a class="ico" href="#planejamento" data-tela="planejamento" aria-label="Planejamento"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4M9 16l2 2 4-4"/></svg><span class="dica">Planejamento</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego ↗ abre em outra página</span></a>
 <div class="eu">
 <img id="euFoto" src="/assets/team/gabriel-santos.png" alt="">
 <label><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ver como</span><select id="euSel" aria-label="Ver como"></select></label>
@@ -489,16 +501,9 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div class="barras" id="barras"></div>
 </section>
 
-<section class="card">
-<span class="tit">Atalhos</span>
-<div class="atalhos">
-<a class="atalho" href="#cadastrar"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Nova demanda</a>
-<a class="atalho" href="#semana"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg></span>Semana</a>
-<a class="atalho" href="#stories"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg></span>Stories</a>
-<a class="atalho" href="https://trello.com" target="_blank" rel="noopener"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16v16H4zM8 8v8M14 8v5"/></svg></span>Trello</a>
-<a class="atalho" href="/interno/trafego/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Tráfego</a>
-<a class="atalho" href="#indicadores"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Indicadores</a>
-</div>
+<section class="card" id="cardDia">
+<span class="tit">Como foi o dia?<small><a href="https://trello.com" target="_blank" rel="noopener">Trello ↗</a></small></span>
+<div id="avDia" class="av-dia"><p class="mut" style="margin:0;font-size:13px">Carregando…</p></div>
 </section>
 
 <section class="card l2">
@@ -540,7 +545,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div class="tit">Parados além do prazo<small id="parInfo"></small></div>
 <div style="display:flex;align-items:center;gap:14px"><span class="num" id="parN" style="font-size:46px">—</span><span style="font-size:13px;line-height:1.45;color:var(--ink-200)">demandas paradas<br>na mesma etapa</span></div>
 <div id="parados"></div>
-<button class="chip" id="soParados" type="button" style="align-self:flex-start;margin-top:auto">Ver só os parados</button>
+<button class="chip" id="soParados" type="button" style="align-self:flex-start;margin-top:auto">Só parados além do prazo</button>
 </section>
 
 <section class="card l3">
@@ -912,8 +917,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     $('fila').innerHTML = lista.length ? lista.slice(0, 7).map((t) => {
       const ok = feito(t);
       const nome = '<span class="elip" style="font-size:14px">' + esc(t.titulo || '(sem título)') + '</span>';
-      return '<div class="lin"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>' : '') + '</span>' +
-        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + (t.trello ? '<a href="' + esc(t.trello) + '" target="_blank" rel="noopener" style="color:inherit;min-width:0;display:flex">' + nome + '</a>' : nome) +
+      return '<div class="lin" data-item="' + esc(t.id) + '"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>' : '') + '</span>' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + nome +
         '<span class="mut" style="font-size:12px">' + esc(titulo(t.cliente)) + ' · ' + esc(t.tipo) + (t.hora ? ' · ' + esc(t.hora) : '') + '</span></div>' +
         '<span style="font-size:12px;font-weight:600;color:' + (cor[t.status] || 'var(--ink-300)') + '">' + esc(t.status) + '</span></div>';
     }).join('') + (lista.length > 7 ? '<a href="#visao-geral" style="font-size:13px;padding-top:6px">E mais ' + (lista.length - 7) + ' na Visão geral</a>' : '')
@@ -1054,9 +1059,10 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       '<button type="button" class="et' + (f.status === k ? ' on' : '') + '" data-k="' + k + '" aria-pressed="' + (f.status === k) + '"><span class="bola' + (n ? '' : ' apag') + '"></span><span class="n">' + n + '</span><span class="r">' + rot + '</span>' +
       (k === '__HOJE' ? '<span class="mut" style="font-size:10.5px;margin-top:-4px">' + hs.slice(0, 5) + '</span>' : '') + '</button>').join('');
     const b2 = base();
-    $('chips').innerHTML = '<button type="button" class="chip' + (!f.status ? ' on' : '') + '" data-k="">Todas <b>' + b2.length + '</b></button>' +
-      FLUXO.map((s) => { const n = b2.filter((i) => i.status === s).length; return n ? '<button type="button" class="chip' + (f.status === s ? ' on' : '') + '" data-k="' + s + '"><span style="width:7px;height:7px;border-radius:50%;background:' + COR[s] + '"></span>' + s + ' <b>' + n + '</b></button>' : ''; }).join('') +
-      (f.parados ? '<button type="button" class="chip on" data-p="1">Só parados ✕</button>' : '');
+    const rot = { '__HOJE': 'Postados do dia' };
+    $('chips').innerHTML = (f.status ? '<button type="button" class="chip on" data-k="" aria-label="Limpar filtro de etapa">' + esc(rot[f.status] || f.status) + ' ✕</button>' : '') +
+      (f.parados ? '<button type="button" class="chip on" data-p="1">Só parados além do prazo ✕</button>' : '') +
+      '<button type="button" class="chip" id="vExport" style="margin-left:auto" title="Baixa a lista com os filtros atuais">Exportar lista <b>' + filtrados().length + '</b></button>';
   }
 
   function pintaLista() {
@@ -1099,6 +1105,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   $('soParados').onclick = () => { f.parados = true; f.status = ''; repinta(); document.getElementById('lista').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
   const clicaEtapa = (e) => {
     const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'vExport') { const h0 = +hoje0(), dt = (i) => +(parse(i.data) || 0); window.exportarLista && window.exportarLista(filtrados().slice().sort((a, b) => dt(a) - dt(b))); return; }
     if (b.dataset.p) { f.parados = false; return repinta(); }
     const k = b.dataset.k; f.status = f.status === k ? '' : k;
     if (k === '__HOJE') f.periodo = 'mes';
@@ -1157,7 +1164,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       const l = doDia(d), hoje = fmt(d) === hs;
       return '<div class="dcol"><div class="cab' + (hoje ? ' hoje' : k >= 5 ? ' fds' : '') + '"><span class="d">' + (hoje ? 'Hoje' : NOMES[k]) + '<b>' + l.length + '</b></span><span class="num">' + p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span><small>Padrão ' + HORARIOS[k] + '</small></div>' +
         (l.map((i) => {
-          const tag = i.trello ? 'a' : 'div', href = i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '';
+          const tag = 'div', href = '';
           return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '" data-item="' + esc(i.id) + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
             '<span class="c elip">' + esc(titulo(i.cliente)) + '</span>' + (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
             '<span class="s">' + esc(i.tipo) + ' · <b style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</b></span></' + tag + '>';
@@ -1293,6 +1300,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     document.querySelectorAll('#tela-indicadores .v-fin').forEach((x) => x.hidden = vista !== 'fin');
     $('inVista').querySelectorAll('.aba').forEach((x) => { const on = x.dataset.v === vista; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
     $('inModo').style.display = vista === 'fin' ? 'none' : '';
+    ['inAnt', 'inProx', 'inAtual'].forEach((x) => { $(x).style.display = vista === 'fin' ? 'none' : ''; }); // no financeiro o mês troca pelos chips
     $('inSub').textContent = vista === 'fin' ? 'Vídeos editados a partir da planilha · R$ 25 por vídeo · visível só para a direção' : 'Clientes, postagens e edições da casa';
     if (vista === 'fin') { if (!vids && vidSt !== 'lendo' && vidSt !== 'erro') leVideos(); return pintaFin(); }
     pintaPost();
@@ -1365,8 +1373,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       '<div style="grid-column:span 2"><h4>Formatos · postadas/previstas</h4><div class="tags">' + (tipos.map((x) => '<span>' + esc(x.t) + ' <b style="color:var(--gold-300)">' + x.p + '/' + x.n + '</b></span>').join('') || '<span class="mut" style="border:0;padding:0">Nada cadastrado ' + periodo + '.</span>') + '</div></div>' +
       '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + (FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return '<span style="color:' + (n ? COR[s] : 'var(--ink-300)') + '">' + n + ' ' + s + '</span>'; }).join('') || '<span class="mut" style="border:0;padding:0">—</span>') + '</div></div>' +
       (r.st && r.st.fixo ? '<div style="grid-column:1/-1;font-size:12.5px"><b>Stories fixos:</b> ' + esc(r.st.fixo) + ((r.st.dias || []).length ? ' · ' + r.st.dias.map((d) => ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][d] || d).join(', ') : '') + '</div>' : '') +
-      (ord.length ? '<div class="lst"><h4>Conteúdos ' + periodo + '</h4>' + ord.map((i) => { const t = i.trello ? 'a' : 'div';
-        return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener"' : '') + ' data-item="' + esc(i.id) + '"><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
+      (ord.length ? '<div class="lst"><h4>Conteúdos ' + periodo + '</h4>' + ord.map((i) => { const t = 'div';
+        return '<' + t + ' data-item=""' + esc(i.id) + '"><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
   }
 
   function pintaFin() {
@@ -1451,8 +1459,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false;
 
   const card = (i, extra = '') => {
-    const t = i.trello ? 'a' : 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
-    return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '') + ' class="kcard" style="--ac:' + ac + '" data-item="' + esc(i.id) + '">' +
+    const t = 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
+    return '<' + t + ' class="kcard" style="--ac:' + ac + '" data-item="' + esc(i.id) + '">' +
       '<span class="c"><span class="elip">' + esc(titulo(i.cliente)) + '</span><em>' + esc(String(i.data || '').slice(0, 5)) + '</em></span>' +
       (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
       '<span class="s"><span>' + esc(i.tipo) + '</span>' + (i.status ? '<span style="color:' + ac + '">· ' + esc(i.status) + '</span>' : '') +
@@ -1480,7 +1488,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
     const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
     $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
-    $('paQuem').innerHTML = '<span>Vendo como</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
+    $('paQuem').innerHTML = '<span>Painel de</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
 
     const k = (ov, cor, v, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span></div>';
     let cols = '', espera = [], kp = '';
@@ -1553,11 +1561,11 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       return '<div class="envc" data-item="' + esc(i.id) + '"' + (at ? ' style="border-color:rgba(240,165,148,.3)"' : '') + '><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
         (d != null ? '<span class="dias" style="' + (at ? 'color:var(--bad);background:rgba(240,165,148,.12)' : 'color:var(--gold-300);background:rgba(243,172,47,.12)') + '">' + (d ? 'esperando há ' + d + 'd' : 'enviado hoje') + '</span>' : '') + '</div>' +
         '<div class="meta"><span>' + esc(i.tipo) + '</span><span>Postagem ' + esc(String(i.data).slice(0, 5)) + (i.hora ? ' · ' + esc(i.hora) : '') + '</span>' + (i.produtor && EQUIPE[i.produtor] ? '<span style="display:inline-flex;align-items:center;gap:6px"><img class="av" src="/assets/team/' + EQUIPE[i.produtor][1] + '.png" alt="" style="width:22px;height:22px">' + EQUIPE[i.produtor][0] + '</span>' : '') +
-        (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="margin-left:auto">Abrir no Trello →</a>' : '') + '</div></div>'; }).join('') || '<div class="vazio" style="grid-column:1/-1">Nada enviado para avaliação.</div>';
+        '' + '</div></div>'; }).join('') || '<div class="vazio" style="grid-column:1/-1">Nada enviado para avaliação.</div>';
     $('apAjN').textContent = aj.length;
     $('apAj').innerHTML = aj.map((i) => { const d = diasNaEtapa(i), p = EQUIPE[i.produtor];
       return '<div class="aj" data-item="' + esc(i.id) + '"><span style="display:flex;align-items:center;gap:8px;font-weight:600">' + (p ? '<img class="av" src="/assets/team/' + p[1] + '.png" alt="' + p[0] + '" title="' + p[0] + '" style="width:22px;height:22px">' : '') + '<span class="elip" style="flex:1">' + esc(titulo(i.cliente)) + '</span>' + (d != null ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">há ' + d + 'd</span>' : '') + '</span>' +
-        '<span class="elip">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit">' + esc(i.titulo || '(sem título)') + '</a>' : esc(i.titulo || '(sem título)')) + ' <span class="mut">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '<span class="mut" style="font-size:11.5px">Sem motivo anotado</span>') + '</div>'; }).join('') || '<div class="vazio">Nada em ajuste.</div>';
+        '<span class="elip">' + esc(i.titulo || '(sem título)') + ' <span class="mut">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '<span class="mut" style="font-size:11.5px">Sem motivo anotado</span>') + '</div>'; }).join('') || '<div class="vazio">Nada em ajuste.</div>';
     $('apOk').innerHTML = rec.slice(0, 24).map((i) => { const d = aprovadoEm(i), por = aprovadoPor(i);
       return card(i, '<span style="color:var(--ok)">· aprovado ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + (por ? ' por ' + esc(por) : '') + (i.aprovacao && i.aprovacao.obs ? ' · “' + esc(i.aprovacao.obs) + '”' : '') + '</span>'); }).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação nos últimos 30 dias.</div>';
   }
