@@ -168,10 +168,16 @@
   }
 
   function pintaLista() {
-    const l = filtrados().sort((a, b) => (parse(a.data) || 0) - (parse(b.data) || 0) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
+    // hoje e os próximos dias primeiro; os dias que já passaram vêm depois, do mais recente para o mais antigo
+    const h0 = +hoje0(), dt = (i) => +(parse(i.data) || 0);
+    const mesmo = (a, b) => String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente));
+    const todos = filtrados();
+    const l = todos.filter((i) => dt(i) >= h0).sort((a, b) => dt(a) - dt(b) || mesmo(a, b))
+      .concat(todos.filter((i) => dt(i) < h0).sort((a, b) => dt(b) - dt(a) || mesmo(a, b)));
     const vis = l.slice(0, f.ver), hs = fmt(hoje0());
-    let html = '', ult = null;
+    let html = '', ult = null, passou = false;
     vis.forEach((i) => {
+      if (!passou && dt(i) < h0) { passou = true; html += '<div class="dia" style="padding-top:28px;color:var(--gold-400)">Dias que já passaram</div>'; }
       if (i.data !== ult) {
         ult = i.data; const d = parse(i.data), n = l.filter((x) => x.data === i.data).length;
         html += '<div class="dia' + (i.data === hs ? ' hoje' : '') + '"><b>' + (d ? p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) : 'Sem data') + '</b>' + (d ? (i.data === hs ? 'Hoje' : DIAS[d.getDay()]) : '') + '<em>' + n + ' conteúdo' + (n === 1 ? '' : 's') + '</em></div>';
