@@ -304,7 +304,7 @@ main{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr
     const prox = [1, 2, 3].map((k) => somaDias(hoje, k)).map((d) => {
       const l = itens.filter((i) => i.data === fmt(d));
       const cl = [...new Set(l.map((i) => titulo(i.cliente)))];
-      const temas = {}; l.forEach((i) => { const t = String(i.titulo || '').trim(); if (t) temas[t.toLowerCase()] = (temas[t.toLowerCase()] || 0) + 1; });
+      const temas = {}; l.forEach((i) => { const t = String(i.titulo || '').trim(); if (t && !/^\d{1,2}\/\d{1,2}/.test(t)) temas[t.toLowerCase()] = (temas[t.toLowerCase()] || 0) + 1; });
       const tema = Object.entries(temas).sort((a, b) => b[1] - a[1])[0];
       return { d, n: l.length, cl, tema: tema && tema[1] > 2 ? tema[0] : null };
     });
