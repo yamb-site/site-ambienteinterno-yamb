@@ -165,6 +165,45 @@ main{align-items:stretch}
 #tela-stories .sem{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px}
 #tela-stories .grade-st.semfixo{grid-template-columns:minmax(200px,1fr) repeat(7,60px) 100px}#tela-stories .grade-st.semfixo .fixo,#tela-stories .grade-st.semfixo .th.fx{display:none}
 @media (max-width:1100px){#tela-stories .grade-st{grid-template-columns:minmax(150px,1fr) repeat(7,40px) 80px}#tela-stories .grade-st .fixo,#tela-stories .grade-st .th.fx{display:none}}
+#tela-indicadores .nav-sem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#tela-indicadores .seta{width:38px;height:38px;border-radius:50%;border:1px solid rgba(247,228,206,.16);background:rgba(18,18,18,.6);color:var(--gold-300);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+#tela-indicadores .seta:hover{border-color:rgba(243,172,47,.55);box-shadow:0 0 14px rgba(243,172,47,.25)}
+#tela-indicadores .kgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:10px}
+#tela-indicadores .kgrid div{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:18px;border:1px solid rgba(247,228,206,.08);background:rgba(18,18,18,.5)}
+#tela-indicadores .kgrid div.d{background:rgba(243,172,47,.12);border-color:rgba(243,172,47,.5);box-shadow:0 0 22px rgba(243,172,47,.22)}
+#tela-indicadores .kgrid .num{font-size:32px}
+#tela-indicadores .kgrid .d .num{color:var(--gold-200);text-shadow:0 0 16px rgba(243,172,47,.5)}
+#tela-indicadores .kgrid b{font-size:12px;font-weight:600;color:var(--bone);line-height:1.3}
+#tela-indicadores .kgrid small{font-size:11px;color:var(--ink-300);line-height:1.35}
+#tela-indicadores .fmt{display:flex;flex-direction:column;gap:7px}
+#tela-indicadores .fmt div:first-child{display:flex;justify-content:space-between;font-size:13px}
+#tela-indicadores .fmt .barra{height:6px;position:relative}
+#tela-indicadores .fmt .barra s{position:absolute;inset:0 auto 0 0;background:rgba(247,228,206,.14);border-radius:999px}
+#tela-indicadores .fmt .barra i{position:relative}
+#tela-indicadores .alerta-cli{padding:5px 12px;border-radius:999px;font-size:12px;border:1px solid rgba(240,165,148,.35);color:var(--bone);background:rgba(240,165,148,.08)}
+#tela-indicadores .tab-in{display:grid;grid-template-columns:minmax(200px,2fr) repeat(5,minmax(70px,.7fr)) minmax(150px,1.1fr);align-items:center}
+#tela-indicadores .tab-in.mes{grid-template-columns:minmax(200px,2fr) repeat(4,minmax(70px,.7fr)) minmax(150px,1.1fr)}
+#tela-indicadores .tab-in > *{padding:11px 8px;border-top:1px solid rgba(247,228,206,.06);font-size:13px;min-width:0}
+#tela-indicadores .tab-in .th{border-top:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-indicadores .tab-in .n{text-align:center;font-variant-numeric:tabular-nums}
+#tela-indicadores .tab-in .row{display:contents;cursor:pointer}
+#tela-indicadores .tab-in .row:hover > *{background:rgba(243,172,47,.06)}
+#tela-indicadores .tab-in .row.aberto > *{background:rgba(243,172,47,.09)}
+#tela-indicadores .cli{display:flex;align-items:center;gap:10px;font-weight:600}
+#tela-indicadores .cli svg{flex:none;margin-left:auto;color:var(--ink-300);transition:transform .2s}
+#tela-indicadores .row.aberto .cli svg{transform:rotate(90deg);color:var(--gold-300)}
+#tela-indicadores .ini{width:28px;height:28px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--gold-300);background:rgba(243,172,47,.12);border:1px solid rgba(243,172,47,.35)}
+#tela-indicadores .sit{justify-self:start;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:600;border:1px solid}
+#tela-indicadores .det{grid-column:1/-1;padding:18px 20px 22px;background:rgba(243,172,47,.05);border-top:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+#tela-indicadores .det h4{margin:0 0 8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-indicadores .det .big{display:flex;flex-direction:column;gap:4px}
+#tela-indicadores .det .big .num{font-size:28px}
+#tela-indicadores .det .big span:last-child{font-size:11.5px;color:var(--ink-300)}
+#tela-indicadores .det .lst{grid-column:1/-1;display:flex;flex-direction:column}
+#tela-indicadores .det .lst a,#tela-indicadores .det .lst div{display:grid;grid-template-columns:52px minmax(0,1fr) 90px 100px;gap:10px;padding:7px 0;font-size:12.5px;color:inherit;border-top:1px solid rgba(247,228,206,.05)}
+#tela-indicadores .det .tags{display:flex;flex-wrap:wrap;gap:6px}
+#tela-indicadores .det .tags span{padding:4px 10px;border-radius:999px;font-size:11.5px;border:1px solid rgba(247,228,206,.14)}
+@media (max-width:1100px){#tela-indicadores .kgrid{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-indicadores .det{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -403,11 +442,48 @@ main{align-items:stretch}
 <p class="mut" style="margin:4px 0 0;font-size:12px">A rotina (dias de cada cliente) e o "feito" continuam sendo marcados no interno. Esta prévia só mostra.</p>
 </section>
 </main>
+<main id="tela-indicadores" hidden>
+<section class="card l2" style="padding-bottom:22px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" style="font-size:14px">Clientes, postagens e edições da casa</span>
+<h1 class="num" style="margin:0;font-size:40px">Indicadores</h1>
+</div>
+<div class="nav-sem">
+<span class="chips" id="inModo"><button type="button" class="chip on" data-m="Semana">Semana</button><button type="button" class="chip" data-m="Mês">Mês</button></span>
+<button type="button" class="seta" id="inAnt" aria-label="Anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+<span class="pill" id="inRotulo" style="min-width:132px;justify-content:center">—</span>
+<button type="button" class="seta" id="inProx" aria-label="Próximo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+<button type="button" class="chip" id="inAtual">Atual</button>
+</div>
+</div>
+<div class="kgrid" id="inKpis"></div>
+</section>
+
+<section class="card estica">
+<div class="tit" id="inFmtTit">Por formato<small>postadas / previstas</small></div>
+<div id="inFmt" style="display:flex;flex-direction:column;gap:14px"></div>
+<div style="margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;border-top:1px solid rgba(247,228,206,.08)"><span style="font-size:13px;color:var(--ink-200)">Total do mês</span><span class="num" id="inFmtTot" style="font-size:24px">—</span></div>
+</section>
+
+<section class="card l3" id="inAlerta" style="border-color:rgba(240,165,148,.35);box-shadow:0 0 30px -8px rgba(194,69,44,.35),inset 0 1px 0 rgba(247,228,206,.07)">
+<div class="tit" style="color:var(--bad)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></svg><span id="inAlertaTxt"></span></div>
+<div class="chips" id="inAlertaL"></div>
+</section>
+
+<section class="card l3 longo">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<span class="tit" id="inTabTit" style="margin-right:auto">Postagens por cliente</span>
+<div class="chips" id="inChips"></div>
+</div>
+<div class="tab-in" id="inTab"></div>
+</section>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
 <h1 class="num" id="breveTit" style="margin:0;font-size:40px">—</h1>
-<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral, Semana de postagem e Stories (prontas) → Indicadores → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
+<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral, Semana de postagem, Stories e Indicadores (prontas) → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
 <a class="botao" href="#painel" style="display:inline-flex;align-items:center">Voltar ao painel</a>
 </section>
 </main>
@@ -454,6 +530,7 @@ main{align-items:stretch}
       if (window.pintaVisao) window.pintaVisao(banco);
       if (window.pintaSemana) window.pintaSemana(banco);
       if (window.pintaStories) window.pintaStories(banco);
+      if (window.pintaIndicadores) window.pintaIndicadores(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -823,19 +900,116 @@ main{align-items:stretch}
 </script>
 
 <script>
+/* Indicadores (prévia, só leitura) — mesmas contas da tela Indicadores do interno */
+(() => {
+  const { $, esc, p2, fmt, parse, somaDias, titulo, hoje0, MESES, COR, FLUXO } = Y;
+  const EDITADO = ['Pronto', 'Enviado', 'Aprovado', 'Não postado', 'Postado'];
+  const SORD = ['Sem conteúdo', 'Em produção', 'Editado, sem postar', 'Postado'];
+  const SCOR = { 'Postado': 'var(--ok)', 'Editado, sem postar': 'var(--gold-200)', 'Em produção': 'var(--gold-400)', 'Sem conteúdo': 'var(--bad)' };
+  const segundaDe = (d) => somaDias(d, -((d.getDay() + 6) % 7));
+  const Mes = (m) => MESES[m].charAt(0).toUpperCase() + MESES[m].slice(1);
+  const ini = (n) => titulo(n).split(' ').filter((w) => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  const seta = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+  const h0 = hoje0();
+  let modo = 'Semana', seg = segundaDe(h0), mes = new Date(h0.getFullYear(), h0.getMonth(), 1), filt = 'Todos', aberto = null, banco = null;
+
+  function pinta(b) {
+    if (b) banco = b; if (!banco) return;
+    const semDias = [...Array(7)].map((_, k) => fmt(somaDias(seg, k)));
+    const mesRef = modo === 'Semana' ? new Date(seg.getFullYear(), seg.getMonth(), 1) : mes;
+    const noMesRef = (i) => { const d = parse(i.data); return d && d.getMonth() === mesRef.getMonth() && d.getFullYear() === mesRef.getFullYear(); };
+    const noPer = (i) => modo === 'Semana' ? semDias.includes(i.data) : noMesRef(i);
+    const feed = (banco.items || []).filter((i) => !i.excluido && i.tipo !== 'Stories');
+    const per = feed.filter(noPer), doMes = feed.filter(noMesRef);
+    const feito = new Set((banco.storiesFeitos || []).filter((f) => f.ok).map((f) => f.id));
+    const stories = banco.stories || [];
+    const clientes = stories.map((s) => s.cliente).sort((a, b) => a.localeCompare(b));
+    const periodo = modo === 'Semana' ? 'na semana' : 'no mês';
+    const rows = clientes.map((c) => { const l = per.filter((i) => i.cliente === c), st = stories.find((s) => s.cliente === c);
+      return { c, l, total: l.length, editados: l.filter((i) => EDITADO.includes(i.status)).length, postados: l.filter((i) => i.status === 'Postado').length, producao: l.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status)).length,
+        prev: st && st.dias ? st.dias.length : 0, feitos: st && st.dias ? st.dias.filter((d) => feito.has(c + '|' + semDias[d])).length : 0, st }; });
+    const sit = (r) => r.postados ? 'Postado' : r.editados ? 'Editado, sem postar' : r.total ? 'Em produção' : 'Sem conteúdo';
+    const semPost = rows.filter((r) => !r.postados), semCont = rows.filter((r) => !r.total);
+    const postM = doMes.filter((i) => i.status === 'Postado').length;
+
+    $('inRotulo').textContent = modo === 'Semana' ? semDias[0].slice(0, 5) + ' – ' + semDias[6].slice(0, 5) : Mes(mes.getMonth()) + ' ' + mes.getFullYear();
+    $('inModo').querySelectorAll('[data-m]').forEach((x) => x.classList.toggle('on', x.dataset.m === modo));
+    const k = (v, t, n, d) => '<div' + (d ? ' class="d"' : '') + '><span class="num">' + v + '</span><b>' + t + '</b><small>' + n + '</small></div>';
+    $('inKpis').innerHTML = k(clientes.length, 'Clientes na casa', 'Carteira ativa', true) +
+      k(semPost.length, 'Sem postagem ' + periodo, semCont.length + ' sem nenhum conteúdo') +
+      k(rows.filter((r) => r.editados).length, 'Clientes editados ' + periodo, 'Pronto, enviado, aprovado ou postado') +
+      k(per.filter((i) => i.status === 'Postado').length, 'Postagens ' + periodo, 'de ' + per.length + ' previstas') +
+      k(postM, 'Total de ' + Mes(mesRef.getMonth()).toLowerCase(), 'de ' + doMes.length + ' previstas no mês');
+
+    // por formato (mês de referência)
+    const tipos = [...new Set(feed.map((i) => i.tipo))].filter(Boolean).sort();
+    const pt = tipos.map((t) => ({ t, n: doMes.filter((i) => i.tipo === t).length, p: doMes.filter((i) => i.tipo === t && i.status === 'Postado').length })).filter((x) => x.n);
+    const mx = Math.max(1, ...pt.map((x) => x.n));
+    $('inFmtTit').innerHTML = Mes(mesRef.getMonth()) + ' por formato<small>postadas / previstas</small>';
+    $('inFmt').innerHTML = pt.map((x) => '<div class="fmt"><div><span>' + esc(x.t) + '</span><span><b style="color:var(--gold-300)">' + x.p + '</b><span class="mut">/' + x.n + '</span></span></div><span class="barra"><s style="width:' + Math.round(x.n / mx * 100) + '%"></s><i style="width:' + Math.round(x.p / mx * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada cadastrado no mês.</p>';
+    $('inFmtTot').innerHTML = postM + '<span class="mut" style="font-size:15px">/' + doMes.length + '</span>';
+
+    // alerta
+    $('inAlerta').style.display = semPost.length ? '' : 'none';
+    $('inAlertaTxt').textContent = semPost.length + ' de ' + clientes.length + ' clientes ainda não foram postados ' + periodo + '.';
+    $('inAlertaL').innerHTML = semPost.map((r) => '<span class="alerta-cli">' + esc(titulo(r.c)) + '</span>').join('');
+
+    // tabela
+    $('inTabTit').textContent = 'Postagens por cliente ' + periodo;
+    $('inChips').innerHTML = ['Todos', ...SORD].map((s) => '<button type="button" class="chip' + (filt === s ? ' on' : '') + '" data-f="' + s + '">' + (s !== 'Todos' ? '<span style="width:7px;height:7px;border-radius:50%;background:' + SCOR[s] + '"></span>' : '') + s + (s !== 'Todos' ? ' <b>' + rows.filter((r) => sit(r) === s).length + '</b>' : '') + '</button>').join('');
+    const lista = rows.filter((r) => filt === 'Todos' || sit(r) === filt).sort((a, b) => SORD.indexOf(sit(a)) - SORD.indexOf(sit(b)) || a.c.localeCompare(b.c));
+    const sem = modo === 'Semana';
+    $('inTab').classList.toggle('mes', !sem);
+    $('inTab').innerHTML = ['Cliente', 'Previstas', 'Em produção', 'Editadas', 'Postadas', ...(sem ? ['Stories'] : []), 'Situação'].map((h, j) => '<span class="th' + (j && h !== 'Situação' ? ' n' : '') + '">' + h + '</span>').join('') +
+      lista.map((r) => { const s = sit(r), on = aberto === r.c;
+        let html = '<div class="row' + (on ? ' aberto' : '') + '" data-c="' + esc(r.c) + '" role="button" tabindex="0" aria-expanded="' + on + '"><span class="cli"><span class="ini">' + esc(ini(r.c)) + '</span><span class="elip">' + esc(titulo(r.c)) + '</span>' + seta + '</span>' +
+          '<span class="n">' + r.total + '</span><span class="n">' + r.producao + '</span><span class="n">' + r.editados + '</span><span class="n" style="color:var(--gold-300);font-weight:600">' + r.postados + '</span>' +
+          (sem ? '<span class="n">' + (r.prev ? r.feitos + '/' + r.prev : '<span class="mut">—</span>') + '</span>' : '') +
+          '<span><span class="sit" style="color:' + SCOR[s] + ';border-color:' + SCOR[s] + ';background:rgba(18,18,18,.4)">' + s + '</span></span></div>';
+        if (on) html += det(r, doMes.filter((i) => i.cliente === r.c), periodo, sem);
+        return html; }).join('');
+  }
+
+  function det(r, lm, periodo, sem) {
+    const tipos = [...new Set(r.l.map((i) => i.tipo))].map((t) => ({ t, n: r.l.filter((i) => i.tipo === t).length, p: r.l.filter((i) => i.tipo === t && i.status === 'Postado').length }));
+    const ord = r.l.slice().sort((a, b) => (parse(a.data) || 0) - (parse(b.data) || 0));
+    const big = (v, l) => '<div class="big"><span class="num">' + v + '</span><span>' + l + '</span></div>';
+    return '<div class="det">' + big(r.postados, 'Postadas ' + periodo) + big(r.total, 'Previstas ' + periodo) +
+      (sem ? big(lm.filter((i) => i.status === 'Postado').length, 'Postadas no mês') : big(lm.filter((i) => EDITADO.includes(i.status)).length, 'Editadas no mês')) +
+      big(r.prev ? (sem ? r.feitos + '/' : '') + r.prev : '—', 'Stories ' + (sem ? 'na semana' : 'por semana')) +
+      '<div style="grid-column:span 2"><h4>Formatos · postadas/previstas</h4><div class="tags">' + (tipos.map((x) => '<span>' + esc(x.t) + ' <b style="color:var(--gold-300)">' + x.p + '/' + x.n + '</b></span>').join('') || '<span class="mut" style="border:0;padding:0">Nada cadastrado ' + periodo + '.</span>') + '</div></div>' +
+      '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return n ? '<span style="color:' + COR[s] + '">' + n + ' ' + s + '</span>' : ''; }).join('') + '</div></div>' +
+      (r.st && r.st.fixo ? '<div style="grid-column:1/-1;font-size:12.5px"><b>Stories fixos:</b> ' + esc(r.st.fixo) + '</div>' : '') +
+      (ord.length ? '<div class="lst"><h4>Conteúdos ' + periodo + '</h4>' + ord.map((i) => { const t = i.trello ? 'a' : 'div';
+        return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener"' : '') + '><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
+  }
+
+  $('inModo').onclick = (e) => { const b = e.target.closest('[data-m]'); if (b) { modo = b.dataset.m; if (modo === 'Mês') mes = new Date(seg.getFullYear(), seg.getMonth(), 1); pinta(); } };
+  const anda = (n) => { if (modo === 'Semana') seg = somaDias(seg, 7 * n); else mes = new Date(mes.getFullYear(), mes.getMonth() + n, 1); pinta(); };
+  $('inAnt').onclick = () => anda(-1); $('inProx').onclick = () => anda(1);
+  $('inAtual').onclick = () => { seg = segundaDe(h0); mes = new Date(h0.getFullYear(), h0.getMonth(), 1); pinta(); };
+  $('inChips').onclick = (e) => { const b = e.target.closest('[data-f]'); if (b) { filt = b.dataset.f; pinta(); } };
+  const abre = (e) => { const r = e.target.closest('.row'); if (!r || e.target.closest('a')) return; if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); aberto = aberto === r.dataset.c ? null : r.dataset.c; pinta(); };
+  $('inTab').onclick = abre; $('inTab').onkeydown = abre;
+  window.pintaIndicadores = pinta;
+})();
+</script>
+
+<script>
 /* telas da prévia: tudo num endereço só, o trilho troca a tela */
 (() => {
-  const NOMES = { indicadores: 'Indicadores', cadastrar: 'Cadastrar conteúdo' };
+  const NOMES = { cadastrar: 'Cadastrar conteúdo' };
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
     document.getElementById('tela-stories').hidden = t !== 'stories';
+    document.getElementById('tela-indicadores').hidden = t !== 'indicadores';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
