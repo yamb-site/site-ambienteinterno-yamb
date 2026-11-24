@@ -51,10 +51,10 @@ FAIXA = """<div class="yamb-teste" role="status"><span><b>Modo teste</b> · dado
 
 def gera(ORIGEM, DESTINO):
     s = open(ORIGEM, encoding="utf-8").read()
-    corte = list(re.finditer(r'</head>(\s*)<body([^>]*)>', s))
-    if not corte:
+    # o fim real do <head> é o que vem antes do link "pular" e do #root (há outros dentro de scripts)
+    c = re.search(r'</head>(\s*)<body([^>]*)>(\s*)<a class="yamb-pular"', s)
+    if not c:
         sys.exit("Não achei o fim do <head> do interno.")
-    c = corte[-1]
     s = s[:c.start()] + SHIM + CSS + s[c.start():]
     # avisos obrigatórios fora
     s, n = re.subn(r'<script>/\* Avisos de postagens[\s\S]*?</script>', '', s, count=1)
