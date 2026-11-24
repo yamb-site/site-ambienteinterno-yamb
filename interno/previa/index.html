@@ -288,6 +288,38 @@ main{align-items:stretch}
 #tela-aprovacoes .kgrid-ap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 #tela-aprovacoes .vazio{padding:26px 0;text-align:center;font-size:13px;color:var(--ink-300)}
 @media (max-width:1100px){#tela-paineis .kanban{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-paineis .k5{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-aprovacoes .env{grid-template-columns:minmax(0,1fr)}}
+#tela-cadastrar [hidden]{display:none!important}
+#tela-cadastrar .form-cad{gap:20px;padding:30px 32px}
+#tela-cadastrar .g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#tela-cadastrar .fld{display:flex;flex-direction:column;gap:8px;min-width:0}
+#tela-cadastrar .fld > span:first-child{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-cadastrar .fld small{font-size:11.5px;color:var(--ink-300);line-height:1.4}
+#tela-cadastrar .campo{height:48px;border-radius:14px;transition:border-color .2s,box-shadow .2s}
+#tela-cadastrar .campo:focus-within{border-color:rgba(243,172,47,.6);box-shadow:0 0 16px rgba(243,172,47,.2)}
+#tela-cadastrar .campo input[type=date]{color-scheme:dark}
+#tela-cadastrar .campo.erro{border-color:rgba(240,165,148,.6)}
+#tela-cadastrar .tipos{display:flex;gap:8px;flex-wrap:wrap}
+#tela-cadastrar .tipo{height:42px;padding:0 18px;border-radius:999px;border:1px solid rgba(247,228,206,.14);background:rgba(18,18,18,.5);color:var(--ink-200);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+#tela-cadastrar .tipo:hover{border-color:rgba(243,172,47,.5)}
+#tela-cadastrar .tipo.on{background:#E09A24;border-color:#E09A24;color:#121212;box-shadow:0 0 18px rgba(243,172,47,.4)}
+#tela-cadastrar .capa-box{display:flex;flex-direction:column;gap:14px;padding:16px 18px;border-radius:16px;border:1px solid rgba(243,172,47,.25);background:rgba(243,172,47,.05)}
+#tela-cadastrar .chk-l{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer}
+#tela-cadastrar .chk-l input{width:18px;height:18px;accent-color:#E09A24}
+#tela-cadastrar .resp{display:flex;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:16px;background:rgba(18,18,18,.5);border:1px solid rgba(247,228,206,.08);font-size:12.5px;color:var(--ink-200);align-items:center}
+#tela-cadastrar .resp b{color:var(--bone);font-weight:600}
+#tela-cadastrar .resp img{width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;vertical-align:middle;margin-right:6px}
+#tela-cadastrar .resp span{display:inline-flex;align-items:center}
+#tela-cadastrar .dup{padding:12px 16px;border-radius:14px;border:1px solid rgba(240,165,148,.4);background:rgba(240,165,148,.08);font-size:12.5px;line-height:1.5}
+#tela-cadastrar .toast{display:flex;gap:12px;align-items:flex-start;padding:14px 18px;border-radius:16px;border:1px solid rgba(158,214,176,.4);background:rgba(158,214,176,.08);font-size:13px;line-height:1.5}
+#tela-cadastrar .toast b{color:var(--ok)}
+#tela-cadastrar .pv{display:flex;flex-direction:column;gap:5px;padding:13px 14px;border-radius:16px;border:1px solid rgba(243,172,47,.35);background:rgba(28,28,28,.8);box-shadow:0 0 24px rgba(243,172,47,.15)}
+#tela-cadastrar .pv .h{display:flex;justify-content:space-between;font-size:11.5px;font-weight:600;color:var(--gold-400)}
+#tela-cadastrar .pv .c{font-size:13px;font-weight:600}
+#tela-cadastrar .pv .t{font-size:12.5px;color:var(--ink-200);line-height:1.4;word-break:break-word}
+#tela-cadastrar .pv .s{font-size:11px;color:var(--ink-300)}
+#tela-cadastrar .ult{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(247,228,206,.06);font-size:12.5px}
+#tela-cadastrar .ult:first-child{border-top:0}
+@media (max-width:1100px){#tela-cadastrar .g2{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -622,6 +654,50 @@ main{align-items:stretch}
 <div class="kgrid-ap" id="apOk"></div>
 </section>
 </main>
+<main id="tela-cadastrar" hidden>
+<section class="card l2 longo form-cad">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" style="font-size:14px">Cria o item de acompanhamento · orientações, arquivos e prazos continuam no Trello</span>
+<h1 class="num" style="margin:0;font-size:40px">Cadastrar conteúdo</h1>
+</div>
+<div class="g2">
+<label class="fld"><span>Cliente</span><span class="campo"><select id="cCli"></select></span></label>
+<label class="fld"><span>Data prevista para postagem</span><span class="campo"><input id="cData" type="date"></span><small id="cDataH">Segunda a domingo</small></label>
+</div>
+<div class="fld"><span>Tipo de conteúdo</span><div class="tipos" id="cTipos" role="radiogroup" aria-label="Tipo de conteúdo"></div></div>
+<label class="fld"><span>Conteúdo</span><span class="campo"><input id="cTit" type="text" placeholder="Ex.: Coleção primavera — 5 cards" autocomplete="off"></span></label>
+<div class="g2">
+<label class="fld"><span id="cProdRot">Quem vai fazer o design</span><span class="campo"><select id="cProd"></select></span><small>A demanda aparece só no painel de quem for indicado.</small></label>
+<label class="fld"><span>Etapa inicial</span><span class="campo" style="opacity:.6"><input value="Pendente" disabled></span><small>Depois qualquer pessoa move entre as etapas.</small></label>
+</div>
+<div class="capa-box" id="cCapaBox" hidden>
+<label class="chk-l"><input type="checkbox" id="cCapa" checked> Precisa de capa — entra na lista de capas do design</label>
+<label class="fld" id="cCapaQuem"><span>Quem faz a capa</span><span class="campo"><select id="cCapaD"></select></span><small>A capa aparece só em Capas de Reels de quem for indicado.</small></label>
+</div>
+<label class="fld"><span>Link da demanda no Trello</span><span class="campo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><input id="cTrello" type="url" placeholder="https://trello.com/c/…"></span><small id="cTrelloH">Obrigatório na operação real — é o caminho para a demanda completa.</small></label>
+<div class="resp" id="cResp"></div>
+<div id="cDup"></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<button type="button" class="botao" id="cEnviar" disabled style="height:50px;padding:0 26px;font-size:15px">Cadastrar e notificar →</button>
+<button type="button" class="botao sec" id="cLimpar" style="height:50px">Limpar</button>
+<span class="mut" style="font-size:12px">Na prévia nada é salvo.</span>
+</div>
+<div id="cToast"></div>
+</section>
+
+<section class="card estica" style="gap:18px">
+<div class="tit">Como vai aparecer<small>no quadro da semana</small></div>
+<div id="cPrev"></div>
+<div style="padding-top:14px;border-top:1px solid rgba(247,228,206,.08);display:flex;flex-direction:column;gap:8px">
+<span class="tit" style="font-size:13px">Quem cadastra</span>
+<p style="margin:0;font-size:12.5px;line-height:1.6;color:var(--ink-200)">Qualquer pessoa da equipe. O material entra em Pendente e anda pelas etapas: Pendente → Produção → Pronto → Enviado → Aprovado → Postado. Se a avaliação pedir ajuste, passa por Ajustar e volta para Enviado.</p>
+</div>
+<div style="padding-top:14px;border-top:1px solid rgba(247,228,206,.08);display:flex;flex-direction:column;gap:4px">
+<span class="tit" style="font-size:13px">Últimos cadastrados</span>
+<div id="cUlt"></div>
+</div>
+</section>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
@@ -676,6 +752,7 @@ main{align-items:stretch}
       if (window.pintaIndicadores) window.pintaIndicadores(banco);
       if (window.pintaPaineis) window.pintaPaineis(banco);
       if (window.pintaAprov) window.pintaAprov(banco);
+      if (window.pintaCadastro) window.pintaCadastro(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -1353,11 +1430,78 @@ main{align-items:stretch}
 </script>
 
 <script>
+/* Cadastrar conteúdo (prévia: o formulário funciona, mas nada é gravado) */
+(() => {
+  const { $, esc, fmt, parse, titulo, EQUIPE, COR } = Y;
+  const TIPOS = ['Vídeo', 'Reels', 'Foto', 'Carrossel', 'Arte', 'Stories'];
+  const DIAS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'], HOR = ['12h', '19h', '12h', '19h', '12h', '11h', '17h'];
+  const PAINEIS = { design: ['marcus', 'gabriel'], video: ['camille', 'vitoria', 'gabriel', 'yasmim'] };
+  const NOMES = { gabriel: 'Gabriel Santos', marcus: 'Marcus Fontes', camille: 'Camille Danylo', vitoria: 'Vitória Almeida', yasmim: 'Yasmim Bárbara', brisa: 'Brisa França' };
+  const produtorDe = (t) => (t === 'Vídeo' || t === 'Reels') ? 'video' : 'design';
+  const f = { tipo: 'Carrossel', capa: true };
+  let banco = null, montado = false;
+  const dataBR = () => { const v = $('cData').value; if (!v) return ''; const [y, m, d] = v.split('-'); return d + '/' + m + '/' + y; };
+  const idx = (s) => { const d = parse(s); return d ? (d.getDay() + 6) % 7 : null; };
+
+  function monta() {
+    const cl = (banco.stories || []).map((s) => s.cliente).sort((a, b) => a.localeCompare(b));
+    $('cCli').innerHTML = cl.map((c) => '<option value="' + esc(c) + '">' + esc(titulo(c)) + '</option>').join('');
+    $('cCapaD').innerHTML = PAINEIS.design.map((k) => '<option value="' + k + '">' + NOMES[k] + '</option>').join('');
+    montado = true; atualiza();
+  }
+  function atualiza() {
+    if (!banco || !montado) return;
+    const r = produtorDe(f.tipo);
+    $('cTipos').innerHTML = TIPOS.map((t) => '<button type="button" role="radio" aria-checked="' + (t === f.tipo) + '" class="tipo' + (t === f.tipo ? ' on' : '') + '" data-t="' + t + '">' + t + '</button>').join('');
+    const prodAtual = $('cProd').value;
+    $('cProdRot').textContent = r === 'video' ? 'Quem vai editar' : 'Quem vai fazer o design';
+    $('cProd').innerHTML = PAINEIS[r].map((k) => '<option value="' + k + '">' + NOMES[k] + '</option>').join('');
+    if (PAINEIS[r].includes(prodAtual)) $('cProd').value = prodAtual;
+    $('cCapaBox').hidden = f.tipo !== 'Reels';
+    $('cCapaQuem').hidden = !$('cCapa').checked;
+    const ds = dataBR(), k = idx(ds);
+    $('cDataH').textContent = k != null ? DIAS[k] + ' · horário padrão ' + HOR[k] : 'Segunda a domingo';
+    const p = $('cProd').value, tit = $('cTit').value.trim(), tre = $('cTrello').value.trim();
+    const trOk = !tre || /^https:\/\/trello\.com\//.test(tre);
+    $('cTrello').closest('.campo').classList.toggle('erro', !trOk);
+    $('cTrelloH').textContent = trOk ? 'Obrigatório na operação real — é o caminho para a demanda completa.' : 'O link precisa começar com https://trello.com/';
+    $('cTrelloH').style.color = trOk ? '' : 'var(--bad)';
+    $('cResp').innerHTML = '<span>Produção:&nbsp;<img src="/assets/team/' + EQUIPE[p][1] + '.png" alt=""><b>' + NOMES[p] + '</b></span><span>Postagem:&nbsp;<img src="/assets/team/' + EQUIPE.brisa[1] + '.png" alt=""><b>Brisa França</b></span>' +
+      (f.tipo === 'Reels' && $('cCapa').checked ? '<span>Capa:&nbsp;<b>' + NOMES[$('cCapaD').value] + '</b></span>' : '') + '<span class="mut">Plataforma: Instagram · Cadastrado por ' + esc((EQUIPE[($('euSel') || {}).value] || ['—'])[0]) + '</span>';
+    const valido = $('cCli').value && parse(ds) && tit && trOk;
+    $('cEnviar').disabled = !valido;
+    // repetido?
+    const rep = (banco.items || []).filter((i) => !i.excluido && i.cliente === $('cCli').value && i.data === ds && tit && String(i.titulo || '').trim().toLowerCase() === tit.toLowerCase());
+    $('cDup').innerHTML = rep.length ? '<div class="dup">Já existe <b>' + rep.length + '</b> conteúdo com esse título para ' + esc(titulo($('cCli').value)) + ' nessa data (' + esc(rep[0].status) + '). Confira antes de cadastrar de novo.</div>' : '';
+    // prévia do cartão
+    $('cPrev').innerHTML = '<div class="pv"><span class="h">' + (k != null ? DIAS[k] + ' · ' + ds.slice(0, 5) + ' · ' + HOR[k] : 'Data a definir') + '<span style="width:8px;height:8px;border-radius:50%;background:var(--gold-400);box-shadow:0 0 8px var(--gold-400)"></span></span>' +
+      '<span class="c">' + esc(titulo($('cCli').value || '')) + '</span><span class="t">' + (tit ? esc(tit) : '<span class="mut">Título do conteúdo</span>') + '</span><span class="s">' + esc(f.tipo) + ' · <b style="color:' + COR.Pendente + '">Pendente</b> · ' + NOMES[p] + (f.tipo === 'Reels' && $('cCapa').checked ? ' · capa pendente' : '') + '</span></div>';
+  }
+  function ultimos() {
+    const l = (banco.items || []).filter((i) => !i.excluido && /^c\d+$/.test(i.id)).sort((a, b) => +b.id.slice(1) - +a.id.slice(1)).slice(0, 6);
+    $('cUlt').innerHTML = l.map((i) => { const ts = new Date(+i.id.slice(1));
+      return '<div class="ult"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip" style="font-weight:600">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + ' · ' + esc(i.titulo || '') + '</span></div><span class="mut" style="font-size:11px;flex:none">' + String(ts.getDate()).padStart(2, '0') + '/' + String(ts.getMonth() + 1).padStart(2, '0') + '</span><span style="font-size:11.5px;font-weight:600;flex:none;color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></div>'; }).join('') || '<p class="mut" style="margin:0;font-size:12.5px">—</p>';
+  }
+  function pinta(b) { if (b) banco = b; if (!banco) return; if (!montado) monta(); else atualiza(); ultimos(); }
+
+  $('cTipos').onclick = (e) => { const x = e.target.closest('[data-t]'); if (x) { f.tipo = x.dataset.t; atualiza(); } };
+  ['cCli', 'cData', 'cTit', 'cProd', 'cCapa', 'cCapaD', 'cTrello'].forEach((id) => { $(id).addEventListener('input', atualiza); $(id).addEventListener('change', atualiza); });
+  $('cEnviar').onclick = () => {
+    const p = $('cProd').value;
+    $('cToast').innerHTML = '<div class="toast"><span style="font-size:18px;color:var(--ok)">✓</span><div><b>Tudo certo para cadastrar.</b> No interno, o conteúdo de ' + esc(titulo($('cCli').value)) + ' entraria em Pendente para ' + dataBR() + ' e ' + NOMES[p] + ' seria notificado.<br><span class="mut">Na prévia nada é salvo — a planilha não foi alterada.</span></div></div>';
+    $('cTit').value = ''; $('cData').value = ''; $('cTrello').value = ''; atualiza();
+  };
+  $('cLimpar').onclick = () => { $('cTit').value = ''; $('cData').value = ''; $('cTrello').value = ''; $('cCapa').checked = true; f.tipo = 'Carrossel'; $('cCli').selectedIndex = 0; $('cToast').innerHTML = ''; atualiza(); };
+  window.pintaCadastro = pinta;
+})();
+</script>
+
+<script>
 /* telas da prévia: tudo num endereço só, o trilho troca a tela */
 (() => {
-  const NOMES = { cadastrar: 'Cadastrar conteúdo' };
+  const NOMES = {};
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
@@ -1365,10 +1509,11 @@ main{align-items:stretch}
     document.getElementById('tela-indicadores').hidden = t !== 'indicadores';
     document.getElementById('tela-paineis').hidden = t !== 'paineis';
     document.getElementById('tela-aprovacoes').hidden = t !== 'aprovacoes';
+    document.getElementById('tela-cadastrar').hidden = t !== 'cadastrar';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
