@@ -89,6 +89,45 @@ main{align-items:stretch}
 #tela-visao .vazio{padding:34px 0;text-align:center;color:var(--ink-300);font-size:14px}
 @media (max-width:1100px){#tela-visao .filtros{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:760px){#tela-visao .filtros{grid-template-columns:minmax(0,1fr)}#tela-visao .st{width:auto}#tela-visao .hora{display:none}}
+#tela-semana .kpi{display:flex;flex-direction:column;gap:6px}
+#tela-semana .kpi .num{font-size:34px}
+#tela-semana .kpi span:last-child{font-size:12px;color:var(--ink-300)}
+#tela-semana .nav-sem{display:flex;align-items:center;gap:8px}
+#tela-semana .seta{width:38px;height:38px;border-radius:50%;border:1px solid rgba(247,228,206,.16);background:rgba(18,18,18,.6);color:var(--gold-300);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+#tela-semana .seta:hover{border-color:rgba(243,172,47,.55);box-shadow:0 0 14px rgba(243,172,47,.25)}
+#tela-semana .mini{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:end;height:74px;margin-top:6px}
+#tela-semana .mini div{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+#tela-semana .mini b{width:100%;max-width:46px;border-radius:10px 10px 4px 4px;background:linear-gradient(180deg,rgba(243,172,47,.55),rgba(132,87,33,.25));position:relative;overflow:hidden}
+#tela-semana .mini b i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#F5C86F,#E09A24);box-shadow:0 0 14px rgba(243,172,47,.6)}
+#tela-semana .mini span{font-size:11px;color:var(--ink-300)}
+#tela-semana .mini .on span{color:var(--gold-300);font-weight:600}
+#tela-semana .legenda{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-300);flex-wrap:wrap}
+#tela-semana .legenda i{width:7px;height:7px;border-radius:50%;margin-left:10px}
+#tela-semana .quadro{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:start;margin-top:6px}
+#tela-semana .col{display:flex;flex-direction:column;gap:8px;min-width:0}
+#tela-semana .cab{display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:16px;border:1px solid rgba(247,228,206,.10);background:rgba(18,18,18,.55)}
+#tela-semana .cab .d{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-300)}
+#tela-semana .cab .d b{color:var(--gold-400);letter-spacing:0}
+#tela-semana .cab .num{font-size:20px}
+#tela-semana .cab small{font-size:10.5px;color:var(--ink-300)}
+#tela-semana .cab.fds{background:rgba(132,87,33,.12)}
+#tela-semana .cab.hoje{border-color:rgba(243,172,47,.6);background:rgba(243,172,47,.12);box-shadow:0 0 24px rgba(243,172,47,.3)}
+#tela-semana .cab.hoje .d{color:var(--gold-300)}
+#tela-semana .cab.hoje .num{color:var(--gold-200);text-shadow:0 0 16px rgba(243,172,47,.6)}
+#tela-semana .post{display:flex;flex-direction:column;gap:4px;padding:10px 11px;border-radius:14px;border:1px solid rgba(247,228,206,.08);background:rgba(28,28,28,.7);color:inherit;transition:all .2s;min-width:0}
+#tela-semana a.post:hover{border-color:rgba(243,172,47,.5);box-shadow:0 0 16px rgba(243,172,47,.2);color:inherit}
+#tela-semana .post.feito{opacity:.55}
+#tela-semana .post .h{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;color:var(--gold-400)}
+#tela-semana .post .h i{width:7px;height:7px;border-radius:50%}
+#tela-semana .post .c{font-size:12px;font-weight:600;line-height:1.3}
+#tela-semana .post .t{font-size:11.5px;line-height:1.4;color:var(--ink-200);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+#tela-semana .post .s{font-size:10.5px;color:var(--ink-300)}
+#tela-semana .post .s b{font-weight:600}
+#tela-semana .vaz{padding:14px 8px;border-radius:14px;border:1px dashed rgba(247,228,206,.16);text-align:center;font-size:11px;color:var(--ink-300)}
+#tela-semana .risco{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:12.5px}
+#tela-semana .risco+.risco{border-top:1px solid rgba(247,228,206,.06)}
+#tela-semana .risco .dd{flex:none;width:44px;font-size:11px;color:var(--gold-400);font-weight:600}
+@media (max-width:1100px){#tela-semana .quadro{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -243,11 +282,50 @@ main{align-items:stretch}
 <button class="botao sec" id="mais" type="button" style="align-self:center;display:none">Mostrar mais</button>
 </section>
 </main>
+<main id="tela-semana" hidden>
+<section class="card l2" style="padding-bottom:20px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" style="font-size:14px">Segunda a domingo · Instagram</span>
+<h1 class="num" style="margin:0;font-size:40px">Semana de postagem</h1>
+</div>
+<div class="nav-sem">
+<button type="button" class="seta" id="semAnt" aria-label="Semana anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+<span class="pill" id="semRotulo" style="min-width:132px;justify-content:center">—</span>
+<button type="button" class="seta" id="semProx" aria-label="Próxima semana"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+<button type="button" class="chip" id="semAtual">Semana atual</button>
+</div>
+</div>
+<div class="kpis" style="display:flex;gap:34px;flex-wrap:wrap;margin-top:10px">
+<div class="kpi"><span class="num" id="sTotal">—</span><span>postagens</span></div>
+<div class="kpi"><span class="num" id="sPub" style="color:var(--gold-300);text-shadow:0 0 22px rgba(243,172,47,.4)">—</span><span>publicadas</span></div>
+<div class="kpi"><span class="num" id="sRisco">—</span><span>sem aprovação</span></div>
+<div class="kpi"><span class="num" id="sPct">—</span><span>da semana no ar</span></div>
+</div>
+<div class="mini" id="sMini" aria-hidden="true"></div>
+</section>
+
+<section class="card estica" id="sAlerta">
+<div class="tit">Sem aprovação<small>esta semana</small></div>
+<div style="display:flex;align-items:center;gap:14px"><span class="num" id="sRiscoN" style="font-size:46px">—</span><span style="font-size:13px;line-height:1.45;color:var(--ink-200)">postagens ainda<br>sem aprovação</span></div>
+<p class="mut" style="margin:0;font-size:12.5px;line-height:1.5">Nada vai ao ar sem aprovação registrada.</p>
+<div id="sRiscoL"></div>
+</section>
+
+<section class="card l3 longo">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<label class="campo" style="width:240px"><select id="sCliente" aria-label="Cliente"><option value="">Todos os clientes</option></select></label>
+<label class="campo" style="width:200px"><select id="sTipo" aria-label="Formato"><option value="">Todos os formatos</option></select></label>
+<span class="legenda"><i style="background:var(--ok)"></i>Aprovado ou publicado<i style="background:var(--gold-400)"></i>Em andamento<i style="background:var(--bad)"></i>Precisa de ajuste</span>
+</div>
+<div class="quadro" id="sQuadro"></div>
+</section>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
 <h1 class="num" id="breveTit" style="margin:0;font-size:40px">—</h1>
-<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral (pronta) → Semana de postagem → Stories → Indicadores → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
+<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral e Semana de postagem (prontas) → Stories → Indicadores → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
 <a class="botao" href="#painel" style="display:inline-flex;align-items:center">Voltar ao painel</a>
 </section>
 </main>
@@ -292,6 +370,7 @@ main{align-items:stretch}
       $('aviso').textContent = 'Dados ao vivo do interno · atualizado às ' + p2(new Date().getHours()) + ':' + p2(new Date().getMinutes()) + ' · só leitura';
       pinta();
       if (window.pintaVisao) window.pintaVisao(banco);
+      if (window.pintaSemana) window.pintaSemana(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -541,17 +620,82 @@ main{align-items:stretch}
 })();
 </script>
 <script>
+/* Semana de postagem (prévia, só leitura) */
+(() => {
+  const { $, esc, p2, fmt, parse, somaDias, titulo, hoje0, MESES, COR } = Y;
+  const NOMES = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+  const CURTOS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const HORARIOS = ['12h', '19h', '12h', '19h', '12h', '11h', '17h']; // mesmo padrão do interno
+  const segundaDe = (d) => somaDias(d, -((d.getDay() + 6) % 7));
+  let seg = segundaDe(hoje0()), banco = null;
+  const ok = (s) => ['Aprovado', 'Não postado', 'Postado'].includes(s);
+  const ponto = (s) => ok(s) ? 'var(--ok)' : s === 'Ajustar' ? 'var(--bad)' : 'var(--gold-400)';
+
+  function pinta(b) {
+    if (b) banco = b; if (!banco) return;
+    const itens = (banco.items || []).filter((i) => !i.excluido);
+    const opts = (el, vals, rot) => { const v = el.value; el.innerHTML = '<option value="">' + rot + '</option>' + vals.map((x) => '<option value="' + esc(x) + '">' + esc(el.id === 'sCliente' ? titulo(x) : x) + '</option>').join(''); el.value = vals.includes(v) ? v : ''; };
+    opts($('sCliente'), [...new Set(itens.map((i) => i.cliente))].filter(Boolean).sort(), 'Todos os clientes');
+    opts($('sTipo'), [...new Set(itens.map((i) => i.tipo))].filter(Boolean).sort(), 'Todos os formatos');
+    const cli = $('sCliente').value, tp = $('sTipo').value;
+    const base = itens.filter((i) => (!cli || i.cliente === cli) && (!tp || i.tipo === tp));
+    const dias = [...Array(7)].map((_, k) => somaDias(seg, k)), hs = fmt(hoje0());
+    const doDia = (d) => base.filter((i) => i.data === fmt(d)).sort((a, b) => String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
+    const semana = dias.flatMap(doDia);
+    const pub = semana.filter((i) => i.status === 'Postado').length;
+    const risco = semana.filter((i) => !ok(i.status));
+    const ini = dias[0], fim = dias[6];
+    $('semRotulo').textContent = p2(ini.getDate()) + '/' + p2(ini.getMonth() + 1) + ' – ' + p2(fim.getDate()) + '/' + p2(fim.getMonth() + 1);
+    $('semAtual').classList.toggle('on', +seg === +segundaDe(hoje0()));
+    $('sTotal').textContent = semana.length; $('sPub').textContent = pub; $('sRisco').textContent = risco.length;
+    $('sPct').textContent = (semana.length ? Math.round(pub / semana.length * 100) : 0) + '%';
+    $('sRisco').style.color = risco.length ? 'var(--bad)' : 'var(--ok)';
+
+    // mini barras: total do dia (claro) e publicados (dourado)
+    const tot = dias.map((d) => doDia(d).length), mx = Math.max(1, ...tot);
+    $('sMini').innerHTML = dias.map((d, k) => { const l = doDia(d), p = l.filter((i) => i.status === 'Postado').length;
+      return '<div' + (fmt(d) === hs ? ' class="on"' : '') + '><b style="height:' + Math.max(6, Math.round(l.length / mx * 56)) + 'px"><i style="height:' + (l.length ? Math.round(p / l.length * 100) : 0) + '%"></i></b><span>' + CURTOS[k] + ' ' + d.getDate() + '</span></div>'; }).join('');
+
+    // cartão de alerta
+    $('sRiscoN').textContent = risco.length; $('sRiscoN').style.color = risco.length ? 'var(--bad)' : 'var(--ok)';
+    $('sRiscoL').innerHTML = risco.slice().sort((a, b) => parse(a.data) - parse(b.data)).slice(0, 4).map((i) =>
+      '<div class="risco"><span class="dd">' + esc(String(i.data).slice(0, 5)) + '</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span class="elip">' + esc(titulo(i.cliente)) + '</span><span class="mut elip" style="font-size:11.5px">' + esc(i.titulo || i.tipo) + ' · <span style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</span></span></div></div>').join('') ||
+      '<p class="mut" style="margin:0;font-size:13px">Tudo desta semana já está aprovado.</p>';
+
+    // quadro da semana
+    $('sQuadro').innerHTML = dias.map((d, k) => {
+      const l = doDia(d), hoje = fmt(d) === hs;
+      return '<div class="col"><div class="cab' + (hoje ? ' hoje' : k >= 5 ? ' fds' : '') + '"><span class="d">' + (hoje ? 'Hoje' : NOMES[k]) + '<b>' + l.length + '</b></span><span class="num">' + p2(d.getDate()) + ' ' + MESES[d.getMonth()].slice(0, 3) + '</span><small>Padrão ' + HORARIOS[k] + '</small></div>' +
+        (l.map((i) => {
+          const tag = i.trello ? 'a' : 'div', href = i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '';
+          return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
+            '<span class="c elip">' + esc(titulo(i.cliente)) + '</span>' + (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
+            '<span class="s">' + esc(i.tipo) + ' · <b style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</b></span></' + tag + '>';
+        }).join('') || '<div class="vaz">Sem postagem</div>') + '</div>';
+    }).join('');
+  }
+
+  const anda = (n) => { seg = somaDias(seg, n); pinta(); };
+  $('semAnt').onclick = () => anda(-7); $('semProx').onclick = () => anda(7);
+  $('semAtual').onclick = () => { seg = segundaDe(hoje0()); pinta(); };
+  $('sCliente').onchange = () => pinta(); $('sTipo').onchange = () => pinta();
+  window.pintaSemana = pinta;
+})();
+</script>
+
+<script>
 /* telas da prévia: tudo num endereço só, o trilho troca a tela */
 (() => {
-  const NOMES = { semana: 'Semana de postagem', stories: 'Stories', indicadores: 'Indicadores', cadastrar: 'Cadastrar conteúdo' };
+  const NOMES = { stories: 'Stories', indicadores: 'Indicadores', cadastrar: 'Cadastrar conteúdo' };
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
+    document.getElementById('tela-semana').hidden = t !== 'semana';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
