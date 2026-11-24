@@ -527,6 +527,7 @@ main{align-items:stretch}
 <span class="num" id="finValor" style="font-size:40px;color:var(--gold-200);text-shadow:0 0 22px rgba(243,172,47,.45)">—</span>
 <span class="mut" id="finConta" style="font-size:13px">—</span>
 <span class="pill" id="finStatus" style="align-self:flex-start">—</span>
+<span class="mut" id="finStatusTx" style="font-size:12.5px;line-height:1.5"></span>
 <p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e gerar o comprovante continuam no interno.</p>
 </section>
 </main>
@@ -1127,7 +1128,8 @@ main{align-items:stretch}
     $('finPagTit').textContent = 'Pagamento · ' + Mes(mes.getMonth());
     $('finValor').textContent = vids ? BRL(q * VAL) : '—';
     $('finConta').textContent = vids ? q + ' vídeo' + (q === 1 ? '' : 's') + ' × ' + BRL(VAL) : 'lendo a planilha…';
-    $('finStatus').innerHTML = pg ? '<span style="color:var(--ok)">✓ Pago</span>&nbsp;· por ' + esc(nome(pg.por)) + ' em ' + esc(pg.em) + ' · ' + pg.qtd + ' vídeos, ' + BRL(pg.valor || 0) : 'Em aberto';
+    $('finStatus').innerHTML = pg ? '<span style="color:var(--ok)">✓ Pago</span>' : 'Em aberto';
+    $('finStatusTx').textContent = pg ? 'Registrado por ' + nome(pg.por) + ' em ' + pg.em + ' · ' + pg.qtd + ' vídeos, ' + BRL(pg.valor || 0) + '.' : 'Ainda não foi marcado como pago.';
   }
 
   // ---------- controles ----------
