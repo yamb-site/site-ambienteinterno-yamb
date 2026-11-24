@@ -71059,7 +71059,10 @@ function Sidebar({
 function FlowRail({
   items
 }) {
-  const c = s => items.filter(i => i.status === s).length;
+  const _h = new Date(), hojeStr = String(_h.getDate()).padStart(2, '0') + '/' + String(_h.getMonth() + 1).padStart(2, '0') + '/' + _h.getFullYear();
+  const [, _tick] = React.useState(0);
+  React.useEffect(() => { const t = setInterval(() => _tick(x => x + 1), 60000); return () => clearInterval(t); }, []);
+  const c = s => s === '__HOJE' ? items.filter(i => i.status === 'Postado' && i.data === hojeStr && !i.excluido).length : items.filter(i => i.status === s).length;
   const aj = items.filter(i => i.status === 'Produção' && i.nota).length;
   return /*#__PURE__*/React.createElement("div", {
     "data-tb": "rail",
@@ -71077,7 +71080,7 @@ function FlowRail({
       display: 'flex',
       alignItems: 'flex-start'
     }
-  }, FLOW.map(([s, l], k) => {
+  }, [...FLOW, ['__HOJE', 'Postados do dia']].map(([s, l], k) => {
     const n = c(s);
     const lit = n > 0;
     return /*#__PURE__*/React.createElement(React.Fragment, {
@@ -71124,7 +71127,16 @@ function FlowRail({
         color: lit ? 'var(--gold-400)' : 'var(--ink-400)',
         whiteSpace: 'nowrap'
       }
-    }, l)));
+    }, l), s === '__HOJE' && React.createElement("span", {
+      style: {
+        fontSize: 10.5,
+        letterSpacing: '.12em',
+        fontWeight: 600,
+        marginTop: -3,
+        color: lit ? 'var(--bone)' : 'var(--ink-400)',
+        fontVariantNumeric: 'tabular-nums'
+      }
+    }, hojeStr.slice(0, 5))));
   })), aj > 0 && /*#__PURE__*/React.createElement("span", {
     style: {
       display: 'inline-flex',
@@ -81728,7 +81740,10 @@ function Sidebar({
 function FlowRail({
   items
 }) {
-  const c = s => items.filter(i => i.status === s).length;
+  const _h = new Date(), hojeStr = String(_h.getDate()).padStart(2, '0') + '/' + String(_h.getMonth() + 1).padStart(2, '0') + '/' + _h.getFullYear();
+  const [, _tick] = React.useState(0);
+  React.useEffect(() => { const t = setInterval(() => _tick(x => x + 1), 60000); return () => clearInterval(t); }, []);
+  const c = s => s === '__HOJE' ? items.filter(i => i.status === 'Postado' && i.data === hojeStr && !i.excluido).length : items.filter(i => i.status === s).length;
   return React.createElement("div", {
     "data-tb": "rail",
     style: {
@@ -81745,7 +81760,7 @@ function FlowRail({
       display: 'flex',
       alignItems: 'flex-start'
     }
-  }, FLOW.map(([s, l], k) => {
+  }, [...FLOW, ['__HOJE', 'Postados do dia']].map(([s, l], k) => {
     const n = c(s);
     const lit = n > 0;
     return React.createElement(React.Fragment, {
@@ -81792,7 +81807,16 @@ function FlowRail({
         color: lit ? 'var(--gold-400)' : 'var(--ink-400)',
         whiteSpace: 'nowrap'
       }
-    }, l)));
+    }, l), s === '__HOJE' && React.createElement("span", {
+      style: {
+        fontSize: 10.5,
+        letterSpacing: '.12em',
+        fontWeight: 600,
+        marginTop: -3,
+        color: lit ? 'var(--bone)' : 'var(--ink-400)',
+        fontVariantNumeric: 'tabular-nums'
+      }
+    }, hojeStr.slice(0, 5))));
   })));
 }
 function TopBar({
