@@ -238,6 +238,56 @@ main{align-items:stretch}
 #tela-indicadores .aviso-fin{padding:12px 16px;border-radius:14px;background:rgba(243,172,47,.08);border:1px solid rgba(243,172,47,.35);font-size:12.5px;line-height:1.5}
 #tela-indicadores .pag{gap:14px}
 @media (max-width:1100px){#tela-indicadores .kgrid{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-indicadores .det{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#tela-paineis [hidden],#tela-aprovacoes [hidden]{display:none!important}
+#tela-paineis .abas{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(18,18,18,.6);border:1px solid rgba(247,228,206,.10)}
+#tela-paineis .aba{height:36px;padding:0 18px;border-radius:999px;border:0;background:transparent;color:var(--ink-200);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+#tela-paineis .aba b{font-size:11px;padding:1px 7px;border-radius:999px;background:rgba(247,228,206,.1)}
+#tela-paineis .aba.on{background:#E09A24;color:#121212;box-shadow:0 0 18px rgba(243,172,47,.4)}
+#tela-paineis .aba.on b{background:rgba(18,18,18,.18)}
+#tela-paineis .quem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#tela-paineis .quem span{font-size:12px;color:var(--ink-300);margin-right:4px}
+#tela-paineis .pess{display:flex;align-items:center;gap:8px;height:40px;padding:0 14px 0 4px;border-radius:999px;border:1px solid rgba(247,228,206,.14);background:rgba(18,18,18,.5);color:var(--ink-200);font-size:12.5px;cursor:pointer;transition:all .2s}
+#tela-paineis .pess img{width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top}
+#tela-paineis .pess.on{border-color:rgba(243,172,47,.6);color:var(--gold-200);background:rgba(243,172,47,.12);box-shadow:0 0 18px rgba(243,172,47,.3)}
+#tela-paineis .k5,#tela-aprovacoes .k5{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+#tela-paineis .k5.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+#tela-paineis .k5 > div,#tela-aprovacoes .k5 > div{display:flex;flex-direction:column;gap:8px;padding:16px 18px;border-radius:18px;border:1px solid rgba(247,228,206,.08);background:rgba(18,18,18,.5)}
+#tela-paineis .k5 .ov,#tela-aprovacoes .k5 .ov{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-300);display:flex;align-items:center;gap:7px}
+#tela-paineis .k5 .ov i,#tela-aprovacoes .k5 .ov i{width:7px;height:7px;border-radius:50%}
+#tela-paineis .k5 .num,#tela-aprovacoes .k5 .num{font-size:32px}
+#tela-aprovacoes .k5 > div.d,#tela-paineis .k5 > div.d{background:rgba(243,172,47,.12);border-color:rgba(243,172,47,.5);box-shadow:0 0 22px rgba(243,172,47,.22)}
+#tela-aprovacoes .k5 .d .num,#tela-paineis .k5 .d .num{color:var(--gold-200);text-shadow:0 0 16px rgba(243,172,47,.5)}
+#tela-aprovacoes .k5 small{font-size:11.5px;color:var(--ink-300)}
+#tela-paineis .kanban{display:grid;grid-template-columns:repeat(var(--cols,6),minmax(0,1fr));gap:12px;align-items:start}
+#tela-paineis .kcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+#tela-paineis .kcab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border-radius:14px;border:1px solid rgba(247,228,206,.10);background:rgba(18,18,18,.55);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--ink-200)}
+#tela-paineis .kcab span{display:flex;align-items:center;gap:8px}
+#tela-paineis .kcab i{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor}
+#tela-paineis .kcab b{font-family:var(--disp);font-weight:800;font-size:15px;letter-spacing:0;color:var(--bone)}
+#tela-paineis .kcard,#tela-aprovacoes .kcard{display:flex;flex-direction:column;gap:5px;padding:11px 12px;border-radius:14px;border:1px solid rgba(247,228,206,.08);background:rgba(28,28,28,.7);color:inherit;transition:all .2s;min-width:0;border-left:3px solid var(--ac,rgba(247,228,206,.2))}
+#tela-paineis a.kcard:hover,#tela-aprovacoes a.kcard:hover{border-color:rgba(243,172,47,.5);border-left-color:var(--ac);box-shadow:0 0 16px rgba(243,172,47,.2);color:inherit}
+#tela-paineis .kcard .c,#tela-aprovacoes .kcard .c{font-size:12px;font-weight:600;display:flex;justify-content:space-between;gap:6px}
+#tela-paineis .kcard .c em,#tela-aprovacoes .kcard .c em{font-style:normal;font-weight:400;color:var(--gold-400);font-size:11px;flex:none}
+#tela-paineis .kcard .t,#tela-aprovacoes .kcard .t{font-size:11.5px;line-height:1.4;color:var(--ink-200);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+#tela-paineis .kcard .s,#tela-aprovacoes .kcard .s{font-size:10.5px;color:var(--ink-300);display:flex;gap:6px;flex-wrap:wrap}
+#tela-paineis .tag,#tela-aprovacoes .tag{padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;border:1px solid}
+#tela-paineis .kvaz{padding:14px 8px;border-radius:14px;border:1px dashed rgba(247,228,206,.14);text-align:center;font-size:11px;color:var(--ink-300)}
+#tela-paineis .kmais{font-size:11.5px;color:var(--ink-300);text-align:center;padding:4px}
+#tela-paineis #paEspera .linha{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+#tela-aprovacoes .env{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#tela-aprovacoes .envc{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:18px;border:1px solid rgba(247,228,206,.10);background:rgba(28,28,28,.7)}
+#tela-aprovacoes .envc .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+#tela-aprovacoes .envc .top div{display:flex;flex-direction:column;gap:3px;min-width:0}
+#tela-aprovacoes .envc .cl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-aprovacoes .envc .ti{font-size:14px;font-weight:600;line-height:1.35}
+#tela-aprovacoes .envc .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-300)}
+#tela-aprovacoes .envc .dias{padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:600}
+#tela-aprovacoes .aj{display:flex;flex-direction:column;gap:3px;padding:11px 0;border-top:1px solid rgba(247,228,206,.06);font-size:12.5px}
+#tela-aprovacoes .aj:first-child{border-top:0}
+#tela-aprovacoes .aj .m{font-size:12px;color:var(--bad)}
+#tela-aprovacoes .kgrid-ap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+#tela-aprovacoes .vazio{padding:26px 0;text-align:center;font-size:13px;color:var(--ink-300)}
+@media (max-width:1100px){#tela-paineis .kanban{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-paineis .k5{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-aprovacoes .env{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -246,7 +296,7 @@ main{align-items:stretch}
 <div class="app">
 <nav class="trilho" aria-label="Menu">
 <img class="flor" src="/assets/flower-gold-512.png" alt="YAMB">
-<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego</span></a>
+<a class="ico on" href="#painel" data-tela="painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg><span class="dica">Painel</span></a><a class="ico" href="#visao-geral" data-tela="visao-geral" aria-label="Visão geral"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span class="dica">Visão geral</span></a><a class="ico" href="#semana" data-tela="semana" aria-label="Semana de postagem"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg><span class="dica">Semana de postagem</span></a><a class="ico" href="#stories" data-tela="stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg><span class="dica">Stories</span></a><a class="ico" href="#indicadores" data-tela="indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="dica">Indicadores</span></a><a class="ico" href="#paineis" data-tela="paineis" aria-label="Meus painéis"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20l7-7-3-3-7 7zM16 10l-3-3M3 21l2-6 9-9 4 4-9 9z"/></svg><span class="dica">Meus painéis</span></a><a class="ico" href="#aprovacoes" data-tela="aprovacoes" aria-label="Aprovações"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l2.4 1.8 3-.2.9 2.9 2.5 1.7-1 2.8 1 2.8-2.5 1.7-.9 2.9-3-.2L12 21l-2.4-1.8-3 .2-.9-2.9L3.2 15l1-2.8-1-2.8 2.5-1.7.9-2.9 3 .2z"/></svg><span class="dica">Aprovações</span></a><a class="ico" href="#cadastrar" data-tela="cadastrar" aria-label="Cadastrar conteúdo"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="dica">Cadastrar conteúdo</span></a><a class="ico" href="/interno/trafego/" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span class="dica">Tráfego</span></a>
 <div class="eu">
 <img id="euFoto" src="/assets/team/gabriel-santos.png" alt="">
 <label><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ver como</span><select id="euSel" aria-label="Ver como"></select></label>
@@ -531,11 +581,52 @@ main{align-items:stretch}
 <p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e gerar o comprovante continuam no interno.</p>
 </section>
 </main>
+<main id="tela-paineis" hidden>
+<section class="card l3" style="gap:20px;padding:28px 30px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" id="paSub" style="font-size:14px">—</span>
+<h1 class="num" id="paTit" style="margin:0;font-size:40px">Meus painéis</h1>
+</div>
+<div class="quem" id="paQuem"></div>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<div class="abas" id="paAbas"></div>
+<div class="abas" id="paSub2"></div>
+</div>
+<div class="k5" id="paKpis"></div>
+</section>
+<section class="card l3 longo" id="paEspera" style="border-color:rgba(240,165,148,.35)"></section>
+<section class="card l3 longo"><div class="kanban" id="paQuadro"></div></section>
+</main>
+
+<main id="tela-aprovacoes" hidden>
+<section class="card l3" style="gap:20px;padding:28px 30px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" style="font-size:14px">Aprovar libera · pedir ajuste manda para Ajustar</span>
+<h1 class="num" style="margin:0;font-size:40px">Aprovações</h1>
+</div>
+<div class="k5" id="apKpis" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
+</section>
+<section class="card l2 longo">
+<div class="tit">Enviados para avaliação<small id="apEnvN"></small></div>
+<p class="mut" style="margin:0;font-size:12.5px">Aprovar e pedir ajuste continuam no interno. A prévia mostra o que está esperando.</p>
+<div class="env" id="apEnv"></div>
+</section>
+<section class="card longo">
+<div class="tit" style="color:var(--bad)">Em ajuste<small id="apAjN"></small></div>
+<div id="apAj"></div>
+</section>
+<section class="card l3 longo">
+<div class="tit">Aprovados recentemente<small>últimos 30 dias</small></div>
+<div class="kgrid-ap" id="apOk"></div>
+</section>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
 <h1 class="num" id="breveTit" style="margin:0;font-size:40px">—</h1>
-<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral, Semana de postagem, Stories e Indicadores (prontas) → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
+<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. Já estão prontas: Visão geral, Semana de postagem, Stories, Indicadores, Meus painéis e Aprovações. Falta: Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
 <a class="botao" href="#painel" style="display:inline-flex;align-items:center">Voltar ao painel</a>
 </section>
 </main>
@@ -583,6 +674,8 @@ main{align-items:stretch}
       if (window.pintaSemana) window.pintaSemana(banco);
       if (window.pintaStories) window.pintaStories(banco);
       if (window.pintaIndicadores) window.pintaIndicadores(banco);
+      if (window.pintaPaineis) window.pintaPaineis(banco);
+      if (window.pintaAprov) window.pintaAprov(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -1148,20 +1241,134 @@ main{align-items:stretch}
 </script>
 
 <script>
+/* Meus painéis e Aprovações (prévia, só leitura) — mesmas regras de "de quem é" do interno */
+(() => {
+  const { $, esc, fmt, parse, somaDias, titulo, hoje0, COR, EQUIPE, atraso, diasNaEtapa } = Y;
+  const PAINEIS = { design: ['gabriel', 'marcus'], video: ['vitoria', 'gabriel', 'yasmim', 'camille'], social: ['brisa'] };
+  const PADRAO = { design: 'marcus', video: 'camille', social: 'brisa' };
+  const CHECK = 10;
+  const produtorDe = (t) => (t === 'Vídeo' || t === 'Reels') ? 'video' : 'design';
+  const produtorPara = (tipo, id) => { const r = produtorDe(tipo); return PAINEIS[r].includes(id) ? id : PADRAO[r]; };
+  const precisaCapa = (i) => i.tipo === 'Reels' && ['Pendente', 'Produção', 'Pronto'].includes(i.status) && !(i.capa && i.capa.precisa === false);
+  const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
+  const capaPronta = (i) => !!(i.capa && i.capa.pronta);
+  const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0);
+  let banco = null, painel = 'design', sub = 'artes', quem = {};
+
+  const card = (i, extra = '') => {
+    const t = i.trello ? 'a' : 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
+    return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello"' : '') + ' class="kcard" style="--ac:' + ac + '">' +
+      '<span class="c"><span class="elip">' + esc(titulo(i.cliente)) + '</span><em>' + esc(String(i.data || '').slice(0, 5)) + '</em></span>' +
+      (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
+      '<span class="s"><span>' + esc(i.tipo) + '</span>' + (i.status && !['Pendente'].includes(i.status) ? '<span style="color:' + ac + '">· ' + esc(i.status) + '</span>' : '') +
+      (at ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">parado ' + at + 'd</span>' : '') +
+      (i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">falta ' + esc(i.semMaterial.falta || 'material') + '</span>' : '') +
+      (precisaCapa(i) && i.tipo === 'Reels' ? '<span class="tag" style="color:' + (capaPronta(i) ? 'var(--ok)' : 'var(--gold-300)') + ';border-color:currentColor">capa ' + (capaPronta(i) ? 'pronta' : 'pendente') + '</span>' : '') + extra + '</span></' + t + '>';
+  };
+  const coluna = (rot, cor, lista, lim = 12, extra) => '<div class="kcol"><div class="kcab"><span><i style="background:' + cor + ';color:' + cor + '"></i>' + rot + '</span><b>' + lista.length + '</b></div>' +
+    (lista.slice(0, lim).map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">Nada aqui</div>') +
+    (lista.length > lim ? '<div class="kmais">e mais ' + (lista.length - lim) + '</div>' : '') + '</div>';
+
+  function pintaPaineis(b) {
+    if (b) banco = b; if (!banco) return;
+    const itens = (banco.items || []).filter((i) => !i.excluido).sort(porData);
+    const eu = ($('euSel') && $('euSel').value) || 'gabriel';
+    if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
+    const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
+    $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
+    $('paQuem').innerHTML = '<span>Vendo como</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
+
+    const k = (ov, cor, v, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span></div>';
+    let cols = '', espera = [], kp = '';
+    if (painel === 'social') {
+      $('paTit').textContent = 'Meu painel · Social'; $('paSub').textContent = 'Acompanhamento, checklist de postagem e publicação no Instagram';
+      $('paSub2').innerHTML = '';
+      const bs = (s) => itens.filter((i) => i.status === s);
+      const dep = (r) => itens.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status) && produtorDe(i.tipo) === r);
+      const mesAtual = (i) => { const d = parse(i.data), h = hoje0(); return d && d.getMonth() === h.getMonth() && d.getFullYear() === h.getFullYear(); };
+      const post = bs('Postado').filter(mesAtual).reverse();
+      kp = k('Produção · design', 'var(--gold-400)', dep('design').length) + k('Produção · vídeo', 'var(--gold-400)', dep('video').length) + k('Prontos', 'var(--ok)', bs('Pronto').length) + k('Enviados', 'var(--gold-200)', bs('Enviado').length) + k('Aprovados', 'var(--ok)', bs('Aprovado').length, true) + k('Não postados', 'var(--bad)', bs('Não postado').length);
+      const chk = (i) => '<span class="tag" style="color:var(--gold-300);border-color:rgba(243,172,47,.4)">checklist ' + (i.checklist || []).length + '/' + CHECK + '</span>';
+      cols = coluna('Produção · design', 'var(--gold-400)', dep('design')) + coluna('Produção · vídeo', 'var(--gold-400)', dep('video')) + coluna('Prontos p/ enviar', 'var(--ok)', bs('Pronto')) +
+        coluna('Enviados', 'var(--gold-200)', bs('Enviado')) + coluna('Aprovados · liberados', 'var(--ok)', bs('Aprovado'), 12, chk) + coluna('Não postados', 'var(--bad)', bs('Não postado'), 12, chk) + coluna('Postados no mês', 'var(--ok)', post, 8);
+      $('paQuadro').style.setProperty('--cols', 7);
+    } else {
+      const isD = painel === 'design';
+      if (!isD) sub = 'artes';
+      $('paTit').textContent = 'Meu painel · ' + (isD ? 'Design' : 'Vídeo');
+      const mine = itens.filter((i) => produtorDe(i.tipo) === painel && produtorPara(i.tipo, i.produtor) === p);
+      const ativos = mine.filter((i) => !i.semMaterial), bk = (s) => ativos.filter((i) => i.status === s);
+      espera = mine.filter((i) => i.semMaterial && ['Pendente', 'Produção'].includes(i.status));
+      const capas = itens.filter((i) => precisaCapa(i) && capaDesigner(i) === p && i.status !== 'Postado');
+      const cF = capas.filter((i) => !capaPronta(i) && !i.semMaterial), cE = capas.filter((i) => !capaPronta(i) && i.semMaterial), cO = capas.filter(capaPronta);
+      $('paSub2').innerHTML = isD ? [['artes', 'Artes', ativos.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status)).length], ['capas', 'Capas de Reels', cF.length]].map(([kk, n, c]) => '<button type="button" class="aba' + (sub === kk ? ' on' : '') + '" data-s="' + kk + '">' + n + ' <b>' + c + '</b></button>').join('') : '';
+      if (isD && sub === 'capas') {
+        $('paSub').textContent = 'Capas dos Reels de ' + nome + ' — a edição segue com o vídeo';
+        kp = k('Capas a fazer', 'var(--gold-400)', cF.length, true) + k('Aguardando material', 'var(--bad)', cE.length) + k('Capas prontas', 'var(--ok)', cO.length);
+        cols = coluna('Capas a fazer', 'var(--gold-400)', cF, 20) + coluna('Aguardando material', 'var(--bad)', cE, 20) + coluna('Capas prontas', 'var(--ok)', cO, 20);
+        $('paQuadro').style.setProperty('--cols', 3); espera = [];
+      } else {
+        $('paSub').textContent = (isD ? 'Artes e peças estáticas' : 'Vídeos e Reels') + ' indicadas para ' + nome;
+        const ok = ativos.filter((i) => ['Aprovado', 'Não postado', 'Postado'].includes(i.status));
+        const okRec = ok.filter((i) => { const d = parse(i.data); return d && d >= somaDias(hoje0(), -14); }).reverse();
+        kp = k('Pendentes', 'var(--ink-300)', bk('Pendente').length) + k(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção').length, true) + k('Ajustar', 'var(--bad)', bk('Ajustar').length) + k('Prontos', 'var(--ok)', bk('Pronto').length) + k('Enviados', 'var(--gold-200)', bk('Enviado').length) + k('Aguardando material', 'var(--bad)', espera.length);
+        cols = coluna('Pendentes', 'var(--ink-300)', bk('Pendente')) + coluna(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção')) + coluna('Ajustar', 'var(--bad)', bk('Ajustar')) +
+          coluna('Prontos', 'var(--ok)', bk('Pronto')) + coluna('Enviados', 'var(--gold-200)', bk('Enviado')) + coluna('Aprovados e postados · 14 dias', 'var(--ok)', okRec, 8);
+        $('paQuadro').style.setProperty('--cols', 6);
+      }
+    }
+    $('paKpis').className = 'k5' + (painel !== 'social' && sub === 'capas' ? ' k3' : '');
+    $('paKpis').innerHTML = kp;
+    $('paEspera').hidden = !espera.length;
+    $('paEspera').innerHTML = espera.length ? '<div class="tit" style="color:var(--bad)">Aguardando material · ' + espera.length + '<small>fora de Pendentes até o material chegar</small></div><div class="linha">' + espera.map((i) => card(i)).join('') + '</div>' : '';
+    $('paQuadro').innerHTML = cols;
+  }
+
+  function pintaAprov(b) {
+    if (b) banco = b; if (!banco) return;
+    const itens = (banco.items || []).filter((i) => !i.excluido);
+    const env = itens.filter((i) => i.status === 'Enviado').sort(porData), aj = itens.filter((i) => i.status === 'Ajustar').sort(porData);
+    const h = hoje0(), ok = itens.filter((i) => ['Aprovado', 'Não postado', 'Postado'].includes(i.status) && i.aprovacao && parse(i.aprovacao.data));
+    const rec = ok.filter((i) => parse(i.aprovacao.data) >= somaDias(h, -30)).sort((a, b) => parse(b.aprovacao.data) - parse(a.aprovacao.data));
+    const semana = ok.filter((i) => parse(i.aprovacao.data) >= somaDias(h, -6)).length;
+    const esperando = env.filter((i) => atraso(i) > 0).length;
+    const k = (ov, cor, v, n, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span><small>' + n + '</small></div>';
+    $('apKpis').innerHTML = k('Esperando avaliação', 'var(--gold-200)', env.length, 'enviados', true) + k('Além do prazo', 'var(--bad)', esperando, 'enviados há 2 dias ou mais') + k('Em ajuste', 'var(--bad)', aj.length, 'voltaram para a produção') + k('Aprovados', 'var(--ok)', semana, 'nos últimos 7 dias');
+    $('apEnvN').textContent = env.length;
+    $('apEnv').innerHTML = env.map((i) => { const d = diasNaEtapa(i), at = atraso(i);
+      return '<div class="envc"><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
+        (d != null ? '<span class="dias" style="' + (at ? 'color:var(--bad);background:rgba(240,165,148,.12)' : 'color:var(--gold-300);background:rgba(243,172,47,.12)') + '">' + (d ? 'há ' + d + 'd' : 'hoje') + '</span>' : '') + '</div>' +
+        '<div class="meta"><span>' + esc(i.tipo) + '</span><span>Postagem ' + esc(i.data) + (i.hora ? ' · ' + esc(i.hora) : '') + '</span>' + (i.produtor && EQUIPE[i.produtor] ? '<span style="display:inline-flex;align-items:center;gap:6px"><img class="av" src="/assets/team/' + EQUIPE[i.produtor][1] + '.png" alt="" style="width:22px;height:22px">' + EQUIPE[i.produtor][0] + '</span>' : '') +
+        (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="margin-left:auto">Abrir no Trello →</a>' : '') + '</div></div>'; }).join('') || '<div class="vazio" style="grid-column:1/-1">Nada enviado para avaliação.</div>';
+    $('apAjN').textContent = aj.length;
+    $('apAj').innerHTML = aj.map((i) => '<div class="aj"><span style="font-weight:600">' + esc(titulo(i.cliente)) + ' <span class="mut" style="font-weight:400">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span><span class="elip">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit">' + esc(i.titulo || '(sem título)') + '</a>' : esc(i.titulo || '(sem título)')) + '</span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '') + '</div>').join('') || '<div class="vazio">Nada em ajuste.</div>';
+    $('apOk').innerHTML = rec.slice(0, 24).map((i) => card(i, '<span style="color:var(--ok)">· aprovado ' + esc(String(i.aprovacao.data).slice(0, 5)) + (i.aprovacao.por && i.aprovacao.por !== '—' ? ' por ' + esc(i.aprovacao.por) : '') + '</span>')).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação registrada nos últimos 30 dias.</div>';
+  }
+
+  $('paAbas').onclick = (e) => { const x = e.target.closest('[data-p]'); if (x) { painel = x.dataset.p; pintaPaineis(); } };
+  $('paSub2').onclick = (e) => { const x = e.target.closest('[data-s]'); if (x) { sub = x.dataset.s; pintaPaineis(); } };
+  $('paQuem').onclick = (e) => { const x = e.target.closest('[data-q]'); if (x) { quem[painel] = x.dataset.q; pintaPaineis(); } };
+  window.pintaPaineis = pintaPaineis; window.pintaAprov = pintaAprov;
+})();
+</script>
+
+<script>
 /* telas da prévia: tudo num endereço só, o trilho troca a tela */
 (() => {
   const NOMES = { cadastrar: 'Cadastrar conteúdo' };
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
     document.getElementById('tela-stories').hidden = t !== 'stories';
     document.getElementById('tela-indicadores').hidden = t !== 'indicadores';
+    document.getElementById('tela-paineis').hidden = t !== 'paineis';
+    document.getElementById('tela-aprovacoes').hidden = t !== 'aprovacoes';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
