@@ -1,0 +1,69 @@
+/* Base visual das telas novas do interno (versão de teste). Mesma linguagem do painel: /interno/previa/ */
+@font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-SemiBold.ttf") format("truetype");font-weight:600;font-display:swap}
+:root{--gold-200:#FADFA6;--gold-300:#F5C86F;--gold-400:#F3AC2F;--gold-500:#E09A24;--gold-600:#C37A1E;--gold-800:#845721;--gold-900:#5E3D14;
+--bone:#F7E4CE;--ink-200:#C6C6C6;--ink-300:#9A9A9A;--ok:#9ED6B0;--bad:#F0A594;--disp:"Monument Extended","Arial Black",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050505;color:var(--bone);font-family:Sora,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-400);text-decoration:none}a:hover{color:var(--gold-300)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold-400);outline-offset:2px}
+.fundo{position:fixed;inset:0;pointer-events:none;z-index:0}
+.luz1{position:fixed;right:-220px;top:260px;width:760px;height:760px;border-radius:50%;background:radial-gradient(circle,rgba(224,154,36,.30) 0%,rgba(195,122,30,.12) 38%,transparent 68%);filter:blur(30px)}
+.luz2{position:fixed;left:120px;top:-260px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(245,200,111,.14) 0%,transparent 62%);filter:blur(30px)}
+.grade{position:fixed;inset:0;background-image:linear-gradient(rgba(247,228,206,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(247,228,206,.035) 1px,transparent 1px);background-size:56px 56px}
+.tex{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.25;mix-blend-mode:screen}
+.app{position:relative;z-index:1;display:flex;gap:22px;padding:26px;align-items:flex-start;max-width:1560px;margin:0 auto}
+.trilho{position:sticky;top:26px;flex:none;width:84px;min-height:calc(100vh - 52px);padding:22px 0;border-radius:26px;background:linear-gradient(180deg,rgba(28,28,28,.72),rgba(12,12,12,.72));border:1px solid rgba(247,228,206,.10);box-shadow:inset 0 1px 0 rgba(247,228,206,.08);backdrop-filter:blur(18px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.trilho .flor{width:42px;height:42px;margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(243,172,47,.55))}
+.ico{position:relative;width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#9A9A9A;transition:all .2s}
+.ico:hover{color:var(--bone);background:rgba(247,228,206,.06)}
+.ico.on{background:rgba(243,172,47,.16);color:#F5C86F;box-shadow:0 0 22px rgba(243,172,47,.35),inset 0 0 0 1px rgba(243,172,47,.45)}
+.ico .dica{position:absolute;left:62px;top:50%;transform:translateY(-50%);white-space:nowrap;padding:6px 12px;border-radius:999px;background:rgba(18,18,18,.95);border:1px solid rgba(247,228,206,.14);font-size:12px;color:var(--bone);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.ico:hover .dica,.ico:focus-visible .dica{opacity:1}
+.eu{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.eu img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid rgba(243,172,47,.6);box-shadow:0 0 16px rgba(243,172,47,.35)}
+.eu select{background:transparent;border:0;color:var(--ink-300);font-size:11px;text-align:center;cursor:pointer}
+.eu select option{background:#121212}
+main{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.card{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(160deg,rgba(34,34,34,.66),rgba(14,14,14,.66));border:1px solid rgba(247,228,206,.10);box-shadow:inset 0 1px 0 rgba(247,228,206,.07),0 24px 60px -24px rgba(0,0,0,.8);backdrop-filter:blur(18px);padding:24px 26px;display:flex;flex-direction:column;gap:12px;animation:sobe .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes sobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+.l2{grid-column:span 2}.l3{grid-column:1/-1}
+.estica{align-self:stretch}
+.tit{font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px}
+.tit small{margin-left:auto;font-size:12px;font-weight:400;color:var(--ink-300)}
+.num{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;line-height:.98}
+.mut{color:var(--ink-300)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:rgba(243,172,47,.10);border:1px solid rgba(243,172,47,.35);color:var(--gold-300);font-size:13px;font-weight:600}
+.barra{height:4px;border-radius:999px;background:rgba(247,228,206,.08);overflow:hidden;flex:1}
+.barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#845721,#F3AC2F);box-shadow:0 0 10px rgba(243,172,47,.5)}
+.lin{display:flex;align-items:center;gap:14px;padding:11px 0}
+.lin+.lin{border-top:1px solid rgba(247,228,206,.06)}
+.chk{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid rgba(247,228,206,.28);display:flex;align-items:center;justify-content:center}
+.chk.ok{border:0;background:#E09A24;box-shadow:0 0 12px rgba(243,172,47,.55)}
+.elip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.campo{display:flex;align-items:center;gap:10px;height:44px;padding:0 16px;border-radius:999px;background:rgba(18,18,18,.7);border:1px solid rgba(247,228,206,.12);color:var(--ink-300)}
+.campo input,.campo select{flex:1;min-width:0;background:transparent;border:0;outline:none;color:var(--bone);font-size:14px}
+.campo select option{background:#121212}
+.chip{height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(247,228,206,.14);background:transparent;color:var(--ink-200);font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.chip:hover{border-color:rgba(243,172,47,.5);box-shadow:0 0 14px rgba(243,172,47,.2)}
+.chip b{font-weight:600;color:var(--bone)}
+.chip.on{background:rgba(243,172,47,.16);border-color:rgba(243,172,47,.55);color:var(--gold-300);box-shadow:0 0 18px rgba(243,172,47,.28)}
+.botao{height:44px;padding:0 20px;border-radius:999px;border:0;background:#E09A24;color:#121212;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 0 22px rgba(243,172,47,.35)}
+.botao.sec{background:transparent;color:var(--bone);border:1px solid rgba(247,228,206,.16);box-shadow:none}
+.av{width:28px;height:28px;flex:none;border-radius:50%;object-fit:cover;object-position:top;border:1px solid rgba(247,228,206,.18)}
+.aviso{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;padding:9px 16px;border-radius:999px;background:rgba(18,18,18,.9);border:1px solid rgba(247,228,206,.14);font-size:12px;color:var(--ink-300);backdrop-filter:blur(12px);white-space:nowrap}
+.trilhoSt{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:4px}
+.trilhoSt .et{display:flex;flex-direction:column;align-items:center;gap:9px;padding:0 8px;flex:none;background:none;border:0;cursor:pointer;color:inherit}
+.trilhoSt .fio{height:1px;flex:1 0 18px;margin-top:6px;background:linear-gradient(90deg,rgba(243,172,47,.35),rgba(243,172,47,.8))}
+.trilhoSt .bola{width:13px;height:13px;border-radius:50%;border:1px solid rgba(243,172,47,.9);background:radial-gradient(circle,#F3AC2F 0 40%,transparent 46%);box-shadow:0 0 14px rgba(243,172,47,.7)}
+.trilhoSt .bola.apag{border-color:rgba(247,228,206,.26);background:none;box-shadow:none}
+.trilhoSt .n{font-family:var(--disp);font-weight:800;font-size:18px;line-height:1}
+.trilhoSt .r{font-size:9.5px;text-transform:uppercase;letter-spacing:.16em;font-weight:600;color:var(--gold-400);white-space:nowrap}
+.trilhoSt .et.on .r{color:var(--bone)}
+.trilhoSt .et.on .bola{box-shadow:0 0 22px rgba(243,172,47,1)}
+@media (max-width:1100px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.app{padding:14px;flex-direction:column}.trilho{position:static;width:100%;min-height:0;flex-direction:row;justify-content:space-between;padding:10px 14px;overflow-x:auto}.trilho .flor{margin:0}.eu{margin:0}.ico .dica{display:none}main{grid-template-columns:minmax(0,1fr)}.l2,.l3{grid-column:auto}}
