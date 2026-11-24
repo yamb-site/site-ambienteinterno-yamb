@@ -165,6 +165,7 @@ main{align-items:stretch}
 #tela-stories .sem{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px}
 #tela-stories .grade-st.semfixo{grid-template-columns:minmax(200px,1fr) repeat(7,60px) 100px}#tela-stories .grade-st.semfixo .fixo,#tela-stories .grade-st.semfixo .th.fx{display:none}
 @media (max-width:1100px){#tela-stories .grade-st{grid-template-columns:minmax(150px,1fr) repeat(7,40px) 80px}#tela-stories .grade-st .fixo,#tela-stories .grade-st .th.fx{display:none}}
+#tela-indicadores [hidden]{display:none!important}
 #tela-indicadores .cab-in{gap:20px;padding:28px 30px}
 #tela-indicadores .topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
 #tela-indicadores .nav-sem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -187,7 +188,7 @@ main{align-items:stretch}
 #tela-indicadores .kgrid .barra{flex:none;display:block;height:4px;margin-top:auto}
 #tela-indicadores .kgrid .barra + small{margin-top:0}
 #tela-indicadores #inAlerta{border-color:rgba(240,165,148,.35);box-shadow:0 0 30px -8px rgba(194,69,44,.35),inset 0 1px 0 rgba(247,228,206,.07);gap:14px}
-#tela-indicadores .alerta-cli{padding:6px 13px;border-radius:999px;font-size:12px;border:1px solid rgba(240,165,148,.35);color:var(--bone);background:rgba(240,165,148,.08)}
+#tela-indicadores .alerta-cli{white-space:nowrap;padding:6px 13px;border-radius:999px;font-size:12px;border:1px solid rgba(240,165,148,.35);color:var(--bone);background:rgba(240,165,148,.08)}
 #tela-indicadores .fmts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px 28px;margin-top:4px}
 #tela-indicadores .fmt{display:flex;flex-direction:column;gap:8px}
 #tela-indicadores .fmt .l1{display:flex;align-items:baseline;gap:10px;font-size:13px}
