@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel YAMB · prévia</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+@font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Sora";src:url("/assets/fonts/Sora-SemiBold.ttf") format("truetype");font-weight:600;font-display:swap}
+:root{--gold-200:#FADFA6;--gold-300:#F5C86F;--gold-400:#F3AC2F;--gold-500:#E09A24;--gold-600:#C37A1E;--gold-800:#845721;--gold-900:#5E3D14;
+--bone:#F7E4CE;--ink-200:#C6C6C6;--ink-300:#9A9A9A;--ok:#9ED6B0;--bad:#F0A594;--disp:"Monument Extended","Arial Black",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:#050505;color:var(--bone);font-family:Sora,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-400);text-decoration:none}a:hover{color:var(--gold-300)}
+:focus-visible{outline:2px solid var(--gold-400);outline-offset:2px}
+.fundo{position:fixed;inset:0;pointer-events:none;z-index:0}
+.luz1{position:fixed;right:-220px;top:260px;width:760px;height:760px;border-radius:50%;background:radial-gradient(circle,rgba(224,154,36,.30) 0%,rgba(195,122,30,.12) 38%,transparent 68%);filter:blur(30px)}
+.luz2{position:fixed;left:120px;top:-260px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(245,200,111,.14) 0%,transparent 62%);filter:blur(30px)}
+.grade{position:fixed;inset:0;background-image:linear-gradient(rgba(247,228,206,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(247,228,206,.035) 1px,transparent 1px);background-size:56px 56px}
+.tex{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;opacity:.25;mix-blend-mode:screen}
+.app{position:relative;z-index:1;display:flex;gap:22px;padding:26px;align-items:flex-start;max-width:1560px;margin:0 auto}
+.trilho{position:sticky;top:26px;flex:none;width:84px;min-height:calc(100vh - 52px);padding:22px 0;border-radius:26px;background:linear-gradient(180deg,rgba(28,28,28,.72),rgba(12,12,12,.72));border:1px solid rgba(247,228,206,.10);box-shadow:inset 0 1px 0 rgba(247,228,206,.08);backdrop-filter:blur(18px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.trilho .flor{width:42px;height:42px;margin-bottom:18px;filter:drop-shadow(0 0 14px rgba(243,172,47,.55))}
+.ico{width:48px;height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#9A9A9A;transition:all .2s}
+.ico:hover{color:var(--bone);background:rgba(247,228,206,.06)}
+.ico.on{background:rgba(243,172,47,.16);color:#F5C86F;box-shadow:0 0 22px rgba(243,172,47,.35),inset 0 0 0 1px rgba(243,172,47,.45)}
+.eu{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.eu img{width:44px;height:44px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid rgba(243,172,47,.6);box-shadow:0 0 16px rgba(243,172,47,.35)}
+.eu select{background:transparent;border:0;color:var(--ink-300);font:inherit;font-size:11px;text-align:center;cursor:pointer}
+main{flex:1;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(160deg,rgba(34,34,34,.66),rgba(14,14,14,.66));border:1px solid rgba(247,228,206,.10);box-shadow:inset 0 1px 0 rgba(247,228,206,.07),0 24px 60px -24px rgba(0,0,0,.8);backdrop-filter:blur(18px);padding:24px 26px;display:flex;flex-direction:column;gap:12px;animation:sobe .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes sobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card{animation:none}}
+.l2{grid-column:span 2}
+.tit{font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px}
+.tit small{margin-left:auto;font-size:12px;font-weight:400;color:var(--ink-300)}
+.num{font-family:var(--disp);font-weight:800;letter-spacing:-.02em;line-height:.98}
+.mut{color:var(--ink-300)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;background:rgba(243,172,47,.10);border:1px solid rgba(243,172,47,.35);color:var(--gold-300);font-size:13px;font-weight:600}
+.barra{height:4px;border-radius:999px;background:rgba(247,228,206,.08);overflow:hidden;flex:1}
+.barra i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#845721,#F3AC2F);box-shadow:0 0 10px rgba(243,172,47,.5);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.lin{display:flex;align-items:center;gap:14px;padding:9px 0}
+.chk{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid rgba(247,228,206,.28);display:flex;align-items:center;justify-content:center}
+.chk.ok{border:0;background:#E09A24;box-shadow:0 0 12px rgba(243,172,47,.55)}
+.elip{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barras{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:end;height:180px}
+.col{display:flex;flex-direction:column;align-items:center;gap:10px;height:100%;justify-content:flex-end}
+.trilhob{position:relative;width:12px;height:120px;border-radius:999px;background:rgba(247,228,206,.06);display:flex;align-items:flex-end}
+.trilhob i{display:block;width:100%;border-radius:999px;background:linear-gradient(180deg,#E09A24,#5E3D14);box-shadow:0 0 12px rgba(243,172,47,.4);transition:height .8s cubic-bezier(.2,.8,.2,1)}
+.trilhob.top i{background:linear-gradient(180deg,#F5C86F,#C37A1E);box-shadow:0 0 20px rgba(243,172,47,.8)}
+.tag{padding:4px 9px;border-radius:8px;background:rgba(243,172,47,.16);border:1px solid rgba(243,172,47,.45);color:var(--gold-200);font-size:11.5px;font-weight:600}
+.atalhos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.atalho{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink-200);font-size:11.5px;text-align:center}
+.atalho span{width:54px;height:54px;border-radius:16px;background:rgba(247,228,206,.05);border:1px solid rgba(247,228,206,.10);display:flex;align-items:center;justify-content:center;color:var(--gold-300);transition:all .2s}
+.atalho:hover span{background:rgba(243,172,47,.14);box-shadow:0 0 18px rgba(243,172,47,.3)}
+.ponto{width:10px;height:10px;border-radius:50%;flex:none}
+.aviso{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;padding:9px 16px;border-radius:999px;background:rgba(18,18,18,.9);border:1px solid rgba(247,228,206,.14);font-size:12px;color:var(--ink-300);backdrop-filter:blur(12px)}
+@media (max-width:1100px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.app{padding:14px;flex-direction:column}.trilho{position:static;width:100%;min-height:0;flex-direction:row;justify-content:space-between;padding:10px 14px;overflow-x:auto}.trilho .flor{margin:0}.eu{margin:0}main{grid-template-columns:minmax(0,1fr)}.l2{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="fundo"><span class="luz1"></span><span class="luz2"></span><span class="grade"></span><img class="tex" src="/assets/bg-dark-texture-min.png" alt=""></div>
+
+<div class="app">
+<nav class="trilho" aria-label="Menu">
+<img class="flor" src="/assets/flower-gold-512.png" alt="YAMB">
+<a class="ico on" href="/interno/previa/" title="Painel" aria-label="Painel"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z"/></svg></a>
+<a class="ico" href="/interno/" title="Demandas (ambiente interno)" aria-label="Demandas"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg></a>
+<a class="ico" href="/interno/" title="Semana" aria-label="Semana"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg></a>
+<a class="ico" href="/interno/" title="Stories" aria-label="Stories"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg></a>
+<a class="ico" href="/interno/" title="Indicadores" aria-label="Indicadores"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></a>
+<a class="ico" href="/interno/trafego/" title="Tráfego" aria-label="Tráfego"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></a>
+<div class="eu">
+<img id="euFoto" src="/assets/team/gabriel-santos.png" alt="">
+<label><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Ver como</span><select id="euSel" aria-label="Ver como"></select></label>
+</div>
+</nav>
+
+<main id="painel" aria-live="polite">
+<section class="card l2" style="min-height:236px;padding-bottom:0">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" id="saud" style="font-size:14px">Olá,</span>
+<h1 class="num" id="nome" style="margin:0;font-size:40px">Gabriel</h1>
+<p style="margin:6px 0 0;font-size:14px;font-weight:300;line-height:1.5;color:var(--ink-200)">Cada um cuida da sua etapa.<br>Viva o processo.</p>
+</div>
+<span class="pill" id="relogio">--:--</span>
+</div>
+<svg id="onda" viewBox="0 0 640 110" preserveAspectRatio="none" aria-hidden="true" style="width:calc(100% + 52px);margin:auto -26px 0;height:110px;display:block"></svg>
+</section>
+
+<section class="card">
+<div style="display:flex;flex-direction:column;gap:4px"><span id="dataLonga" style="font-size:17px;font-weight:600">—</span><span class="mut" id="diaSemana" style="font-size:13px">—</span></div>
+<div style="display:flex;align-items:center;gap:16px;margin-top:6px"><span class="num" id="hojeN" style="font-size:46px;text-shadow:0 0 24px rgba(243,172,47,.35)">—</span><span style="font-size:13px;line-height:1.45;color:var(--ink-200)">postagens<br>previstas hoje</span></div>
+<div style="display:flex;gap:18px;font-size:12.5px;margin-top:auto" class="mut"><span>Postadas <b id="hojePost" style="color:var(--gold-300);font-weight:600">—</b></span><span>Stories <b style="color:var(--gold-300);font-weight:600">8h–12h</b></span></div>
+</section>
+
+<section class="card l2" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:24px">
+<div style="flex:1 1 260px;display:flex;flex-direction:column;gap:10px">
+<div class="tit">Progresso de <span id="mesNome">—</span><small>Mês</small></div>
+<div style="display:flex;align-items:baseline;gap:4px;margin-top:6px"><span class="num" id="pct" style="font-size:56px">—</span><span style="font-size:26px;font-weight:300;color:var(--gold-300)">%</span></div>
+<span id="ritmo" style="font-size:13px;color:var(--ok)">—</span>
+<div style="display:flex;gap:40px;margin-top:10px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Postados</span><span id="postMes" style="font-size:20px;font-weight:600">—</span></div>
+<div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Previstos</span><span id="prevMes" style="font-size:20px;font-weight:600">—</span></div>
+<div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Atrasados</span><span id="atras" style="font-size:20px;font-weight:600;color:var(--bad)">—</span></div>
+</div>
+</div>
+<svg viewBox="0 0 160 160" width="170" height="170" role="img" id="anelMes" aria-label="Progresso do mês" style="flex:none;transform:rotate(-90deg);filter:drop-shadow(0 0 14px rgba(243,172,47,.45))">
+<defs><linearGradient id="anel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5C86F"/><stop offset=".6" stop-color="#E09A24"/><stop offset="1" stop-color="#845721"/></linearGradient>
+<filter id="brilho" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<circle cx="80" cy="80" r="62" fill="none" stroke="rgba(247,228,206,.08)" stroke-width="12"/>
+<circle id="anelMesArco" cx="80" cy="80" r="62" fill="none" stroke="url(#anel)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 389.6" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
+</svg>
+</section>
+
+<section class="card" style="align-items:center">
+<span class="tit" style="align-self:flex-start">Stories de hoje</span>
+<div style="position:relative;width:168px;height:168px">
+<svg viewBox="0 0 160 160" width="168" height="168" aria-hidden="true" style="transform:rotate(-90deg);filter:drop-shadow(0 0 12px rgba(224,154,36,.5))">
+<circle cx="80" cy="80" r="64" fill="none" stroke="rgba(247,228,206,.08)" stroke-width="6"/>
+<circle id="anelSt" cx="80" cy="80" r="64" fill="none" stroke="#E09A24" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 402.1" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
+</svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px"><span class="num" id="stN" style="font-size:30px">—</span><span class="mut" style="font-size:12px">stories feitos</span></div>
+</div>
+<span class="pill" id="stFalta">—</span>
+</section>
+
+<section class="card l2">
+<div class="tit">Sai hoje<small id="filaInfo"></small><a href="/interno/" aria-label="Abrir o ambiente interno" style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(247,228,206,.14);display:flex;align-items:center;justify-content:center;color:var(--bone)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a></div>
+<div id="fila"></div>
+</section>
+
+<section class="card">
+<span class="tit">Fila da equipe<small>a produzir no mês</small></span>
+<svg viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true" style="width:100%;height:60px"><path d="M0 40 C 40 26, 70 52, 110 38 S 180 14, 220 30 S 270 46, 300 12" fill="none" stroke="#F3AC2F" stroke-width="2.2" filter="url(#brilho)"/></svg>
+<div id="equipe" style="display:flex;flex-direction:column;gap:10px;margin-top:auto"></div>
+</section>
+
+<section class="card l2">
+<div class="tit">Postados na semana<small id="semRot"></small></div>
+<div class="barras" id="barras"></div>
+</section>
+
+<section class="card">
+<span class="tit">Atalhos</span>
+<div class="atalhos">
+<a class="atalho" href="/interno/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>Nova demanda</a>
+<a class="atalho" href="/interno/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16v13H4zM4 11h16M9 3v4M15 3v4"/></svg></span>Semana</a>
+<a class="atalho" href="/interno/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 109 9M12 7v5l3 2"/></svg></span>Stories</a>
+<a class="atalho" href="https://trello.com" target="_blank" rel="noopener"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16v16H4zM8 8v8M14 8v5"/></svg></span>Trello</a>
+<a class="atalho" href="/interno/trafego/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></span>Tráfego</a>
+<a class="atalho" href="/interno/"><span><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Indicadores</a>
+</div>
+</section>
+
+<section class="card l2">
+<div class="tit">Próximos dias<small><a href="/interno/">Ver semana</a></small></div>
+<div id="proximos"></div>
+</section>
+
+<section class="card" style="align-items:center">
+<span class="tit" style="align-self:flex-start">Saúde do fluxo<small>mês</small></span>
+<div style="position:relative;width:132px;height:132px">
+<svg viewBox="0 0 160 160" width="132" height="132" aria-hidden="true" style="transform:rotate(-90deg);filter:drop-shadow(0 0 12px rgba(243,172,47,.45))">
+<circle cx="80" cy="80" r="64" fill="none" stroke="rgba(247,228,206,.08)" stroke-width="7"/>
+<circle id="anelSaude" cx="80" cy="80" r="64" fill="none" stroke="url(#anel)" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 402.1" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
+</svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span class="num" id="saudeN" style="font-size:26px">—</span><span class="mut" style="font-size:11px">no prazo</span></div>
+</div>
+<div id="saude" style="align-self:stretch;display:flex;flex-direction:column;gap:9px"></div>
+</section>
+</main>
+</div>
+<div class="aviso" id="aviso">Carregando o ambiente interno…</div>
+
+<script>
+(() => {
+  const SHEET = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec';
+  const EQUIPE = { gabriel: ['Gabriel', 'gabriel-santos'], marcus: ['Marcus', 'marcus-fontes'], camille: ['Camille', 'camille-danylo'], yasmim: ['Yasmim', 'yasmim-barbara'], vitoria: ['Vitória', 'vitoria-almeida'], brisa: ['Brisa', 'brisa-franca'], anny: ['Anny', 'anny-vitoria'], vitor: ['Vitor', 'vitor-nascimento'], yngra: ['Yngra', 'yngra-lyriel'] };
+  const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const DIAS = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const CURTO = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const p2 = (n) => String(n).padStart(2, '0');
+  const fmt = (d) => p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear();
+  const parse = (s) => { const m = String(s || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
+  const somaDias = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+  const titulo = (s) => String(s || '').toLowerCase().replace(/(^|\s)\S/g, (t) => t.toUpperCase());
+
+  let eu = (() => { try { return new URLSearchParams(location.search).get('u') || localStorage.getItem('yamb-previa-eu') || 'gabriel'; } catch (e) { return 'gabriel'; } })();
+  if (!EQUIPE[eu]) eu = 'gabriel';
+  const sel = $('euSel');
+  sel.innerHTML = Object.entries(EQUIPE).map(([k, v]) => '<option value="' + k + '"' + (k === eu ? ' selected' : '') + ' style="background:#121212">' + v[0] + '</option>').join('');
+  sel.onchange = () => { eu = sel.value; try { localStorage.setItem('yamb-previa-eu', eu); } catch (e) {} pinta(); };
+
+  function relogio() {
+    const a = new Date(), h = a.getHours();
+    $('relogio').textContent = p2(h) + ':' + p2(a.getMinutes());
+    $('saud').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ',';
+  }
+
+  let banco = null;
+  async function carrega() {
+    try {
+      const r = await fetch(SHEET + '?t=' + Date.now());
+      const j = await r.json();
+      banco = j.data || j;
+      $('aviso').textContent = 'Dados ao vivo do interno · atualizado às ' + p2(new Date().getHours()) + ':' + p2(new Date().getMinutes()) + ' · só leitura';
+      pinta();
+    } catch (e) {
+      $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
+    }
+  }
+
+  function pinta() {
+    if (!banco) return;
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const hojeS = fmt(hoje);
+    const itens = (banco.items || []).filter((i) => !i.excluido);
+    const doMes = itens.filter((i) => { const d = parse(i.data); return d && d.getMonth() === hoje.getMonth() && d.getFullYear() === hoje.getFullYear(); });
+    const feito = (i) => i.status === 'Postado';
+    const atrasado = (i) => { const d = parse(i.data); return d && d < hoje && !['Postado', 'Não postado'].includes(i.status); };
+
+    const [nm, foto] = EQUIPE[eu];
+    $('nome').textContent = nm; $('euFoto').src = '/assets/team/' + foto + '.png'; $('euFoto').alt = nm;
+    $('dataLonga').textContent = hoje.getDate() + ' de ' + MESES[hoje.getMonth()];
+    $('diaSemana').textContent = DIAS[hoje.getDay()];
+    const hojeI = itens.filter((i) => i.data === hojeS && i.tipo !== 'Stories');
+    $('hojeN').textContent = hojeI.length;
+    $('hojePost').textContent = hojeI.filter(feito).length + ' de ' + hojeI.length;
+
+    // progresso do mês
+    const post = doMes.filter(feito).length, prev = doMes.length, pct = prev ? Math.round(post / prev * 100) : 0;
+    $('mesNome').textContent = MESES[hoje.getMonth()];
+    $('pct').textContent = pct; $('postMes').textContent = post; $('prevMes').textContent = prev;
+    const atr = itens.filter(atrasado).length; $('atras').textContent = atr;
+    const esperado = Math.round(hoje.getDate() / new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate() * 100);
+    $('ritmo').textContent = pct >= esperado - 5 ? 'No ritmo do mês (' + esperado + '% dos dias já passaram).' : 'Abaixo do ritmo: ' + esperado + '% dos dias já passaram.';
+    $('ritmo').style.color = pct >= esperado - 5 ? 'var(--ok)' : 'var(--bad)';
+    $('anelMesArco').setAttribute('stroke-dasharray', (389.6 * pct / 100).toFixed(1) + ' 389.6');
+    $('anelMes').setAttribute('aria-label', pct + '% do mês postado');
+
+    // stories de hoje (mesma regra do aviso das 8h)
+    const idx = (hoje.getDay() + 6) % 7;
+    const plan = (banco.stories || []).filter((x) => (x.dias || []).includes(idx));
+    const feitos = new Set((banco.storiesFeitos || []).filter((f) => f.ok).map((f) => f.id));
+    const stF = plan.filter((x) => feitos.has(x.cliente + '|' + hojeS)).length;
+    $('stN').textContent = stF + '/' + plan.length;
+    $('anelSt').setAttribute('stroke-dasharray', (plan.length ? 402.1 * stF / plan.length : 0).toFixed(1) + ' 402.1');
+    const falta = plan.length - stF, agoraH = new Date().getHours();
+    $('stFalta').textContent = !plan.length ? 'Sem stories hoje' : !falta ? 'Todos feitos' : agoraH < 12 ? 'Faltam ' + falta + ' até 12h' : falta + ' ficaram para trás';
+
+    // sai hoje
+    const ordem = { 'Ajustar': 0, 'Produção': 1, 'Pendente': 2, 'Pronto': 3, 'Enviado': 4, 'Aprovado': 5, 'Não postado': 6, 'Postado': 7 };
+    const cor = { 'Pronto': 'var(--ok)', 'Postado': 'var(--ok)', 'Aprovado': 'var(--ok)', 'Pendente': 'var(--ink-300)', 'Produção': 'var(--gold-300)', 'Enviado': 'var(--gold-200)', 'Ajustar': 'var(--bad)', 'Não postado': 'var(--bad)' };
+    const lista = hojeI.slice().sort((a, b) => (ordem[a.status] ?? 9) - (ordem[b.status] ?? 9));
+    $('filaInfo').textContent = lista.length ? lista.filter(feito).length + ' de ' + lista.length + ' postados' : '';
+    $('fila').innerHTML = lista.length ? lista.slice(0, 7).map((t) => {
+      const ok = feito(t);
+      const nome = '<span class="elip" style="font-size:14px">' + esc(t.titulo || '(sem título)') + '</span>';
+      return '<div class="lin"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>' : '') + '</span>' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + (t.trello ? '<a href="' + esc(t.trello) + '" target="_blank" rel="noopener" style="color:inherit;min-width:0;display:flex">' + nome + '</a>' : nome) +
+        '<span class="mut" style="font-size:12px">' + esc(titulo(t.cliente)) + ' · ' + esc(t.tipo) + (t.hora ? ' · ' + esc(t.hora) : '') + '</span></div>' +
+        '<span style="font-size:12px;font-weight:600;color:' + (cor[t.status] || 'var(--ink-300)') + '">' + esc(t.status) + '</span></div>';
+    }).join('') + (lista.length > 7 ? '<a href="/interno/" style="font-size:13px;padding-top:6px">E mais ' + (lista.length - 7) + ' no ambiente interno</a>' : '')
+      : '<p class="mut" style="margin:8px 0;font-size:14px">Nada marcado para hoje.</p>';
+
+    // fila da equipe
+    const fila = {};
+    doMes.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status)).forEach((i) => { fila[i.produtor] = (fila[i.produtor] || 0) + 1; });
+    const eq = Object.entries(fila).sort((a, b) => b[1] - a[1]).slice(0, 5); const maxE = Math.max(1, ...eq.map((x) => x[1]));
+    $('equipe').innerHTML = eq.map(([k, n]) => {
+      const p = EQUIPE[k] || [titulo(k), null];
+      return '<div style="display:flex;align-items:center;gap:10px;font-size:12.5px">' + (p[1] ? '<img src="/assets/team/' + p[1] + '.png" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top">' : '<span style="width:26px;height:26px;border-radius:50%;background:#252525"></span>') +
+        '<span style="width:64px;color:var(--ink-200)' + (k === eu ? ';color:var(--gold-300);font-weight:600' : '') + '">' + esc(p[0]) + '</span><span class="barra"><i style="width:' + Math.round(n / maxE * 100) + '%"></i></span><span style="width:24px;text-align:right">' + n + '</span></div>';
+    }).join('') || '<p class="mut" style="margin:0;font-size:13px">Ninguém com fila pendente.</p>';
+
+    // semana (7 dias até hoje)
+    const dias = [...Array(7)].map((_, k) => somaDias(hoje, k - 6));
+    const vals = dias.map((d) => itens.filter((i) => i.data === fmt(d) && feito(i)).length);
+    const maxV = Math.max(1, ...vals), top = vals.indexOf(Math.max(...vals));
+    $('semRot').textContent = p2(dias[0].getDate()) + '/' + p2(dias[0].getMonth() + 1) + ' a ' + p2(hoje.getDate()) + '/' + p2(hoje.getMonth() + 1);
+    $('barras').innerHTML = dias.map((d, k) => '<div class="col">' + (k === top && vals[k] ? '<span class="tag">' + vals[k] + '</span>' : '<span class="mut" style="font-size:11.5px">' + vals[k] + '</span>') +
+      '<span class="trilhob' + (k === top && vals[k] ? ' top' : '') + '"><i style="height:' + Math.max(4, Math.round(vals[k] / maxV * 100)) + '%"></i></span>' +
+      '<span style="font-size:12px;' + (k === 6 || k === top ? 'color:var(--bone);font-weight:600' : 'color:var(--ink-300)') + '">' + (k === 6 ? 'Hoje' : CURTO[d.getDay()] + ' ' + d.getDate()) + '</span></div>').join('');
+
+    // onda do topo: postados por dia nos últimos 14 dias
+    const d14 = [...Array(14)].map((_, k) => itens.filter((i) => i.data === fmt(somaDias(hoje, k - 13)) && feito(i)).length);
+    const m14 = Math.max(1, ...d14), pts = d14.map((v, k) => [k * (640 / 13), 96 - v / m14 * 80]);
+    let dd = 'M' + pts[0][0] + ' ' + pts[0][1];
+    for (let k = 1; k < pts.length; k++) { const [x0, y0] = pts[k - 1], [x1, y1] = pts[k], cx = (x0 + x1) / 2; dd += ' C ' + cx + ' ' + y0 + ', ' + cx + ' ' + y1 + ', ' + x1 + ' ' + y1; }
+    $('onda').innerHTML = '<defs><linearGradient id="og" x1="0" x2="1"><stop offset="0" stop-color="#F3AC2F" stop-opacity="0"/><stop offset=".35" stop-color="#F3AC2F"/><stop offset="1" stop-color="#F5C86F"/></linearGradient><linearGradient id="of" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3AC2F" stop-opacity=".22"/><stop offset="1" stop-color="#F3AC2F" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + dd + ' L640 110 L0 110 Z" fill="url(#of)"/><path d="' + dd + '" fill="none" stroke="url(#og)" stroke-width="2.5" filter="url(#brilho)"/>' +
+      pts.filter((_, k) => k % 3 === 1).map(([x, y]) => '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#F5C86F" filter="url(#brilho)"/>').join('');
+
+    // próximos dias
+    const prox = [1, 2, 3].map((k) => somaDias(hoje, k)).map((d) => {
+      const l = itens.filter((i) => i.data === fmt(d));
+      const cl = [...new Set(l.map((i) => titulo(i.cliente)))];
+      const temas = {}; l.forEach((i) => { const t = String(i.titulo || '').trim(); if (t) temas[t.toLowerCase()] = (temas[t.toLowerCase()] || 0) + 1; });
+      const tema = Object.entries(temas).sort((a, b) => b[1] - a[1])[0];
+      return { d, n: l.length, cl, tema: tema && tema[1] > 2 ? tema[0] : null };
+    });
+    const cores = ['#F3AC2F', '#F7E4CE', '#9ED6B0'];
+    $('proximos').innerHTML = prox.map((x, k) => '<div style="display:flex;align-items:center;gap:18px;padding:12px 0;border-top:1px solid rgba(247,228,206,.07)">' +
+      '<div style="width:48px;display:flex;flex-direction:column;align-items:center"><span class="num" style="font-size:22px">' + p2(x.d.getDate()) + '</span><span class="mut" style="font-size:10px;letter-spacing:.2em;margin-top:4px">' + MESES[x.d.getMonth()].slice(0, 3).toUpperCase() + '</span></div>' +
+      '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + x.n + ' conteúdo' + (x.n === 1 ? '' : 's') + (x.tema ? ' · ' + esc(titulo(x.tema)) : '') + '</span>' +
+      '<span class="mut elip" style="font-size:12px">' + DIAS[x.d.getDay()] + (x.cl.length ? ' · ' + esc(x.cl.slice(0, 4).join(', ')) + (x.cl.length > 4 ? '…' : '') : '') + '</span></div>' +
+      '<span class="ponto" style="background:' + cores[k] + ';box-shadow:0 0 10px ' + cores[k] + '"></span></div>').join('');
+
+    // saúde do fluxo
+    const vencidos = doMes.filter((i) => { const d = parse(i.data); return d && d <= hoje; });
+    const noPrazo = vencidos.length ? Math.round(vencidos.filter((i) => !atrasado(i)).length / vencidos.length * 100) : 100;
+    const env = doMes.filter((i) => ['Enviado', 'Aprovado', 'Postado'].includes(i.status));
+    const aprov = env.length ? Math.round(env.filter((i) => ['Aprovado', 'Postado'].includes(i.status)).length / env.length * 100) : 100;
+    const capasP = doMes.filter((i) => i.capa && i.capa.precisa);
+    const capas = capasP.length ? Math.round(capasP.filter((i) => i.capa.pronta).length / capasP.length * 100) : 100;
+    $('saudeN').textContent = noPrazo + '%';
+    $('anelSaude').setAttribute('stroke-dasharray', (402.1 * noPrazo / 100).toFixed(1) + ' 402.1');
+    $('saude').innerHTML = [['No prazo', noPrazo], ['Aprovação', aprov], ['Capas prontas', capas]].map(([n, v]) =>
+      '<div style="display:grid;grid-template-columns:96px minmax(0,1fr) 40px;align-items:center;gap:10px;font-size:12.5px"><span style="color:var(--ink-200)">' + n + '</span><span class="barra"><i style="width:' + v + '%"></i></span><span style="text-align:right">' + v + '%</span></div>').join('');
+  }
+
+  relogio(); setInterval(relogio, 20000);
+  carrega(); setInterval(carrega, 60000);
+})();
+</script>
+</body>
+</html>
