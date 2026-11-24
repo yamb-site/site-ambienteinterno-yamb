@@ -163,6 +163,7 @@ main{align-items:stretch}
 #tela-stories .ini{width:28px;height:28px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--gold-300);background:rgba(243,172,47,.12);border:1px solid rgba(243,172,47,.35)}
 #tela-stories .fixo{font-size:12.5px;color:var(--ink-200)}
 #tela-stories .sem{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px}
+#tela-stories .grade-st.semfixo{grid-template-columns:minmax(200px,1fr) repeat(7,60px) 100px}#tela-stories .grade-st.semfixo .fixo,#tela-stories .grade-st.semfixo .th.fx{display:none}
 @media (max-width:1100px){#tela-stories .grade-st{grid-template-columns:minmax(150px,1fr) repeat(7,40px) 80px}#tela-stories .grade-st .fixo,#tela-stories .grade-st .th.fx{display:none}}
 </style>
 </head>
@@ -385,7 +386,7 @@ main{align-items:stretch}
 <div style="position:relative;width:132px;height:132px">
 <svg viewBox="0 0 160 160" width="132" height="132" aria-hidden="true" style="transform:rotate(-90deg);filter:drop-shadow(0 0 12px rgba(243,172,47,.45))">
 <circle cx="80" cy="80" r="64" fill="none" stroke="rgba(247,228,206,.08)" stroke-width="7"/>
-<circle id="stAnel" cx="80" cy="80" r="64" fill="none" stroke="url(#anel)" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 402.1" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
+<defs><linearGradient id="anelSt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5C86F"/><stop offset=".6" stop-color="#E09A24"/><stop offset="1" stop-color="#845721"/></linearGradient></defs><circle id="stAnel" cx="80" cy="80" r="64" fill="none" stroke="url(#anelSt)" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 402.1" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
 </svg>
 <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span class="num" id="stHojeN" style="font-size:26px">—</span><span class="mut" style="font-size:11px">feitos</span></div>
 </div>
@@ -805,6 +806,7 @@ main{align-items:stretch}
     const n = { 'Todos': rows.length, 'Com rotina': rot.length, 'Sem rotina': rows.length - rot.length };
     $('stChips').innerHTML = Object.keys(n).map((k) => '<button type="button" class="chip' + (filt === k ? ' on' : '') + '" data-f="' + k + '">' + k + ' <b>' + n[k] + '</b></button>').join('');
     const lista = rows.filter((r) => filt === 'Todos' || (filt === 'Com rotina' ? r.dias.length : !r.dias.length)).sort((a, b) => (b.dias.length > 0) - (a.dias.length > 0) || a.cliente.localeCompare(b.cliente));
+    $('stGrade').classList.toggle('semfixo', !rows.some((r) => r.fixo));
     $('stGrade').innerHTML = '<span class="th l">Cliente</span><span class="th l fx">Conteúdo fixo</span>' + dias.map((d, k) => '<span class="th' + (k === iH ? ' hj' : '') + '">' + CURTOS[k] + '<small>' + d.slice(0, 5) + '</small></span>').join('') + '<span class="th" style="text-align:right">Semana</span>' +
       (lista.map((r) => '<span class="cli"><span class="ini">' + esc(ini(r.cliente)) + '</span><span class="elip">' + esc(titulo(r.cliente)) + '</span></span><span class="fixo elip">' + (esc(r.fixo) || '<span class="mut">—</span>') + '</span>' +
         dias.map((d, k) => { const on = r.dias.includes(k), ok = on && feito.has(r.cliente + '|' + d);
