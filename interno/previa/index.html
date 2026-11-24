@@ -165,44 +165,77 @@ main{align-items:stretch}
 #tela-stories .sem{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px}
 #tela-stories .grade-st.semfixo{grid-template-columns:minmax(200px,1fr) repeat(7,60px) 100px}#tela-stories .grade-st.semfixo .fixo,#tela-stories .grade-st.semfixo .th.fx{display:none}
 @media (max-width:1100px){#tela-stories .grade-st{grid-template-columns:minmax(150px,1fr) repeat(7,40px) 80px}#tela-stories .grade-st .fixo,#tela-stories .grade-st .th.fx{display:none}}
+#tela-indicadores .cab-in{gap:20px;padding:28px 30px}
+#tela-indicadores .topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
 #tela-indicadores .nav-sem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #tela-indicadores .seta{width:38px;height:38px;border-radius:50%;border:1px solid rgba(247,228,206,.16);background:rgba(18,18,18,.6);color:var(--gold-300);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
 #tela-indicadores .seta:hover{border-color:rgba(243,172,47,.55);box-shadow:0 0 14px rgba(243,172,47,.25)}
-#tela-indicadores .kgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:10px}
-#tela-indicadores .kgrid div{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:18px;border:1px solid rgba(247,228,206,.08);background:rgba(18,18,18,.5)}
-#tela-indicadores .kgrid div.d{background:rgba(243,172,47,.12);border-color:rgba(243,172,47,.5);box-shadow:0 0 22px rgba(243,172,47,.22)}
-#tela-indicadores .kgrid .num{font-size:32px}
+#tela-indicadores .abas{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(18,18,18,.6);border:1px solid rgba(247,228,206,.10);align-self:flex-start}
+#tela-indicadores .aba{height:36px;padding:0 18px;border-radius:999px;border:0;background:transparent;color:var(--ink-200);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+#tela-indicadores .aba span{font-weight:400;color:var(--ink-300)}
+#tela-indicadores .aba.on{background:#E09A24;color:#121212;box-shadow:0 0 18px rgba(243,172,47,.4)}
+#tela-indicadores .aba.on span{color:#3a2508}
+#tela-indicadores .kgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#tela-indicadores .kgrid.q4{grid-template-columns:repeat(4,minmax(0,1fr))}
+#tela-indicadores .kgrid > div{display:flex;flex-direction:column;gap:10px;padding:18px 20px;border-radius:18px;border:1px solid rgba(247,228,206,.08);background:rgba(18,18,18,.5);min-height:132px}
+#tela-indicadores .kgrid > div.d{background:rgba(243,172,47,.12);border-color:rgba(243,172,47,.5);box-shadow:0 0 22px rgba(243,172,47,.22)}
+#tela-indicadores .kgrid .ov{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-300);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tela-indicadores .kgrid .d .ov{color:var(--gold-300)}
+#tela-indicadores .kgrid .num{font-size:34px}
 #tela-indicadores .kgrid .d .num{color:var(--gold-200);text-shadow:0 0 16px rgba(243,172,47,.5)}
-#tela-indicadores .kgrid b{font-size:12px;font-weight:600;color:var(--bone);line-height:1.3}
-#tela-indicadores .kgrid small{font-size:11px;color:var(--ink-300);line-height:1.35}
-#tela-indicadores .fmt{display:flex;flex-direction:column;gap:7px}
-#tela-indicadores .fmt div:first-child{display:flex;justify-content:space-between;font-size:13px}
-#tela-indicadores .fmt .barra{display:block;flex:none;height:6px;position:relative}
-#tela-indicadores .fmt .barra s{position:absolute;inset:0 auto 0 0;background:rgba(247,228,206,.14);border-radius:999px}
-#tela-indicadores .fmt .barra i{position:absolute;inset:0 auto 0 0}
-#tela-indicadores .alerta-cli{padding:5px 12px;border-radius:999px;font-size:12px;border:1px solid rgba(240,165,148,.35);color:var(--bone);background:rgba(240,165,148,.08)}
-#tela-indicadores .tab-in{display:grid;grid-template-columns:minmax(200px,2fr) repeat(5,minmax(70px,.7fr)) minmax(150px,1.1fr);align-items:center}
-#tela-indicadores .tab-in.mes{grid-template-columns:minmax(200px,2fr) repeat(4,minmax(70px,.7fr)) minmax(150px,1.1fr)}
-#tela-indicadores .tab-in > *{padding:11px 8px;border-top:1px solid rgba(247,228,206,.06);font-size:13px;min-width:0}
-#tela-indicadores .tab-in .th{border-top:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-indicadores .kgrid small{margin-top:auto;font-size:11.5px;color:var(--ink-300);line-height:1.4}
+#tela-indicadores .kgrid .barra{flex:none;display:block;height:4px;margin-top:auto}
+#tela-indicadores .kgrid .barra + small{margin-top:0}
+#tela-indicadores #inAlerta{border-color:rgba(240,165,148,.35);box-shadow:0 0 30px -8px rgba(194,69,44,.35),inset 0 1px 0 rgba(247,228,206,.07);gap:14px}
+#tela-indicadores .alerta-cli{padding:6px 13px;border-radius:999px;font-size:12px;border:1px solid rgba(240,165,148,.35);color:var(--bone);background:rgba(240,165,148,.08)}
+#tela-indicadores .fmts{display:flex;flex-direction:column;gap:16px;margin-top:4px}
+#tela-indicadores .fmt{display:flex;flex-direction:column;gap:8px}
+#tela-indicadores .fmt .l1{display:flex;align-items:baseline;gap:10px;font-size:13px}
+#tela-indicadores .fmt .l1 em{font-style:normal;margin-left:auto;font-size:11.5px;color:var(--ink-300)}
+#tela-indicadores .fmt .l1 b{min-width:54px;text-align:right;font-weight:600}
+#tela-indicadores .fmt .trk{display:block;position:relative;height:6px;border-radius:999px;background:rgba(247,228,206,.06)}
+#tela-indicadores .fmt .trk s{position:absolute;inset:0 auto 0 0;border-radius:999px;background:rgba(247,228,206,.16)}
+#tela-indicadores .fmt .trk i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,#845721,#F3AC2F);box-shadow:0 0 10px rgba(243,172,47,.5)}
+#tela-indicadores .tot{margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;padding-top:14px;border-top:1px solid rgba(247,228,206,.08);font-size:13px;color:var(--ink-200)}
+#tela-indicadores .tot .num{font-size:24px;color:var(--bone)}
+#tela-indicadores .barra-tab{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding-bottom:6px}
+#tela-indicadores .tab-in{display:grid;grid-template-columns:minmax(220px,2.2fr) repeat(3,minmax(76px,.7fr)) minmax(150px,1.3fr) minmax(76px,.7fr) minmax(170px,1.2fr);align-items:center}
+#tela-indicadores .tab-in.mes{grid-template-columns:minmax(220px,2.2fr) repeat(3,minmax(76px,.7fr)) minmax(150px,1.3fr) minmax(170px,1.2fr)}
+#tela-indicadores .tab-in > *,#tela-indicadores .tab-in .row > *{padding:13px 12px;border-top:1px solid rgba(247,228,206,.06);font-size:13px;min-width:0}
+#tela-indicadores .tab-in .th{border-top:0;padding-top:6px;padding-bottom:10px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
 #tela-indicadores .tab-in .n{text-align:center;font-variant-numeric:tabular-nums}
 #tela-indicadores .tab-in .row{display:contents;cursor:pointer}
 #tela-indicadores .tab-in .row:hover > *{background:rgba(243,172,47,.06)}
-#tela-indicadores .tab-in .row.aberto > *{background:rgba(243,172,47,.09)}
+#tela-indicadores .tab-in .row.aberto > *{background:rgba(243,172,47,.09);border-top-color:rgba(243,172,47,.3)}
+#tela-indicadores .tab-in .row > :first-child{border-radius:12px 0 0 12px}
+#tela-indicadores .tab-in .row > :last-child{border-radius:0 12px 12px 0}
 #tela-indicadores .cli{display:flex;align-items:center;gap:10px;font-weight:600}
-#tela-indicadores .cli svg{flex:none;margin-left:auto;color:var(--ink-300);transition:transform .2s}
+#tela-indicadores .cli svg{flex:none;color:var(--ink-300);transition:transform .2s}
+#tela-indicadores .row:hover .cli svg{color:var(--gold-300)}
 #tela-indicadores .row.aberto .cli svg{transform:rotate(90deg);color:var(--gold-300)}
-#tela-indicadores .ini{width:28px;height:28px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--gold-300);background:rgba(243,172,47,.12);border:1px solid rgba(243,172,47,.35)}
-#tela-indicadores .sit{justify-self:start;padding:4px 11px;border-radius:999px;font-size:11.5px;font-weight:600;border:1px solid}
-#tela-indicadores .det{grid-column:1/-1;padding:18px 20px 22px;background:rgba(243,172,47,.05);border-top:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-#tela-indicadores .det h4{margin:0 0 8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
-#tela-indicadores .det .big{display:flex;flex-direction:column;gap:4px}
+#tela-indicadores .ini{width:30px;height:30px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--gold-300);background:rgba(243,172,47,.12);border:1px solid rgba(243,172,47,.35)}
+#tela-indicadores .pst{display:flex;align-items:center;gap:10px}
+#tela-indicadores .pst b{font-weight:600;color:var(--gold-300);min-width:38px;font-variant-numeric:tabular-nums}
+#tela-indicadores .pst .barra{display:block;flex:1;height:4px}
+#tela-indicadores .sit{display:inline-flex;padding:5px 12px;border-radius:999px;font-size:11.5px;font-weight:600;border:1px solid;background:rgba(18,18,18,.4);white-space:nowrap}
+#tela-indicadores .det{grid-column:1/-1;margin:0 0 8px;padding:22px 24px 24px;background:rgba(243,172,47,.05);border:1px solid rgba(243,172,47,.18);border-top:0;border-radius:0 0 16px 16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+#tela-indicadores .det h4{margin:0 0 10px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
+#tela-indicadores .det .big{display:flex;flex-direction:column;gap:6px}
 #tela-indicadores .det .big .num{font-size:28px}
 #tela-indicadores .det .big span:last-child{font-size:11.5px;color:var(--ink-300)}
 #tela-indicadores .det .lst{grid-column:1/-1;display:flex;flex-direction:column}
-#tela-indicadores .det .lst a,#tela-indicadores .det .lst div{display:grid;grid-template-columns:52px minmax(0,1fr) 90px 100px;gap:10px;padding:7px 0;font-size:12.5px;color:inherit;border-top:1px solid rgba(247,228,206,.05)}
+#tela-indicadores .det .lst a,#tela-indicadores .det .lst > div{display:grid;grid-template-columns:56px minmax(0,1fr) 96px 110px;gap:12px;padding:9px 0;font-size:12.5px;color:inherit;border-top:1px solid rgba(247,228,206,.05)}
 #tela-indicadores .det .tags{display:flex;flex-wrap:wrap;gap:6px}
-#tela-indicadores .det .tags span{padding:4px 10px;border-radius:999px;font-size:11.5px;border:1px solid rgba(247,228,206,.14)}
+#tela-indicadores .det .tags span{padding:5px 11px;border-radius:999px;font-size:11.5px;border:1px solid rgba(247,228,206,.14)}
+#tela-indicadores .tab-fin{display:flex;flex-direction:column}
+#tela-indicadores .gcli{display:flex;align-items:center;gap:10px;padding:16px 4px 8px;font-size:13.5px;font-weight:600;border-bottom:1px solid rgba(243,172,47,.18)}
+#tela-indicadores .gcli em{font-style:normal;font-weight:400;font-size:12px;color:var(--ink-300)}
+#tela-indicadores .gcli b{margin-left:auto;color:var(--gold-300)}
+#tela-indicadores .vid{display:grid;grid-template-columns:56px minmax(0,1fr) 150px 80px;gap:12px;align-items:center;padding:10px 4px;font-size:12.5px;border-bottom:1px solid rgba(247,228,206,.05)}
+#tela-indicadores .vid span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+#tela-indicadores .mes-b{display:inline-flex;align-items:center;gap:6px}
+#tela-indicadores .aviso-fin{padding:12px 16px;border-radius:14px;background:rgba(243,172,47,.08);border:1px solid rgba(243,172,47,.35);font-size:12.5px;line-height:1.5}
+#tela-indicadores .pag{gap:14px}
 @media (max-width:1100px){#tela-indicadores .kgrid{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-indicadores .det{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
@@ -443,40 +476,58 @@ main{align-items:stretch}
 </section>
 </main>
 <main id="tela-indicadores" hidden>
-<section class="card l2" style="padding-bottom:22px">
-<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<section class="card l3 cab-in">
+<div class="topo">
 <div style="display:flex;flex-direction:column;gap:8px">
-<span class="mut" style="font-size:14px">Clientes, postagens e edições da casa</span>
+<span class="mut" id="inSub" style="font-size:14px">Clientes, postagens e edições da casa</span>
 <h1 class="num" style="margin:0;font-size:40px">Indicadores</h1>
 </div>
 <div class="nav-sem">
 <span class="chips" id="inModo"><button type="button" class="chip on" data-m="Semana">Semana</button><button type="button" class="chip" data-m="Mês">Mês</button></span>
 <button type="button" class="seta" id="inAnt" aria-label="Anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
-<span class="pill" id="inRotulo" style="min-width:132px;justify-content:center">—</span>
+<span class="pill" id="inRotulo" style="min-width:140px;justify-content:center">—</span>
 <button type="button" class="seta" id="inProx" aria-label="Próximo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
 <button type="button" class="chip" id="inAtual">Atual</button>
 </div>
 </div>
+<div class="abas" role="tablist" id="inVista">
+<button type="button" role="tab" class="aba on" data-v="post" aria-selected="true">Postagens</button>
+<button type="button" role="tab" class="aba" data-v="fin" aria-selected="false">Vídeos editados <span>· financeiro</span></button>
+</div>
 <div class="kgrid" id="inKpis"></div>
 </section>
 
-<section class="card estica">
-<div class="tit" id="inFmtTit">Por formato<small>postadas / previstas</small></div>
-<div id="inFmt" style="display:flex;flex-direction:column;gap:14px"></div>
-<div style="margin-top:auto;display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;border-top:1px solid rgba(247,228,206,.08)"><span style="font-size:13px;color:var(--ink-200)">Total do mês</span><span class="num" id="inFmtTot" style="font-size:24px">—</span></div>
-</section>
-
-<section class="card l3" id="inAlerta" style="border-color:rgba(240,165,148,.35);box-shadow:0 0 30px -8px rgba(194,69,44,.35),inset 0 1px 0 rgba(247,228,206,.07)">
+<!-- postagens -->
+<section class="card l2 v-post" id="inAlerta">
 <div class="tit" style="color:var(--bad)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l10 18H2zM12 10v5M12 18h.01"/></svg><span id="inAlertaTxt"></span></div>
 <div class="chips" id="inAlertaL"></div>
 </section>
-
-<section class="card l3 longo">
-<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-<span class="tit" id="inTabTit" style="margin-right:auto">Postagens por cliente</span>
+<section class="card v-post" id="inFmtCard">
+<div class="tit" id="inFmtTit">Por formato</div>
+<div id="inFmt" class="fmts"></div>
+<div class="tot"><span>Total do mês</span><span class="num" id="inFmtTot">—</span></div>
+</section>
+<section class="card l3 longo v-post">
+<div class="barra-tab">
+<span class="tit" id="inTabTit">Postagens por cliente</span>
 <div class="chips" id="inChips"></div>
 </div>
 <div class="tab-in" id="inTab"></div>
+</section>
+
+<!-- financeiro -->
+<section class="card l2 v-fin" hidden>
+<div class="tit">Vídeos do mês · por cliente<small id="finFonte"></small></div>
+<div class="chips" id="finMeses"></div>
+<div id="finMuda"></div>
+<div class="tab-fin" id="finTab"></div>
+</section>
+<section class="card v-fin pag" hidden>
+<span class="tit" id="finPagTit">Pagamento</span>
+<span class="num" id="finValor" style="font-size:40px;color:var(--gold-200);text-shadow:0 0 22px rgba(243,172,47,.45)">—</span>
+<span class="mut" id="finConta" style="font-size:13px">—</span>
+<span class="pill" id="finStatus" style="align-self:flex-start">—</span>
+<p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e gerar o comprovante continuam no interno.</p>
 </section>
 </main>
 <main id="tela-breve" hidden>
@@ -900,7 +951,7 @@ main{align-items:stretch}
 </script>
 
 <script>
-/* Indicadores (prévia, só leitura) — mesmas contas da tela Indicadores do interno */
+/* Indicadores (prévia, só leitura) — mesmas contas da tela Indicadores do interno, com a aba de vídeos editados */
 (() => {
   const { $, esc, p2, fmt, parse, somaDias, titulo, hoje0, MESES, COR, FLUXO } = Y;
   const EDITADO = ['Pronto', 'Enviado', 'Aprovado', 'Não postado', 'Postado'];
@@ -910,11 +961,61 @@ main{align-items:stretch}
   const Mes = (m) => MESES[m].charAt(0).toUpperCase() + MESES[m].slice(1);
   const ini = (n) => titulo(n).split(' ').filter((w) => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   const seta = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+  const BRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const VAL = 25, SHEET_VID = '1cNTM7nH8xpHOhsyXjpX4y3_kqrl4ZAIXfbPDF8GqIyI', ANO = 2026;
+  const ALIAS = { 'THAIANE FONSECA': 'THAIANE', 'ERIKA OLIVEIRA': 'ERICA OLIVEIRA', 'VIVI QUENDEIRA': 'VIVI KENDERA', 'DANI REIS': 'DANY REIS', 'EU GOSTO SEXSHOP': 'EU GOSTO SEX SHOP' };
+  const VE_MES = { JANEIRO: 0, JANUARY: 0, FEVEREIRO: 1, FEBRUARY: 1, 'MARÇO': 2, MARCO: 2, MARCH: 2, ABRIL: 3, APRIL: 3, MAIO: 4, MAY: 4, JUNHO: 5, JUNE: 5, JULHO: 6, JULY: 6, AGOSTO: 7, AUGUST: 7, SETEMBRO: 8, SEPTEMBER: 8, OUTUBRO: 9, OCTOBER: 9, NOVEMBRO: 10, NOVEMBER: 10, DEZEMBRO: 11, DECEMBER: 11 };
+  const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
   const h0 = hoje0();
-  let modo = 'Semana', seg = segundaDe(h0), mes = new Date(h0.getFullYear(), h0.getMonth(), 1), filt = 'Todos', aberto = null, banco = null;
+  let vista = 'post', modo = 'Semana', seg = segundaDe(h0), mes = new Date(h0.getFullYear(), h0.getMonth(), 1), filt = 'Todos', aberto = null, banco = null;
+  let vids = null, vidSt = 'nada', vidAt = null;
 
+  // ---------- planilha de vídeos (mesma leitura "por link" do interno) ----------
+  function csv(t) { const rows = []; let r = [], c = '', q = false; for (let i = 0; i < t.length; i++) { const ch = t[i]; if (q) { if (ch === '"') { if (t[i + 1] === '"') { c += '"'; i++; } else q = false; } else c += ch; } else if (ch === '"') q = true; else if (ch === ',') { r.push(c); c = ''; } else if (ch === '\n' || ch === '\r') { if (ch === '\r' && t[i + 1] === '\n') i++; r.push(c); rows.push(r); r = []; c = ''; } else c += ch; } if (c || r.length) { r.push(c); rows.push(r); } return rows; }
+  function linhas(rows) {
+    rows = (rows || []).filter((x) => x.some((v) => String(v).trim())); if (!rows.length) return [];
+    const h = rows[0].map(norm), col = (re) => h.findIndex((x) => re.test(x));
+    const ix = { data: col(/^data/), cliente: col(/cliente/), titulo: col(/titulo|^video|conteudo|descri/), link: col(/link|url/), qtd: col(/quant|qtd/) };
+    const g = (r, k) => ix[k] >= 0 ? String(r[ix[k]] || '').trim() : '';
+    return rows.slice(1).map((r) => { const cl = g(r, 'cliente').toUpperCase(); return { data: parse(g(r, 'data').split(' ')[0]), cliente: ALIAS[cl] || cl || '—', titulo: g(r, 'titulo'), link: g(r, 'link'), qtd: ix.qtd >= 0 ? Math.max(0, parseInt(g(r, 'qtd'), 10) || 0) : 1 }; })
+      .filter((v) => v.titulo || v.link || v.cliente !== '—');
+  }
+  async function leVideos() {
+    if (vidSt === 'lendo') return; vidSt = vids ? vidSt : 'lendo';
+    try {
+      const doc = 'https://docs.google.com/spreadsheets/d/' + SHEET_VID, txt = (u) => fetch(u + (u.includes('?') ? '&' : '?') + 't=' + Date.now()).then((r) => { if (!r.ok) throw 0; return r.text(); });
+      const h = await txt(doc + '/htmlview');
+      const abas = [...h.matchAll(/name: "([^"]+)", pageUrl: "[^"]*gid=(\d+)/g)].map((x) => ({ nome: x[1].trim().toUpperCase(), gid: x[2] })).filter((x) => x.nome in VE_MES);
+      if (!abas.length) throw 0;
+      const out = [];
+      (await Promise.all(abas.map((a) => txt(doc + '/export?format=csv&gid=' + a.gid).then((t) => [a.nome, csv(t)])))).forEach(([nome, rows]) => {
+        const m = ANO + '-' + p2(VE_MES[nome] + 1); linhas(rows).forEach((v) => out.push({ ...v, mes: m, id: 'v' + out.length }));
+      });
+      vids = out; vidSt = 'ok'; vidAt = new Date();
+    } catch (e) { vidSt = 'erro'; }
+    pinta();
+  }
+  const chave = (v) => [norm(v.titulo), v.cliente, v.data ? fmt(v.data) : '', v.link].join('|');
+  function cruza(v, items) {
+    const pal = (s) => norm(s).replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter((w) => w.length > 2);
+    const tv = pal(v.titulo); if (!tv.length) return null; let best = null, nota = 0;
+    items.forEach((i) => { if (i.cliente !== v.cliente || !['Vídeo', 'Reels'].includes(i.tipo)) return; const ti = pal(i.titulo); if (!ti.length) return; const n = tv.filter((w) => ti.includes(w)).length / Math.min(tv.length, ti.length); if (n > nota) { nota = n; best = i; } });
+    return nota >= .6 ? best : null;
+  }
+
+  // ---------- desenho ----------
   function pinta(b) {
     if (b) banco = b; if (!banco) return;
+    document.querySelectorAll('#tela-indicadores .v-post').forEach((x) => x.hidden = vista !== 'post');
+    document.querySelectorAll('#tela-indicadores .v-fin').forEach((x) => x.hidden = vista !== 'fin');
+    $('inVista').querySelectorAll('.aba').forEach((x) => { const on = x.dataset.v === vista; x.classList.toggle('on', on); x.setAttribute('aria-selected', on); });
+    $('inModo').style.display = vista === 'fin' ? 'none' : '';
+    $('inSub').textContent = vista === 'fin' ? 'Vídeos editados a partir da planilha · R$ 25 por vídeo' : 'Clientes, postagens e edições da casa';
+    if (vista === 'fin') { if (!vids && vidSt !== 'lendo' && vidSt !== 'erro') leVideos(); return pintaFin(); }
+    pintaPost();
+  }
+
+  function pintaPost() {
     const semDias = [...Array(7)].map((_, k) => fmt(somaDias(seg, k)));
     const mesRef = modo === 'Semana' ? new Date(seg.getFullYear(), seg.getMonth(), 1) : mes;
     const noMesRef = (i) => { const d = parse(i.data); return d && d.getMonth() === mesRef.getMonth() && d.getFullYear() === mesRef.getFullYear(); };
@@ -930,42 +1031,44 @@ main{align-items:stretch}
         prev: st && st.dias ? st.dias.length : 0, feitos: st && st.dias ? st.dias.filter((d) => feito.has(c + '|' + semDias[d])).length : 0, st }; });
     const sit = (r) => r.postados ? 'Postado' : r.editados ? 'Editado, sem postar' : r.total ? 'Em produção' : 'Sem conteúdo';
     const semPost = rows.filter((r) => !r.postados), semCont = rows.filter((r) => !r.total);
-    const postM = doMes.filter((i) => i.status === 'Postado').length;
+    const postM = doMes.filter((i) => i.status === 'Postado').length, postP = per.filter((i) => i.status === 'Postado').length;
+    const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 
     $('inRotulo').textContent = modo === 'Semana' ? semDias[0].slice(0, 5) + ' – ' + semDias[6].slice(0, 5) : Mes(mes.getMonth()) + ' ' + mes.getFullYear();
     $('inModo').querySelectorAll('[data-m]').forEach((x) => x.classList.toggle('on', x.dataset.m === modo));
-    const k = (v, t, n, d) => '<div' + (d ? ' class="d"' : '') + '><span class="num">' + v + '</span><b>' + t + '</b><small>' + n + '</small></div>';
-    $('inKpis').innerHTML = k(clientes.length, 'Clientes na casa', 'Carteira ativa', true) +
-      k(semPost.length, 'Sem postagem ' + periodo, semCont.length + ' sem nenhum conteúdo') +
-      k(rows.filter((r) => r.editados).length, 'Clientes editados ' + periodo, 'Pronto, enviado, aprovado ou postado') +
-      k(per.filter((i) => i.status === 'Postado').length, 'Postagens ' + periodo, 'de ' + per.length + ' previstas') +
-      k(postM, 'Total de ' + Mes(mesRef.getMonth()).toLowerCase(), 'de ' + doMes.length + ' previstas no mês');
+    const k = (ov, v, n, o = {}) => '<div' + (o.d ? ' class="d"' : '') + '><span class="ov">' + ov + '</span><span class="num"' + (o.cor ? ' style="color:' + o.cor + '"' : '') + '>' + v + '</span>' + (o.bar != null ? '<span class="barra"><i style="width:' + o.bar + '%"></i></span>' : '') + '<small>' + n + '</small></div>';
+    $('inKpis').className = 'kgrid';
+    $('inKpis').innerHTML = k('Clientes na casa', clientes.length, 'Carteira ativa', { d: true }) +
+      k('Sem postagem', semPost.length, periodo + ' · ' + semCont.length + ' sem conteúdo', { cor: semPost.length ? 'var(--bad)' : 'var(--ok)' }) +
+      k('Clientes editados', rows.filter((r) => r.editados).length, periodo + ' · pronto em diante') +
+      k('Postagens', postP + '<span class="mut" style="font-size:18px">/' + per.length + '</span>', pct(postP, per.length) + '% ' + periodo, { bar: pct(postP, per.length) }) +
+      k('Total de ' + MESES[mesRef.getMonth()], postM + '<span class="mut" style="font-size:18px">/' + doMes.length + '</span>', pct(postM, doMes.length) + '% do mês no ar', { bar: pct(postM, doMes.length) });
 
-    // por formato (mês de referência)
-    const tipos = [...new Set(feed.map((i) => i.tipo))].filter(Boolean).sort();
-    const pt = tipos.map((t) => ({ t, n: doMes.filter((i) => i.tipo === t).length, p: doMes.filter((i) => i.tipo === t && i.status === 'Postado').length })).filter((x) => x.n);
-    const mx = Math.max(1, ...pt.map((x) => x.n));
-    $('inFmtTit').innerHTML = Mes(mesRef.getMonth()) + ' por formato<small>postadas / previstas</small>';
-    $('inFmt').innerHTML = pt.map((x) => '<div class="fmt"><div><span>' + esc(x.t) + '</span><span><b style="color:var(--gold-300)">' + x.p + '</b><span class="mut">/' + x.n + '</span></span></div><span class="barra"><s style="width:' + Math.round(x.n / mx * 100) + '%"></s><i style="width:' + Math.round(x.p / mx * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada cadastrado no mês.</p>';
-    $('inFmtTot').innerHTML = postM + '<span class="mut" style="font-size:15px">/' + doMes.length + '</span>';
-
-    // alerta
-    $('inAlerta').style.display = semPost.length ? '' : 'none';
+    // alerta + formato
+    $('inAlerta').hidden = !semPost.length;
+    $('inFmtCard').classList.toggle('l3', !semPost.length);
     $('inAlertaTxt').textContent = semPost.length + ' de ' + clientes.length + ' clientes ainda não foram postados ' + periodo + '.';
     $('inAlertaL').innerHTML = semPost.map((r) => '<span class="alerta-cli">' + esc(titulo(r.c)) + '</span>').join('');
+    const tipos = [...new Set(feed.map((i) => i.tipo))].filter(Boolean).sort();
+    const pt = tipos.map((t) => ({ t, n: doMes.filter((i) => i.tipo === t).length, p: doMes.filter((i) => i.tipo === t && i.status === 'Postado').length })).filter((x) => x.n).sort((a, b) => b.n - a.n);
+    const mx = Math.max(1, ...pt.map((x) => x.n));
+    $('inFmtTit').innerHTML = Mes(mesRef.getMonth()) + ' por formato<small>postadas / previstas</small>';
+    $('inFmt').innerHTML = pt.map((x) => '<div class="fmt"><div class="l1"><span>' + esc(x.t) + '</span><em>' + pct(x.p, x.n) + '%</em><b><span style="color:var(--gold-300)">' + x.p + '</span><span class="mut">/' + x.n + '</span></b></div><span class="trk"><s style="width:' + Math.round(x.n / mx * 100) + '%"></s><i style="width:' + Math.round(x.p / mx * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada cadastrado no mês.</p>';
+    $('inFmtTot').innerHTML = postM + '<span class="mut" style="font-size:15px">/' + doMes.length + '</span>';
 
     // tabela
     $('inTabTit').textContent = 'Postagens por cliente ' + periodo;
-    $('inChips').innerHTML = ['Todos', ...SORD].map((s) => '<button type="button" class="chip' + (filt === s ? ' on' : '') + '" data-f="' + s + '">' + (s !== 'Todos' ? '<span style="width:7px;height:7px;border-radius:50%;background:' + SCOR[s] + '"></span>' : '') + s + (s !== 'Todos' ? ' <b>' + rows.filter((r) => sit(r) === s).length + '</b>' : '') + '</button>').join('');
+    $('inChips').innerHTML = ['Todos', ...SORD].map((s) => '<button type="button" class="chip' + (filt === s ? ' on' : '') + '" data-f="' + s + '">' + (s !== 'Todos' ? '<span style="width:7px;height:7px;border-radius:50%;background:' + SCOR[s] + '"></span>' : '') + s + ' <b>' + (s === 'Todos' ? rows.length : rows.filter((r) => sit(r) === s).length) + '</b></button>').join('');
     const lista = rows.filter((r) => filt === 'Todos' || sit(r) === filt).sort((a, b) => SORD.indexOf(sit(a)) - SORD.indexOf(sit(b)) || a.c.localeCompare(b.c));
     const sem = modo === 'Semana';
     $('inTab').classList.toggle('mes', !sem);
-    $('inTab').innerHTML = ['Cliente', 'Previstas', 'Em produção', 'Editadas', 'Postadas', ...(sem ? ['Stories'] : []), 'Situação'].map((h, j) => '<span class="th' + (j && h !== 'Situação' ? ' n' : '') + '">' + h + '</span>').join('') +
+    $('inTab').innerHTML = ['Cliente', 'Previstas', 'Em produção', 'Editadas', 'Postadas', ...(sem ? ['Stories'] : []), 'Situação'].map((h) => '<span class="th' + (['Previstas', 'Em produção', 'Editadas', 'Stories'].includes(h) ? ' n' : '') + '">' + h + '</span>').join('') +
       lista.map((r) => { const s = sit(r), on = aberto === r.c;
         let html = '<div class="row' + (on ? ' aberto' : '') + '" data-c="' + esc(r.c) + '" role="button" tabindex="0" aria-expanded="' + on + '"><span class="cli"><span class="ini">' + esc(ini(r.c)) + '</span><span class="elip">' + esc(titulo(r.c)) + '</span>' + seta + '</span>' +
-          '<span class="n">' + r.total + '</span><span class="n">' + r.producao + '</span><span class="n">' + r.editados + '</span><span class="n" style="color:var(--gold-300);font-weight:600">' + r.postados + '</span>' +
+          '<span class="n">' + r.total + '</span><span class="n">' + r.producao + '</span><span class="n">' + r.editados + '</span>' +
+          '<span class="pst"><b>' + r.postados + '<span class="mut">/' + r.total + '</span></b><span class="barra"><i style="width:' + pct(r.postados, r.total) + '%"></i></span></span>' +
           (sem ? '<span class="n">' + (r.prev ? r.feitos + '/' + r.prev : '<span class="mut">—</span>') + '</span>' : '') +
-          '<span><span class="sit" style="color:' + SCOR[s] + ';border-color:' + SCOR[s] + ';background:rgba(18,18,18,.4)">' + s + '</span></span></div>';
+          '<span><span class="sit" style="color:' + SCOR[s] + ';border-color:' + SCOR[s] + '">' + s + '</span></span></div>';
         if (on) html += det(r, doMes.filter((i) => i.cliente === r.c), periodo, sem);
         return html; }).join('');
   }
@@ -978,19 +1081,67 @@ main{align-items:stretch}
       (sem ? big(lm.filter((i) => i.status === 'Postado').length, 'Postadas no mês') : big(lm.filter((i) => EDITADO.includes(i.status)).length, 'Editadas no mês')) +
       big(r.prev ? (sem ? r.feitos + '/' : '') + r.prev : '—', 'Stories ' + (sem ? 'na semana' : 'por semana')) +
       '<div style="grid-column:span 2"><h4>Formatos · postadas/previstas</h4><div class="tags">' + (tipos.map((x) => '<span>' + esc(x.t) + ' <b style="color:var(--gold-300)">' + x.p + '/' + x.n + '</b></span>').join('') || '<span class="mut" style="border:0;padding:0">Nada cadastrado ' + periodo + '.</span>') + '</div></div>' +
-      '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return n ? '<span style="color:' + COR[s] + '">' + n + ' ' + s + '</span>' : ''; }).join('') + '</div></div>' +
+      '<div style="grid-column:span 2"><h4>Etapas</h4><div class="tags">' + (FLUXO.map((s) => { const n = r.l.filter((i) => i.status === s).length; return n ? '<span style="color:' + COR[s] + '">' + n + ' ' + s + '</span>' : ''; }).join('') || '<span class="mut" style="border:0;padding:0">—</span>') + '</div></div>' +
       (r.st && r.st.fixo ? '<div style="grid-column:1/-1;font-size:12.5px"><b>Stories fixos:</b> ' + esc(r.st.fixo) + '</div>' : '') +
       (ord.length ? '<div class="lst"><h4>Conteúdos ' + periodo + '</h4>' + ord.map((i) => { const t = i.trello ? 'a' : 'div';
         return '<' + t + (i.trello ? ' href="' + esc(i.trello) + '" target="_blank" rel="noopener"' : '') + '><span class="mut">' + esc(String(i.data).slice(0, 5)) + '</span><span class="elip">' + esc(i.titulo || '(sem título)') + '</span><span class="mut">' + esc(i.tipo) + '</span><span style="color:' + (COR[i.status] || 'inherit') + ';font-weight:600">' + esc(i.status) + '</span></' + t + '>'; }).join('') + '</div>' : '') + '</div>';
   }
 
+  function pintaFin() {
+    const mk = mes.getFullYear() + '-' + p2(mes.getMonth() + 1);
+    $('inRotulo').textContent = Mes(mes.getMonth()) + ' ' + mes.getFullYear();
+    $('finFonte').textContent = vidSt === 'ok' ? 'planilha sincronizada às ' + p2(vidAt.getHours()) + ':' + p2(vidAt.getMinutes()) : vidSt === 'erro' ? 'não consegui ler a planilha' : 'lendo a planilha…';
+    const pagos = banco.pagosVideos || [];
+    const pg = pagos.find((p) => p.id === mk && p.pago);
+    const nome = (id) => (Y.EQUIPE[id] || [titulo(id || '—')])[0];
+    const rows = vids || [];
+    const per = rows.filter((v) => v.mes === mk), q = per.reduce((s, v) => s + v.qtd, 0);
+    const items = (banco.items || []).filter((i) => !i.excluido);
+    const fluxo = new Map(per.map((v) => [v.id, cruza(v, items)]));
+    const grupos = {}; per.forEach((v) => (grupos[v.cliente] = grupos[v.cliente] || []).push(v));
+    const gl = Object.entries(grupos).map(([c, l]) => ({ c, l, n: l.reduce((s, v) => s + v.qtd, 0) })).sort((a, b) => b.n - a.n || a.c.localeCompare(b.c));
+    const semPost = per.filter((v) => { const i = fluxo.get(v.id); return i && i.status !== 'Postado'; }).length;
+
+    $('inKpis').className = 'kgrid q4';
+    const k = (ov, v, n, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov">' + ov + '</span><span class="num">' + v + '</span><small>' + n + '</small></div>';
+    $('inKpis').innerHTML = vids ? k('Vídeos editados', q, 'no mês de ' + MESES[mes.getMonth()], true) + k('Valor no mês', BRL(q * VAL), q + ' × ' + BRL(VAL)) + k('Clientes atendidos', gl.length, 'com vídeo editado no mês') + k('Editados, sem postar', semPost, 'achados no fluxo e ainda não postados') :
+      '<div style="grid-column:1/-1;min-height:0"><small style="margin:0">' + (vidSt === 'erro' ? 'Não consegui ler a planilha de vídeos agora. Tento de novo em 1 minuto.' : 'Lendo a planilha de vídeos…') + '</small></div>';
+
+    // meses da planilha
+    const meses = [...new Set(rows.map((v) => v.mes))].sort();
+    $('finMeses').innerHTML = meses.map((m) => { const [y, mo] = m.split('-'), n = rows.filter((v) => v.mes === m).reduce((s, v) => s + v.qtd, 0), pago = pagos.some((p) => p.id === m && p.pago);
+      return '<button type="button" class="chip mes-b' + (m === mk ? ' on' : '') + '" data-mes="' + m + '">' + Mes(+mo - 1) + ' <b>' + n + '</b>' + (pago ? '<span style="color:var(--ok)" title="pago">✓</span>' : '') + '</button>'; }).join('');
+
+    // mudou depois do pagamento?
+    const chaves = new Set(per.map(chave));
+    const novos = pg && pg.ids ? per.filter((v) => !pg.ids.includes(chave(v))) : [];
+    const saiu = pg && pg.ids ? pg.ids.filter((c) => !chaves.has(c)).length : 0, dif = pg && vids ? q - (pg.qtd || 0) : 0;
+    $('finMuda').innerHTML = pg && vids && (dif || novos.length || saiu) ? '<div class="aviso-fin"><b>A planilha mudou depois do pagamento: ' + (dif > 0 ? '+' : '') + dif + ' vídeo' + (Math.abs(dif) === 1 ? '' : 's') + ' (' + (dif > 0 ? '+' : '') + BRL(dif * VAL) + ').</b>' +
+      (novos.length ? '<br>Entraram: ' + esc(novos.slice(0, 6).map((v) => titulo(v.cliente) + ' — ' + (v.titulo || v.link)).join(' · ')) + (novos.length > 6 ? ' · e mais ' + (novos.length - 6) : '') : '') + (saiu ? '<br>' + saiu + (saiu === 1 ? ' linha saiu' : ' linhas saíram') + ' da planilha.' : '') + '</div>' : '';
+
+    $('finTab').innerHTML = !vids ? '' : gl.length ? gl.map((g) => '<div class="gcli"><span class="ini">' + esc(ini(g.c)) + '</span>' + esc(titulo(g.c)) + '<em>' + g.n + ' vídeo' + (g.n === 1 ? '' : 's') + '</em><b>' + BRL(g.n * VAL) + '</b></div>' +
+      g.l.map((v) => { const it = fluxo.get(v.id);
+        return '<div class="vid"><span class="mut">' + (v.data ? fmt(v.data).slice(0, 5) : '—') + '</span>' + (/^https?:/.test(v.link) ? '<a class="elip" href="' + esc(v.link) + '" target="_blank" rel="noopener">' + esc(v.titulo || 'Abrir vídeo') + '</a>' : '<span class="elip">' + esc(v.titulo || v.link || '—') + '</span>') +
+          '<span style="font-weight:600;color:' + (it ? COR[it.status] || 'inherit' : 'var(--ink-300)') + '">' + (it ? esc(it.status) : 'fora do fluxo') + '</span><span>' + BRL(v.qtd * VAL) + '</span></div>'; }).join('')).join('')
+      : '<p class="mut" style="margin:12px 0;font-size:13px">Nenhum vídeo na planilha em ' + MESES[mes.getMonth()] + '.</p>';
+
+    $('finPagTit').textContent = 'Pagamento · ' + Mes(mes.getMonth());
+    $('finValor').textContent = vids ? BRL(q * VAL) : '—';
+    $('finConta').textContent = vids ? q + ' vídeo' + (q === 1 ? '' : 's') + ' × ' + BRL(VAL) : 'lendo a planilha…';
+    $('finStatus').innerHTML = pg ? '<span style="color:var(--ok)">✓ Pago</span>&nbsp;· por ' + esc(nome(pg.por)) + ' em ' + esc(pg.em) + ' · ' + pg.qtd + ' vídeos, ' + BRL(pg.valor || 0) : 'Em aberto';
+  }
+
+  // ---------- controles ----------
+  $('inVista').onclick = (e) => { const b = e.target.closest('[data-v]'); if (!b) return; vista = b.dataset.v; if (vista === 'fin' && modo === 'Semana') mes = new Date(seg.getFullYear(), seg.getMonth(), 1); pinta(); };
   $('inModo').onclick = (e) => { const b = e.target.closest('[data-m]'); if (b) { modo = b.dataset.m; if (modo === 'Mês') mes = new Date(seg.getFullYear(), seg.getMonth(), 1); pinta(); } };
-  const anda = (n) => { if (modo === 'Semana') seg = somaDias(seg, 7 * n); else mes = new Date(mes.getFullYear(), mes.getMonth() + n, 1); pinta(); };
+  const anda = (n) => { if (vista === 'post' && modo === 'Semana') seg = somaDias(seg, 7 * n); else mes = new Date(mes.getFullYear(), mes.getMonth() + n, 1); pinta(); };
   $('inAnt').onclick = () => anda(-1); $('inProx').onclick = () => anda(1);
   $('inAtual').onclick = () => { seg = segundaDe(h0); mes = new Date(h0.getFullYear(), h0.getMonth(), 1); pinta(); };
   $('inChips').onclick = (e) => { const b = e.target.closest('[data-f]'); if (b) { filt = b.dataset.f; pinta(); } };
+  $('finMeses').onclick = (e) => { const b = e.target.closest('[data-mes]'); if (!b) return; const [y, m] = b.dataset.mes.split('-'); mes = new Date(+y, +m - 1, 1); pinta(); };
   const abre = (e) => { const r = e.target.closest('.row'); if (!r || e.target.closest('a')) return; if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); aberto = aberto === r.dataset.c ? null : r.dataset.c; pinta(); };
   $('inTab').onclick = abre; $('inTab').onkeydown = abre;
+  setInterval(() => { if (vista === 'fin') { vidSt = vidSt === 'erro' ? 'nada' : vidSt; leVideos(); } }, 60000);
   window.pintaIndicadores = pinta;
 })();
 </script>
