@@ -128,6 +128,42 @@ main{align-items:stretch}
 #tela-semana .risco+.risco{border-top:1px solid rgba(247,228,206,.06)}
 #tela-semana .risco .dd{flex:none;width:44px;font-size:11px;color:var(--gold-400);font-weight:600}
 @media (max-width:1100px){#tela-semana .quadro{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#tela-stories .kpis{display:flex;gap:34px;flex-wrap:wrap;margin-top:10px}
+#tela-stories .kpi{display:flex;flex-direction:column;gap:6px}
+#tela-stories .kpi .num{font-size:34px}
+#tela-stories .kpi span:last-child{font-size:12px;color:var(--ink-300)}
+#tela-stories .nav-sem{display:flex;align-items:center;gap:8px}
+#tela-stories .seta{width:38px;height:38px;border-radius:50%;border:1px solid rgba(247,228,206,.16);background:rgba(18,18,18,.6);color:var(--gold-300);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+#tela-stories .seta:hover{border-color:rgba(243,172,47,.55);box-shadow:0 0 14px rgba(243,172,47,.25)}
+#tela-stories .dias7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:8px}
+#tela-stories .dias7 div{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:14px;border:1px solid rgba(247,228,206,.08);background:rgba(18,18,18,.45)}
+#tela-stories .dias7 div.on{border-color:rgba(243,172,47,.6);background:rgba(243,172,47,.12);box-shadow:0 0 20px rgba(243,172,47,.28)}
+#tela-stories .dias7 b{font-family:var(--disp);font-weight:800;font-size:15px}
+#tela-stories .dias7 span{font-size:10.5px;color:var(--ink-300);letter-spacing:.1em;text-transform:uppercase}
+#tela-stories .dias7 .on span{color:var(--gold-300)}
+#tela-stories .dias7 em{font-style:normal;font-size:11px;color:var(--ink-200)}
+#tela-stories .legenda{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-300);flex-wrap:wrap}
+#tela-stories .legenda i{width:9px;height:9px;border-radius:50%;margin-left:10px;box-sizing:border-box}
+#tela-stories .pend{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:12.5px}
+#tela-stories .pend+.pend{border-top:1px solid rgba(247,228,206,.06)}
+#tela-stories .grade-st{display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(140px,1.4fr) repeat(7,52px) 92px;align-items:center;margin-top:4px}
+#tela-stories .grade-st > *{padding:10px 6px;border-top:1px solid rgba(247,228,206,.06);min-width:0}
+#tela-stories .grade-st .th{border-top:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400);text-align:center}
+#tela-stories .grade-st .th.l{text-align:left}
+#tela-stories .grade-st .th small{display:block;font-size:10px;letter-spacing:0;font-weight:400;color:var(--ink-300);margin-top:3px}
+#tela-stories .grade-st .th.hj{color:var(--gold-200);text-shadow:0 0 10px rgba(243,172,47,.6)}
+#tela-stories .grade-st .cel{display:flex;justify-content:center}
+#tela-stories .grade-st .cel.hj{background:rgba(243,172,47,.06)}
+#tela-stories .bol{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#tela-stories .bol.ok{background:#E09A24;box-shadow:0 0 12px rgba(243,172,47,.55)}
+#tela-stories .bol.falta{border:1.5px solid rgba(247,228,206,.3)}
+#tela-stories .bol.falta.hj{border-color:#F3AC2F;box-shadow:0 0 12px rgba(243,172,47,.45)}
+#tela-stories .bol.fora{width:4px;height:4px;background:rgba(247,228,206,.22)}
+#tela-stories .cli{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600}
+#tela-stories .ini{width:28px;height:28px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:600;color:var(--gold-300);background:rgba(243,172,47,.12);border:1px solid rgba(243,172,47,.35)}
+#tela-stories .fixo{font-size:12.5px;color:var(--ink-200)}
+#tela-stories .sem{display:flex;align-items:center;gap:8px;justify-content:flex-end;font-size:12.5px}
+@media (max-width:1100px){#tela-stories .grade-st{grid-template-columns:minmax(150px,1fr) repeat(7,40px) 80px}#tela-stories .grade-st .fixo,#tela-stories .grade-st .th.fx{display:none}}
 </style>
 </head>
 <body>
@@ -321,11 +357,56 @@ main{align-items:stretch}
 <div class="quadro" id="sQuadro"></div>
 </section>
 </main>
+<main id="tela-stories" hidden>
+<section class="card l2" style="padding-bottom:22px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span class="mut" style="font-size:14px">Conteúdo fixo de cada cliente</span>
+<h1 class="num" style="margin:0;font-size:40px">Stories</h1>
+</div>
+<div class="nav-sem">
+<button type="button" class="seta" id="stAnt" aria-label="Semana anterior"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+<span class="pill" id="stRotulo" style="min-width:132px;justify-content:center">—</span>
+<button type="button" class="seta" id="stProx" aria-label="Próxima semana"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+<button type="button" class="chip" id="stAtual">Semana atual</button>
+</div>
+</div>
+<div class="kpis">
+<div class="kpi"><span class="num" id="stCli">—</span><span>clientes com rotina</span></div>
+<div class="kpi"><span class="num" id="stPrev">—</span><span>previstos na semana</span></div>
+<div class="kpi"><span class="num" id="stFeitos" style="color:var(--gold-300);text-shadow:0 0 22px rgba(243,172,47,.4)">—</span><span>publicados</span></div>
+<div class="kpi"><span class="num" id="stFaltam">—</span><span>faltam</span></div>
+</div>
+<div class="dias7" id="stDias" aria-hidden="true"></div>
+</section>
+
+<section class="card estica" style="align-items:center">
+<span class="tit" style="align-self:flex-start">Stories de hoje<small id="stHojeDia"></small></span>
+<div style="position:relative;width:132px;height:132px">
+<svg viewBox="0 0 160 160" width="132" height="132" aria-hidden="true" style="transform:rotate(-90deg);filter:drop-shadow(0 0 12px rgba(243,172,47,.45))">
+<circle cx="80" cy="80" r="64" fill="none" stroke="rgba(247,228,206,.08)" stroke-width="7"/>
+<circle id="stAnel" cx="80" cy="80" r="64" fill="none" stroke="url(#anel)" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 402.1" style="transition:stroke-dasharray 1s cubic-bezier(.2,.8,.2,1)"/>
+</svg>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span class="num" id="stHojeN" style="font-size:26px">—</span><span class="mut" style="font-size:11px">feitos</span></div>
+</div>
+<span class="pill" id="stHojeMsg">—</span>
+<div id="stHojeL" style="align-self:stretch"></div>
+</section>
+
+<section class="card l3 longo">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+<div class="chips" id="stChips"></div>
+<span class="legenda"><i style="background:#E09A24"></i>Publicado<i style="border:1.5px solid rgba(247,228,206,.4)"></i>Na rotina, falta<i style="width:4px;height:4px;background:rgba(247,228,206,.3)"></i>Fora da rotina</span>
+</div>
+<div class="grade-st" id="stGrade"></div>
+<p class="mut" style="margin:4px 0 0;font-size:12px">A rotina (dias de cada cliente) e o "feito" continuam sendo marcados no interno. Esta prévia só mostra.</p>
+</section>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
 <h1 class="num" id="breveTit" style="margin:0;font-size:40px">—</h1>
-<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral e Semana de postagem (prontas) → Stories → Indicadores → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
+<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. A ordem é: Visão geral, Semana de postagem e Stories (prontas) → Indicadores → Meus painéis e Aprovações → Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
 <a class="botao" href="#painel" style="display:inline-flex;align-items:center">Voltar ao painel</a>
 </section>
 </main>
@@ -371,6 +452,7 @@ main{align-items:stretch}
       pinta();
       if (window.pintaVisao) window.pintaVisao(banco);
       if (window.pintaSemana) window.pintaSemana(banco);
+      if (window.pintaStories) window.pintaStories(banco);
     } catch (e) {
       $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
     }
@@ -684,18 +766,74 @@ main{align-items:stretch}
 </script>
 
 <script>
+/* Stories (prévia, só leitura) — mesma regra da tela de Stories do interno */
+(() => {
+  const { $, esc, p2, fmt, somaDias, titulo, hoje0, MESES } = Y;
+  const CURTOS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const segundaDe = (d) => somaDias(d, -((d.getDay() + 6) % 7));
+  const check = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>';
+  let seg = segundaDe(hoje0()), banco = null, filt = 'Com rotina';
+  const ini = (n) => titulo(n).split(' ').filter((w) => w.length > 2 || /^[A-ZÀ-Ú]/.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+  function pinta(b) {
+    if (b) banco = b; if (!banco) return;
+    const hs = fmt(hoje0());
+    const dias = [...Array(7)].map((_, k) => fmt(somaDias(seg, k)));
+    const feito = new Set((banco.storiesFeitos || []).filter((f) => f.ok).map((f) => f.id));
+    const rows = (banco.stories || []).map((s) => ({ ...s, dias: s.dias || [], feitos: (s.dias || []).filter((d) => feito.has(s.cliente + '|' + dias[d])).length }));
+    const rot = rows.filter((r) => r.dias.length);
+    const prev = rot.reduce((a, r) => a + r.dias.length, 0), fe = rot.reduce((a, r) => a + r.feitos, 0);
+    const iH = dias.indexOf(hs);
+    $('stRotulo').textContent = dias[0].slice(0, 5) + ' – ' + dias[6].slice(0, 5);
+    $('stAtual').classList.toggle('on', iH >= 0);
+    $('stCli').textContent = rot.length; $('stPrev').textContent = prev; $('stFeitos').textContent = fe; $('stFaltam').textContent = prev - fe;
+
+    $('stDias').innerHTML = dias.map((d, k) => { const p = rot.filter((r) => r.dias.includes(k)), f = p.filter((r) => feito.has(r.cliente + '|' + d)).length;
+      return '<div' + (k === iH ? ' class="on"' : '') + '><span>' + (k === iH ? 'Hoje' : CURTOS[k]) + '</span><b>' + d.slice(0, 2) + '</b><em>' + f + '/' + p.length + '</em></div>'; }).join('');
+
+    // hoje (sempre o dia de hoje, mesmo vendo outra semana)
+    const hk = (hoje0().getDay() + 6) % 7;
+    const planH = rot.filter((r) => r.dias.includes(hk)), feitosH = planH.filter((r) => feito.has(r.cliente + '|' + hs));
+    const falta = planH.filter((r) => !feito.has(r.cliente + '|' + hs));
+    $('stHojeDia').textContent = hs.slice(0, 5);
+    $('stHojeN').textContent = feitosH.length + '/' + planH.length;
+    $('stAnel').setAttribute('stroke-dasharray', (planH.length ? 402.1 * feitosH.length / planH.length : 0).toFixed(1) + ' 402.1');
+    const h = new Date().getHours();
+    $('stHojeMsg').textContent = !planH.length ? 'Sem stories hoje' : !falta.length ? 'Todos feitos' : h < 12 ? 'Faltam ' + falta.length + ' até 12h' : falta.length + ' ficaram para trás';
+    $('stHojeL').innerHTML = falta.slice(0, 5).map((r) => '<div class="pend"><span class="ini">' + esc(ini(r.cliente)) + '</span><span class="elip" style="flex:1">' + esc(titulo(r.cliente)) + '</span>' + (r.fixo ? '<span class="mut elip" style="font-size:11.5px;max-width:45%">' + esc(r.fixo) + '</span>' : '') + '</div>').join('') + (falta.length > 5 ? '<p class="mut" style="margin:6px 0 0;font-size:12px">E mais ' + (falta.length - 5) + '.</p>' : '');
+
+    const n = { 'Todos': rows.length, 'Com rotina': rot.length, 'Sem rotina': rows.length - rot.length };
+    $('stChips').innerHTML = Object.keys(n).map((k) => '<button type="button" class="chip' + (filt === k ? ' on' : '') + '" data-f="' + k + '">' + k + ' <b>' + n[k] + '</b></button>').join('');
+    const lista = rows.filter((r) => filt === 'Todos' || (filt === 'Com rotina' ? r.dias.length : !r.dias.length)).sort((a, b) => (b.dias.length > 0) - (a.dias.length > 0) || a.cliente.localeCompare(b.cliente));
+    $('stGrade').innerHTML = '<span class="th l">Cliente</span><span class="th l fx">Conteúdo fixo</span>' + dias.map((d, k) => '<span class="th' + (k === iH ? ' hj' : '') + '">' + CURTOS[k] + '<small>' + d.slice(0, 5) + '</small></span>').join('') + '<span class="th" style="text-align:right">Semana</span>' +
+      (lista.map((r) => '<span class="cli"><span class="ini">' + esc(ini(r.cliente)) + '</span><span class="elip">' + esc(titulo(r.cliente)) + '</span></span><span class="fixo elip">' + (esc(r.fixo) || '<span class="mut">—</span>') + '</span>' +
+        dias.map((d, k) => { const on = r.dias.includes(k), ok = on && feito.has(r.cliente + '|' + d);
+          return '<span class="cel' + (k === iH ? ' hj' : '') + '"><span class="bol ' + (ok ? 'ok' : on ? 'falta' + (k === iH ? ' hj' : '') : 'fora') + '" title="' + (ok ? 'Publicado' : on ? 'Na rotina, falta' : 'Fora da rotina') + '">' + (ok ? check : '') + '</span></span>'; }).join('') +
+        '<span class="sem">' + (r.dias.length ? '<span class="barra" style="max-width:40px"><i style="width:' + Math.round(r.feitos / r.dias.length * 100) + '%"></i></span>' + r.feitos + '/' + r.dias.length : '<span class="mut">sem rotina</span>') + '</span>').join('') ||
+      '<span style="grid-column:1/-1;padding:28px;text-align:center" class="mut">Nenhum cliente aqui.</span>');
+  }
+  $('stAnt').onclick = () => { seg = somaDias(seg, -7); pinta(); };
+  $('stProx').onclick = () => { seg = somaDias(seg, 7); pinta(); };
+  $('stAtual').onclick = () => { seg = segundaDe(hoje0()); pinta(); };
+  $('stChips').onclick = (e) => { const b = e.target.closest('[data-f]'); if (b) { filt = b.dataset.f; pinta(); } };
+  window.pintaStories = pinta;
+})();
+</script>
+
+<script>
 /* telas da prévia: tudo num endereço só, o trilho troca a tela */
 (() => {
-  const NOMES = { stories: 'Stories', indicadores: 'Indicadores', cadastrar: 'Cadastrar conteúdo' };
+  const NOMES = { indicadores: 'Indicadores', cadastrar: 'Cadastrar conteúdo' };
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
+    document.getElementById('tela-stories').hidden = t !== 'stories';
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
