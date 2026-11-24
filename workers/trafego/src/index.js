@@ -104,6 +104,11 @@ export default {
       if (url.pathname === "/token") return json(await statusToken(env), 200, cors);
       if (url.pathname === "/sugestoes") return json(await listarSugestoes(env, ctx, periodo), 200, cors);
       if (url.pathname === "/acessos" && !escrita) return json(await listarAcessos(env, ctx), 200, cors);
+      if (url.pathname === "/artes" && !escrita) {
+        if (quem.papel !== "admin") return json({ erro: "Só o administrador." }, 403, cors);
+        if (url.searchParams.get("rodar") === "1") return json(await sincronizarArtes(env, { gravar: url.searchParams.get("gravar") === "1" }), 200, cors);
+        return json(JSON.parse((await env.YAMB_TRAFEGO.get("artes:ultima")) || "{}"), 200, cors);
+      }
       if (url.pathname === "/config" && !escrita) return json({ config: await lerConfig(env), vapid: env.VAPID_PUBLIC || null, inscritos: await contarInscritos(env) }, 200, cors);
       if (escrita) {
         const corpo = await request.json().catch(() => ({}));
@@ -149,6 +154,11 @@ export default {
 
   // Checagem automática (cron a cada 15 minutos, ver wrangler.toml).
   async scheduled(evento, env, ctx) {
+    if (evento.cron === "7 * * * *") { // artes do Trello → interno, de hora em hora (6h–22h)
+      const h = new Date(Date.now() - 3 * 3600e3).getUTCHours();
+      if (h >= 6 && h <= 22) ctx.waitUntil(sincronizarArtes(env).catch((e) => env.YAMB_TRAFEGO.put("artes:ultima", JSON.stringify({ em: new Date().toISOString(), erro: e.message }))));
+      return;
+    }
     ctx.waitUntil(checagemAgendada(env, ctx).catch((e) => console.log("checagem falhou:", e.message)));
   },
 };
@@ -1335,4 +1345,112 @@ function json(dados, status, headers) {
     status,
     headers: { ...headers, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
   });
+}
+
+// ---------------------------------------------------------------- artes do Trello → ambiente interno
+// Toda hora (6h–22h de Brasília) lê os quadros de cliente no Trello e cadastra no interno as artes
+// dos próximos ARTES_DIAS dias que ainda não estão lá. Só acrescenta: nunca altera nem apaga demanda.
+// Cards reconhecidos pelo título "DD/MM DIA - …" (ex.: "25/11 QUA - Doador de sangue").
+const ARTES_DIAS = 7;
+const ARTES_RESPONSAVEL = { padrao: "marcus", "CAJU GASTRO": "gabriel" }; // chave sem acento
+const ARTES_LISTAS_FORA = /publicad|reuni|ideia|idéia|finaliz|n[aã]o gravad|arquiv|refer[eê]ncia|modelo/i;
+const ARTES_QUADROS_FORA = /^(EQUIPE|GEST[AÃ]O)/i;
+const ARTES_ALIAS = { "DOM SORVERTES E ACAI": "DOM SORVETES E ACAI", "EU GOSTO SEXSHOP": "EU GOSTO SEX SHOP" };
+const DIA_SIGLA = { DOM: 0, SEG: 1, TER: 2, QUA: 3, QUI: 4, SEX: 5, SAB: 6 };
+
+const semAcento = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
+const nomeQuadro = (n) => { const k = semAcento(n).replace(/\s*-\s*YAMB\s*$/, "").trim(); return ARTES_ALIAS[k] || k; };
+const shortLink = (u) => (String(u || "").match(/trello\.com\/c\/([A-Za-z0-9]+)/) || [])[1] || null;
+
+async function trello(env, caminho) {
+  const sep = caminho.includes("?") ? "&" : "?";
+  const r = await fetch(`https://api.trello.com/1/${caminho}${sep}key=${env.TRELLO_KEY}&token=${env.TRELLO_TOKEN}`);
+  if (!r.ok) throw new Error(`Trello respondeu ${r.status} em ${caminho.split("?")[0]}`);
+  return r.json();
+}
+
+// Data do card dentro da janela [hoje, hoje+dias], conferindo o dia da semana para acertar o ano.
+function dataDoCard(nome, hojeBr, dias) {
+  const m = String(nome).match(/^\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*-?\s*(SEG|TER|QUA|QUI|SEX|S[AÁ]B|DOM)\b/i);
+  if (!m) return null;
+  const d = +m[1], mes = +m[2], sigla = semAcento(m[3]);
+  for (const ano of [hojeBr.getUTCFullYear(), hojeBr.getUTCFullYear() + 1]) {
+    const dt = new Date(Date.UTC(ano, mes - 1, d));
+    if (dt.getUTCDate() !== d || dt.getUTCDay() !== DIA_SIGLA[sigla]) continue;
+    const diff = Math.round((dt - Date.UTC(hojeBr.getUTCFullYear(), hojeBr.getUTCMonth(), hojeBr.getUTCDate())) / 864e5);
+    if (diff >= 0 && diff <= dias) return { data: `${String(d).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`, titulo: String(nome).replace(m[0], "").replace(/^\s*-?\s*/, "").replace(/\s+/g, " ").trim() || String(nome).replace(/\s+/g, " ").trim() };
+  }
+  return null;
+}
+
+async function sincronizarArtes(env, { gravar = true, dias = ARTES_DIAS } = {}) {
+  if (!env.TRELLO_KEY || !env.TRELLO_TOKEN) throw new Error("Chave do Trello não configurada no Worker.");
+  const br = new Date(Date.now() - 3 * 3600e3);
+  // 1) cards do Trello na janela — uma busca por dia (o plano grátis da Cloudflare permite ~50 chamadas por rodada).
+  // A busca cobre todos os quadros e áreas de trabalho que a conta enxerga.
+  const cards = [], semCliente = new Set(), vistos = new Set();
+  for (let k = 0; k <= dias; k++) {
+    const dt = new Date(Date.UTC(br.getUTCFullYear(), br.getUTCMonth(), br.getUTCDate() + k));
+    const dm = String(dt.getUTCDate()).padStart(2, "0") + "/" + String(dt.getUTCMonth() + 1).padStart(2, "0");
+    const q = encodeURIComponent(`name:"${dm}" is:open`);
+    const r = await trello(env, `search?query=${q}&modelTypes=cards&cards_limit=1000&card_fields=name,shortLink,idList,idBoard,closed&card_list=true&card_board=true&board_fields=name&partial=false`);
+    for (const c of r.cards || []) {
+      if (vistos.has(c.shortLink) || c.closed) continue;
+      vistos.add(c.shortLink);
+      const quadro = (c.board && c.board.name) || "", lista = (c.list && c.list.name) || "";
+      if (ARTES_QUADROS_FORA.test(quadro) || ARTES_LISTAS_FORA.test(lista)) continue;
+      const dc = dataDoCard(c.name, br, dias);
+      if (dc) cards.push({ quadro, cliente: nomeQuadro(quadro), lista, shortLink: c.shortLink, ...dc });
+    }
+  }
+  // 2) o que já existe no interno (ou já foi cadastrado alguma vez pelo robô)
+  const lerBanco = async () => {
+    const r = await fetch(env.SHEET_URL + "?t=" + Date.now(), { redirect: "follow", headers: { "User-Agent": "Mozilla/5.0 YAMB-artes" } });
+    if (!r.ok) throw new Error("Ambiente interno respondeu " + r.status);
+    const texto = await r.text();
+    return { texto, banco: (JSON.parse(texto).data) || {} };
+  };
+  let { texto, banco } = await lerBanco();
+  const clientes = new Map();
+  for (const x of [...(banco.planos || []), ...(banco.stories || []), ...(banco.items || [])]) if (x && x.cliente) clientes.set(semAcento(x.cliente), x.cliente);
+  const jaRobo = new Set(JSON.parse((await env.YAMB_TRAFEGO.get("artes:criados")) || "[]"));
+  const existe = (itens) => {
+    const links = new Set(), chaves = new Set();
+    for (const i of itens || []) { const s = shortLink(i.trello); if (s) links.add(s); chaves.add(semAcento(i.cliente) + "|" + i.data + "|" + semAcento(i.titulo)); }
+    return (c) => links.has(c.shortLink) || jaRobo.has(c.shortLink) || chaves.has(c.cliente + "|" + c.data + "|" + semAcento(c.titulo));
+  };
+  const filtra = (b) => {
+    const ja = existe(b.items), novos = [];
+    for (const c of cards) {
+      const cli = clientes.get(c.cliente);
+      if (!cli) { semCliente.add(c.quadro); continue; }
+      if (!ja(c)) novos.push({ ...c, clienteInterno: cli });
+    }
+    return novos;
+  };
+  let novos = filtra(banco);
+  const relatorio = { em: new Date().toISOString(), janela: dias, cardsNaJanela: cards.length, novos: novos.map((n) => ({ cliente: n.clienteInterno, data: n.data, titulo: n.titulo })), semCliente: [...semCliente], gravado: false };
+  if (!gravar || !novos.length) { if (gravar) await env.YAMB_TRAFEGO.put("artes:ultima", JSON.stringify(relatorio)); return relatorio; }
+  // 3) lê de novo logo antes de gravar (alguém pode ter salvo no meio) e só acrescenta
+  ({ texto, banco } = await lerBanco());
+  novos = filtra(banco);
+  if (!novos.length) { await env.YAMB_TRAFEGO.put("artes:ultima", JSON.stringify({ ...relatorio, novos: [] })); return { ...relatorio, novos: [] }; }
+  await env.YAMB_TRAFEGO.put("artes:backup:" + Date.now(), texto, { expirationTtl: 14 * 86400 }); // cópia antes de gravar
+  const agora = Date.now(), hm = String(br.getUTCHours()).padStart(2, "0") + ":" + String(br.getUTCMinutes()).padStart(2, "0");
+  const dm = String(br.getUTCDate()).padStart(2, "0") + "/" + String(br.getUTCMonth() + 1).padStart(2, "0");
+  const itens = novos.map((n, k) => {
+    const ts = agora + k;
+    return { id: "c" + ts, cliente: n.clienteInterno, tipo: "Arte", data: n.data, titulo: n.titulo, trello: "https://trello.com/c/" + n.shortLink,
+      produtor: ARTES_RESPONSAVEL[n.cliente] || ARTES_RESPONSAVEL.padrao, hora: "12h", status: "Pendente", social: "brisa", cadastradoPor: "gabriel",
+      checklist: [], aprovacao: null, nota: "", historico: { Pendente: { em: dm + " · " + hm, por: "gabriel", ts } }, _u: ts };
+  });
+  const r = await fetch(env.SHEET_URL, { method: "POST", redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8", "User-Agent": "Mozilla/5.0 YAMB-artes" },
+    body: JSON.stringify({ data: { ...banco, items: [...(banco.items || []), ...itens] } }) });
+  const resp = await r.json().catch(() => null);
+  if (!resp || !resp.ok) throw new Error("O ambiente interno não confirmou a gravação.");
+  for (const n of novos) jaRobo.add(n.shortLink);
+  await env.YAMB_TRAFEGO.put("artes:criados", JSON.stringify([...jaRobo].slice(-3000)));
+  const final = { ...relatorio, novos: itens.map((i) => ({ cliente: i.cliente, data: i.data, titulo: i.titulo })), gravado: true };
+  await env.YAMB_TRAFEGO.put("artes:ultima", JSON.stringify(final));
+  return final;
 }

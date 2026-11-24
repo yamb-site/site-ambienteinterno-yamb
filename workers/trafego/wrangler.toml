@@ -22,4 +22,5 @@ id = "14ec801dab234cbdacf3df9434f18ae3"
 
 # Checagem automática das sugestões: a cada 15 minutos (urgentes avisam na hora, 7h–22h; o resto nas horas dos Avisos)
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/15 * * * *", "7 * * * *"]
+# "7 * * * *": artes do Trello → ambiente interno (segredos TRELLO_KEY e TRELLO_TOKEN)

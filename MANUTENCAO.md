@@ -2,6 +2,15 @@
 
 Memória do agente `ya-manutencao` entre revisões. Mais recente primeiro.
 
+## 2026-11-24 — robô: artes do Trello → ambiente interno (Worker yamb-trafego)
+- Cron `7 * * * *` (roda 6h–22h de Brasília) chama `sincronizarArtes` em `workers/trafego/src/index.js`.
+- Busca no Trello (uma busca por dia, `name:"DD/MM"`) os cards "DD/MM DIA - …" dos próximos 7 dias, em todas as áreas de trabalho; ignora quadros EQUIPE/GESTÃO e listas de publicados, reuniões, ideias, finalizados, não gravados.
+- Só acrescenta no interno o que falta (compara pelo link do card, por cliente+data+título e pela lista `artes:criados` no KV, para não recriar o que a equipe apagou). Nunca altera nem apaga.
+- Padrão: tipo Arte, 12h, Pendente, social brisa, produtor marcus (Caju Gastrô → gabriel), cadastradoPor gabriel. Ajustar em `ARTES_RESPONSAVEL`.
+- Antes de gravar guarda cópia no KV (`artes:backup:<ts>`, 14 dias). Último relatório: `GET /artes` (admin); simular: `/artes?rodar=1`; gravar já: `/artes?rodar=1&gravar=1`.
+- Segredos: `TRELLO_KEY` (app YAMB em trello.com/power-ups/admin) e `TRELLO_TOKEN` (só leitura, sem validade). Deploy com `CLOUDFLARE_ACCOUNT_ID=c5df7978f2050db99ed01c1c92d04ba6`.
+- Limite do plano grátis: ~50 chamadas por rodada — por isso a busca por dia, não quadro a quadro.
+
 ## 2026-11-10 — avisos de postagens obrigatórios (push às 8h) no ambiente interno
 - Bloco `<script>/* Avisos de postagens …` injetado no fim de `interno/index.html` e `interno/app/index.html`: tela que trava o app até a pessoa ligar as notificações; service worker próprio `interno/sw-avisos.js` (escopo `/interno/avisos-postagens/`, separado do `sw.js` do OneSignal). **Reaplicar o bloco depois de cada exportação nova do interno.**
 - Servidor: Worker `yamb-trafego` (rotas `/avisos/*`, segredo `AVISOS_TOKEN`, variável `SHEET_URL`). Todo dia às 8h (cron */15, primeira checagem da hora) envia push com postagens do dia ainda não "Postado" e stories do dia ainda não marcados.
