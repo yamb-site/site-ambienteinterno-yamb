@@ -258,7 +258,10 @@ main{align-items:stretch}
 #tela-aprovacoes .k5 > div.d,#tela-paineis .k5 > div.d{background:rgba(243,172,47,.12);border-color:rgba(243,172,47,.5);box-shadow:0 0 22px rgba(243,172,47,.22)}
 #tela-aprovacoes .k5 .d .num,#tela-paineis .k5 .d .num{color:var(--gold-200);text-shadow:0 0 16px rgba(243,172,47,.5)}
 #tela-aprovacoes .k5 small{font-size:11.5px;color:var(--ink-300)}
-#tela-paineis .kanban{display:grid;grid-template-columns:repeat(var(--cols,6),minmax(0,1fr));gap:12px;align-items:start}
+#tela-paineis .kanban{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,1fr);gap:12px;align-items:start;overflow-x:auto;padding-bottom:8px;scrollbar-color:rgba(243,172,47,.4) transparent}
+#tela-paineis .filtros-pa{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#tela-paineis .filtros-pa .campo:first-child{width:300px}
+#tela-paineis .filtros-pa .campo{width:220px}
 #tela-paineis .kcol{display:flex;flex-direction:column;gap:8px;min-width:0}
 #tela-paineis .kcab{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;border-radius:14px;border:1px solid rgba(247,228,206,.10);background:rgba(18,18,18,.55);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--ink-200)}
 #tela-paineis .kcab span{display:flex;align-items:center;gap:8px}
@@ -287,9 +290,14 @@ main{align-items:stretch}
 #tela-aprovacoes .aj .m{font-size:12px;color:var(--bad)}
 #tela-aprovacoes .kgrid-ap{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 #tela-aprovacoes .vazio{padding:26px 0;text-align:center;font-size:13px;color:var(--ink-300)}
-@media (max-width:1100px){#tela-paineis .kanban{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-paineis .k5{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-aprovacoes .env{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){#tela-paineis .k5{grid-template-columns:repeat(3,minmax(0,1fr))}#tela-aprovacoes .env{grid-template-columns:minmax(0,1fr)}}
 #tela-cadastrar [hidden]{display:none!important}
 #tela-cadastrar .form-cad{gap:20px;padding:30px 32px}
+#tela-cadastrar .acoes{position:sticky;bottom:14px;z-index:3;display:flex;flex-direction:column;gap:12px;padding:16px 18px;border-radius:18px;background:rgba(14,14,14,.94);border:1px solid rgba(243,172,47,.3);box-shadow:0 -10px 30px -10px rgba(0,0,0,.8),0 0 22px rgba(243,172,47,.12);backdrop-filter:blur(14px)}
+#tela-cadastrar .acoes .resp{padding:0;border:0;background:none}
+#tela-cadastrar .form-cad{gap:18px;overflow:visible}
+#tela-cadastrar .campo{height:46px}
+
 #tela-cadastrar .g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 #tela-cadastrar .fld{display:flex;flex-direction:column;gap:8px;min-width:0}
 #tela-cadastrar .fld > span:first-child{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--gold-400)}
@@ -626,7 +634,8 @@ main{align-items:stretch}
 <div class="abas" id="paAbas"></div>
 <div class="abas" id="paSub2"></div>
 </div>
-<div class="k5" id="paKpis"></div>
+<div class="k5" id="paKpis" hidden></div>
+<div class="filtros-pa"><label class="campo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="paBusca" type="search" placeholder="Buscar cliente ou título" aria-label="Buscar"></label><label class="campo"><select id="paCli" aria-label="Cliente"><option value="">Todos os clientes</option></select></label><button type="button" class="chip" id="paParados">Só parados além do prazo</button><span class="mut" id="paResumo" style="font-size:12.5px;margin-left:auto"></span></div>
 </section>
 <section class="card l3 longo" id="paEspera" style="border-color:rgba(240,165,148,.35)"></section>
 <section class="card l3 longo"><div class="kanban" id="paQuadro"></div></section>
@@ -641,7 +650,7 @@ main{align-items:stretch}
 <div class="k5" id="apKpis" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
 </section>
 <section class="card l2 longo">
-<div class="tit">Enviados para avaliação<small id="apEnvN"></small></div>
+<div class="tit" style="flex-wrap:wrap">Enviados para avaliação<small id="apEnvN" style="margin-left:auto"></small></div>
 <p class="mut" style="margin:0;font-size:12.5px">Aprovar e pedir ajuste continuam no interno. A prévia mostra o que está esperando.</p>
 <div class="env" id="apEnv"></div>
 </section>
@@ -662,27 +671,28 @@ main{align-items:stretch}
 </div>
 <div class="g2">
 <label class="fld"><span>Cliente</span><span class="campo"><select id="cCli"></select></span></label>
-<label class="fld"><span>Data prevista para postagem</span><span class="campo"><input id="cData" type="date"></span><small id="cDataH">Segunda a domingo</small></label>
+<label class="fld"><span>Data da postagem</span><span class="campo"><input id="cData" type="date"></span><small id="cDataH">Segunda a domingo</small></label>
 </div>
 <div class="fld"><span>Tipo de conteúdo</span><div class="tipos" id="cTipos" role="radiogroup" aria-label="Tipo de conteúdo"></div></div>
-<label class="fld"><span>Conteúdo</span><span class="campo"><input id="cTit" type="text" placeholder="Ex.: Coleção primavera — 5 cards" autocomplete="off"></span></label>
+<label class="fld"><span>Conteúdo</span><span class="campo"><input id="cTit" type="text" placeholder="Ex.: Coleção primavera — 5 cards" autocomplete="off"></span><small>Entra em Pendente; depois qualquer pessoa move entre as etapas.</small></label>
 <div class="g2">
-<label class="fld"><span id="cProdRot">Quem vai fazer o design</span><span class="campo"><select id="cProd"></select></span><small>A demanda aparece só no painel de quem for indicado.</small></label>
-<label class="fld"><span>Etapa inicial</span><span class="campo" style="opacity:.6"><input value="Pendente" disabled></span><small>Depois qualquer pessoa move entre as etapas.</small></label>
+<label class="fld"><span id="cProdRot">Quem vai fazer o design</span><span class="campo"><select id="cProd"></select></span><small>Aparece só no painel de quem for indicado.</small></label>
+<label class="fld"><span>Link no Trello</span><span class="campo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><input id="cTrello" type="url" placeholder="https://trello.com/c/…"></span><small id="cTrelloH">Obrigatório na operação real.</small></label>
 </div>
 <div class="capa-box" id="cCapaBox" hidden>
 <label class="chk-l"><input type="checkbox" id="cCapa" checked> Precisa de capa — entra na lista de capas do design</label>
-<label class="fld" id="cCapaQuem"><span>Quem faz a capa</span><span class="campo"><select id="cCapaD"></select></span><small>A capa aparece só em Capas de Reels de quem for indicado.</small></label>
+<label class="fld" id="cCapaQuem"><span>Quem faz a capa</span><span class="campo"><select id="cCapaD"></select></span></label>
 </div>
-<label class="fld"><span>Link da demanda no Trello</span><span class="campo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/></svg><input id="cTrello" type="url" placeholder="https://trello.com/c/…"></span><small id="cTrelloH">Obrigatório na operação real — é o caminho para a demanda completa.</small></label>
-<div class="resp" id="cResp"></div>
 <div id="cDup"></div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-<button type="button" class="botao" id="cEnviar" disabled style="height:50px;padding:0 26px;font-size:15px">Cadastrar e notificar →</button>
-<button type="button" class="botao sec" id="cLimpar" style="height:50px">Limpar</button>
-<span class="mut" style="font-size:12px">Na prévia nada é salvo.</span>
-</div>
 <div id="cToast"></div>
+<div class="acoes">
+<div class="resp" id="cResp"></div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<span class="mut" style="font-size:12px;margin-right:auto">Na prévia nada é salvo.</span>
+<button type="button" class="botao sec" id="cLimpar">Limpar</button>
+<button type="button" class="botao" id="cEnviar" disabled style="padding:0 26px">Cadastrar e notificar →</button>
+</div>
+</div>
 </section>
 
 <section class="card estica" style="gap:18px">
@@ -1330,7 +1340,7 @@ main{align-items:stretch}
   const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
   const capaPronta = (i) => !!(i.capa && i.capa.pronta);
   const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0);
-  let banco = null, painel = 'design', sub = 'artes', quem = {};
+  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false;
 
   const card = (i, extra = '') => {
     const t = i.trello ? 'a' : 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
@@ -1348,7 +1358,12 @@ main{align-items:stretch}
 
   function pintaPaineis(b) {
     if (b) banco = b; if (!banco) return;
-    const itens = (banco.items || []).filter((i) => !i.excluido).sort(porData);
+    const todos = (banco.items || []).filter((i) => !i.excluido).sort(porData);
+    const cl = [...new Set(todos.map((i) => i.cliente))].filter(Boolean).sort(), cv = $('paCli').value;
+    $('paCli').innerHTML = '<option value="">Todos os clientes</option>' + cl.map((c) => '<option value="' + esc(c) + '">' + esc(titulo(c)) + '</option>').join(''); $('paCli').value = cl.includes(cv) ? cv : '';
+    const q = $('paBusca').value.trim().toLowerCase(), cf = $('paCli').value;
+    $('paParados').classList.toggle('on', soParados);
+    const itens = todos.filter((i) => (!cf || i.cliente === cf) && (!q || (i.cliente + ' ' + (i.titulo || '')).toLowerCase().includes(q)) && (!soParados || atraso(i) > 0));
     const eu = ($('euSel') && $('euSel').value) || 'gabriel';
     if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
     const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
@@ -1394,6 +1409,7 @@ main{align-items:stretch}
         $('paQuadro').style.setProperty('--cols', 6);
       }
     }
+    $('paResumo').textContent = (q || cf || soParados) ? 'Filtro ativo' : '';
     $('paKpis').className = 'k5' + (painel !== 'social' && sub === 'capas' ? ' k3' : '');
     $('paKpis').innerHTML = kp;
     $('paEspera').hidden = !espera.length;
@@ -1401,30 +1417,45 @@ main{align-items:stretch}
     $('paQuadro').innerHTML = cols;
   }
 
+  // data da aprovação: histórico da etapa "Aprovado" (o mesmo que o interno grava ao aprovar); senão o campo antigo
+  const aprovadoEm = (i) => { const h = (i.historico || {}).Aprovado; if (h && h.ts) return new Date(h.ts);
+    if (h && h.em) { const m = String(h.em).match(/(\d{2})\/(\d{2})/); if (m) { const d = new Date(new Date().getFullYear(), +m[2] - 1, +m[1]); if (d > new Date()) d.setFullYear(d.getFullYear() - 1); return d; } }
+    return i.aprovacao && parse(i.aprovacao.data) || null; };
+  const aprovadoPor = (i) => { const h = (i.historico || {}).Aprovado, p = (h && h.por) || (i.aprovacao && i.aprovacao.por); return p && p !== '—' ? (EQUIPE[p] || [p])[0] : ''; };
+  let apQuem = '';
   function pintaAprov(b) {
     if (b) banco = b; if (!banco) return;
     const itens = (banco.items || []).filter((i) => !i.excluido);
-    const env = itens.filter((i) => i.status === 'Enviado').sort(porData), aj = itens.filter((i) => i.status === 'Ajustar').sort(porData);
-    const h = hoje0(), ok = itens.filter((i) => ['Aprovado', 'Não postado', 'Postado'].includes(i.status) && i.aprovacao && parse(i.aprovacao.data));
-    const rec = ok.filter((i) => parse(i.aprovacao.data) >= somaDias(h, -30)).sort((a, b) => parse(b.aprovacao.data) - parse(a.aprovacao.data));
-    const semana = ok.filter((i) => parse(i.aprovacao.data) >= somaDias(h, -6)).length;
-    const esperando = env.filter((i) => atraso(i) > 0).length;
+    const espera = (i) => diasNaEtapa(i) ?? -1;
+    const envAll = itens.filter((i) => i.status === 'Enviado').sort((a, b) => espera(b) - espera(a) || porData(a, b));
+    const env = envAll.filter((i) => !apQuem || i.produtor === apQuem);
+    const aj = itens.filter((i) => i.status === 'Ajustar').sort((a, b) => espera(b) - espera(a));
+    const h = hoje0(), ok = itens.filter((i) => ['Aprovado', 'Não postado', 'Postado'].includes(i.status) && aprovadoEm(i));
+    const rec = ok.filter((i) => aprovadoEm(i) >= somaDias(h, -30)).sort((a, b) => aprovadoEm(b) - aprovadoEm(a));
+    const semana = ok.filter((i) => aprovadoEm(i) >= somaDias(h, -6)).length;
     const k = (ov, cor, v, n, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span><small>' + n + '</small></div>';
-    $('apKpis').innerHTML = k('Esperando avaliação', 'var(--gold-200)', env.length, 'enviados', true) + k('Além do prazo', 'var(--bad)', esperando, 'enviados há 2 dias ou mais') + k('Em ajuste', 'var(--bad)', aj.length, 'voltaram para a produção') + k('Aprovados', 'var(--ok)', semana, 'nos últimos 7 dias');
-    $('apEnvN').textContent = env.length;
+    $('apKpis').innerHTML = k('Esperando avaliação', 'var(--gold-200)', envAll.length, 'enviados', true) + k('Além do prazo', 'var(--bad)', envAll.filter((i) => atraso(i) > 0).length, 'enviados há 2 dias ou mais') + k('Em ajuste', 'var(--bad)', aj.length, 'voltaram para a produção') + k('Aprovados', 'var(--ok)', semana, 'nos últimos 7 dias');
+    const prods = [...new Set(envAll.map((i) => i.produtor).filter(Boolean))];
+    $('apEnvN').innerHTML = '<span class="chips" id="apFiltro" style="justify-content:flex-end">' + ['', ...prods].map((p) => '<button type="button" class="chip' + (apQuem === p ? ' on' : '') + '" data-q="' + p + '">' + (p ? (EQUIPE[p] || [titulo(p)])[0] : 'Todos') + ' <b>' + (p ? envAll.filter((i) => i.produtor === p).length : envAll.length) + '</b></button>').join('') + '</span>';
     $('apEnv').innerHTML = env.map((i) => { const d = diasNaEtapa(i), at = atraso(i);
-      return '<div class="envc"><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
-        (d != null ? '<span class="dias" style="' + (at ? 'color:var(--bad);background:rgba(240,165,148,.12)' : 'color:var(--gold-300);background:rgba(243,172,47,.12)') + '">' + (d ? 'há ' + d + 'd' : 'hoje') + '</span>' : '') + '</div>' +
-        '<div class="meta"><span>' + esc(i.tipo) + '</span><span>Postagem ' + esc(i.data) + (i.hora ? ' · ' + esc(i.hora) : '') + '</span>' + (i.produtor && EQUIPE[i.produtor] ? '<span style="display:inline-flex;align-items:center;gap:6px"><img class="av" src="/assets/team/' + EQUIPE[i.produtor][1] + '.png" alt="" style="width:22px;height:22px">' + EQUIPE[i.produtor][0] + '</span>' : '') +
+      return '<div class="envc"' + (at ? ' style="border-color:rgba(240,165,148,.3)"' : '') + '><div class="top"><div><span class="cl">' + esc(titulo(i.cliente)) + '</span><span class="ti">' + esc(i.titulo || '(sem título)') + '</span></div>' +
+        (d != null ? '<span class="dias" style="' + (at ? 'color:var(--bad);background:rgba(240,165,148,.12)' : 'color:var(--gold-300);background:rgba(243,172,47,.12)') + '">' + (d ? 'esperando há ' + d + 'd' : 'enviado hoje') + '</span>' : '') + '</div>' +
+        '<div class="meta"><span>' + esc(i.tipo) + '</span><span>Postagem ' + esc(String(i.data).slice(0, 5)) + (i.hora ? ' · ' + esc(i.hora) : '') + '</span>' + (i.produtor && EQUIPE[i.produtor] ? '<span style="display:inline-flex;align-items:center;gap:6px"><img class="av" src="/assets/team/' + EQUIPE[i.produtor][1] + '.png" alt="" style="width:22px;height:22px">' + EQUIPE[i.produtor][0] + '</span>' : '') +
         (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="margin-left:auto">Abrir no Trello →</a>' : '') + '</div></div>'; }).join('') || '<div class="vazio" style="grid-column:1/-1">Nada enviado para avaliação.</div>';
     $('apAjN').textContent = aj.length;
-    $('apAj').innerHTML = aj.map((i) => '<div class="aj"><span style="font-weight:600">' + esc(titulo(i.cliente)) + ' <span class="mut" style="font-weight:400">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span><span class="elip">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit">' + esc(i.titulo || '(sem título)') + '</a>' : esc(i.titulo || '(sem título)')) + '</span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '') + '</div>').join('') || '<div class="vazio">Nada em ajuste.</div>';
-    $('apOk').innerHTML = rec.slice(0, 24).map((i) => card(i, '<span style="color:var(--ok)">· aprovado ' + esc(String(i.aprovacao.data).slice(0, 5)) + (i.aprovacao.por && i.aprovacao.por !== '—' ? ' por ' + esc(i.aprovacao.por) : '') + '</span>')).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação registrada nos últimos 30 dias.</div>';
+    $('apAj').innerHTML = aj.map((i) => { const d = diasNaEtapa(i), p = EQUIPE[i.produtor];
+      return '<div class="aj"><span style="display:flex;align-items:center;gap:8px;font-weight:600">' + (p ? '<img class="av" src="/assets/team/' + p[1] + '.png" alt="' + p[0] + '" title="' + p[0] + '" style="width:22px;height:22px">' : '') + '<span class="elip" style="flex:1">' + esc(titulo(i.cliente)) + '</span>' + (d != null ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">há ' + d + 'd</span>' : '') + '</span>' +
+        '<span class="elip">' + (i.trello ? '<a href="' + esc(i.trello) + '" target="_blank" rel="noopener" style="color:inherit">' + esc(i.titulo || '(sem título)') + '</a>' : esc(i.titulo || '(sem título)')) + ' <span class="mut">· ' + esc(i.tipo) + ' · ' + esc(String(i.data).slice(0, 5)) + '</span></span>' + (i.nota ? '<span class="m">Motivo: ' + esc(i.nota) + '</span>' : '<span class="mut" style="font-size:11.5px">Sem motivo anotado</span>') + '</div>'; }).join('') || '<div class="vazio">Nada em ajuste.</div>';
+    $('apOk').innerHTML = rec.slice(0, 24).map((i) => { const d = aprovadoEm(i), por = aprovadoPor(i);
+      return card(i, '<span style="color:var(--ok)">· aprovado ' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + (por ? ' por ' + esc(por) : '') + '</span>'); }).join('') || '<div class="vazio" style="grid-column:1/-1">Nenhuma aprovação nos últimos 30 dias.</div>';
   }
 
   $('paAbas').onclick = (e) => { const x = e.target.closest('[data-p]'); if (x) { painel = x.dataset.p; pintaPaineis(); } };
   $('paSub2').onclick = (e) => { const x = e.target.closest('[data-s]'); if (x) { sub = x.dataset.s; pintaPaineis(); } };
+  $('paBusca').oninput = () => pintaPaineis(); $('paCli').onchange = () => pintaPaineis();
+  $('paParados').onclick = () => { soParados = !soParados; pintaPaineis(); };
   $('paQuem').onclick = (e) => { const x = e.target.closest('[data-q]'); if (x) { quem[painel] = x.dataset.q; pintaPaineis(); } };
+  $('apEnvN').onclick = (e) => { const x = e.target.closest('[data-q]'); if (x) { apQuem = x.dataset.q; pintaAprov(); } };
   window.pintaPaineis = pintaPaineis; window.pintaAprov = pintaAprov;
 })();
 </script>
@@ -1464,7 +1495,7 @@ main{align-items:stretch}
     const p = $('cProd').value, tit = $('cTit').value.trim(), tre = $('cTrello').value.trim();
     const trOk = !tre || /^https:\/\/trello\.com\//.test(tre);
     $('cTrello').closest('.campo').classList.toggle('erro', !trOk);
-    $('cTrelloH').textContent = trOk ? 'Obrigatório na operação real — é o caminho para a demanda completa.' : 'O link precisa começar com https://trello.com/';
+    $('cTrelloH').textContent = trOk ? 'Obrigatório na operação real.' : 'O link precisa começar com https://trello.com/';
     $('cTrelloH').style.color = trOk ? '' : 'var(--bad)';
     $('cResp').innerHTML = '<span>Produção:&nbsp;<img src="/assets/team/' + EQUIPE[p][1] + '.png" alt=""><b>' + NOMES[p] + '</b></span><span>Postagem:&nbsp;<img src="/assets/team/' + EQUIPE.brisa[1] + '.png" alt=""><b>Brisa França</b></span>' +
       (f.tipo === 'Reels' && $('cCapa').checked ? '<span>Capa:&nbsp;<b>' + NOMES[$('cCapaD').value] + '</b></span>' : '') + '<span class="mut">Plataforma: Instagram · Cadastrado por ' + esc((EQUIPE[($('euSel') || {}).value] || ['—'])[0]) + '</span>';
