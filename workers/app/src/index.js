@@ -15,6 +15,14 @@ export default {
     else if (!caminho.startsWith('/interno/') && !caminho.startsWith('/assets/')) {
       return Response.redirect('https://app.yamb.com.br/', 302);
     }
+    // Até a virada, /interno/app/ ainda é o app antigo: mostra o interno novo (piloto).
+    // Depois da virada (app novo tem /interno/app.js), passa a mostrar o app novo sozinho.
+    if (url.pathname === '/' || url.pathname === '/index.html') {
+      const r = await fetch(new URL('/interno/app/', ORIGEM));
+      const html = await r.text();
+      if (!html.includes('/interno/app.js?v=')) caminho = '/interno/piloto/';
+      else return new Response(html, { status: r.status, headers: r.headers });
+    }
     const alvo = new URL(caminho + url.search, ORIGEM);
     const resp = await fetch(alvo, { method: req.method, headers: req.headers, redirect: 'manual' });
     const h = new Headers(resp.headers);
