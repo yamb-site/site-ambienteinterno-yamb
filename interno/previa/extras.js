@@ -95,6 +95,15 @@
   new MutationObserver(() => document.querySelectorAll('[data-item]:not([tabindex]):not(a)').forEach((el) => { el.tabIndex = 0; el.setAttribute('role', 'button'); })).observe(document.body, { childList: true, subtree: true });
 
   /* ---------- trilho: contadores, notificações, exportar ---------- */
+  // menu recolhido; abre sozinho com o mouse (ou ao navegar pelo teclado) e recolhe ao sair
+  document.body.classList.add('menu-curto');
+  const trilho = document.querySelector('.trilho');
+  let tFecha = null;
+  const abreMenu = () => { clearTimeout(tFecha); document.body.classList.add('menu-aberto'); };
+  const fechaMenu = () => { clearTimeout(tFecha); tFecha = setTimeout(() => { if (!trilho.matches(':focus-within') && !trilho.querySelector('select:focus')) document.body.classList.remove('menu-aberto'); }, 180); };
+  trilho.addEventListener('mouseenter', abreMenu); trilho.addEventListener('mouseleave', fechaMenu);
+  trilho.addEventListener('focusin', abreMenu); trilho.addEventListener('focusout', () => setTimeout(() => { if (!trilho.matches(':hover')) fechaMenu(); }, 0));
+
   const euBox = document.querySelector('.trilho .eu');
   const extra = document.createElement('div'); extra.className = 'trilho-extra';
   extra.innerHTML =

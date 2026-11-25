@@ -359,6 +359,18 @@ html{zoom:.9}
 .trilho .eu,.trilho-extra+.eu{margin-top:10px;padding:10px 12px 0;border-top:1px solid rgba(247,228,206,.08);flex-direction:row;align-items:center;gap:10px}
 .trilho .eu img{width:36px;height:36px}
 .trilho .eu select{text-align:left;font-size:12.5px;color:var(--bone)}
+/* menu recolhido: abre sozinho por cima da página ao passar o mouse */
+.trilho{transition:width .22s cubic-bezier(.2,.8,.2,1),margin .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s;z-index:20}
+body.menu-curto:not(.menu-aberto) .trilho{width:84px;align-items:center;padding:18px 0}
+body.menu-curto.menu-aberto .trilho{margin-right:-152px;box-shadow:inset 0 1px 0 rgba(247,228,206,.08),30px 0 60px rgba(0,0,0,.6);background:linear-gradient(180deg,rgba(28,28,28,.96),rgba(12,12,12,.96))}
+body.menu-curto:not(.menu-aberto) .trilho .flor{align-self:center;margin:0 0 14px}
+body.menu-curto:not(.menu-aberto) .trilho .ico{width:48px;padding:0;justify-content:center}
+body.menu-curto:not(.menu-aberto) .trilho .ico .dica{display:none}
+body.menu-curto:not(.menu-aberto) .trilho .ico .cont{position:absolute;top:2px;right:0;margin:0}
+body.menu-curto:not(.menu-aberto) .trilho-extra{align-items:center}
+body.menu-curto:not(.menu-aberto) .trilho .eu{flex-direction:column;padding:10px 0 0}
+body.menu-curto:not(.menu-aberto) .trilho .eu label{display:none}
+@media (prefers-reduced-motion:reduce){.trilho{transition:none}}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
