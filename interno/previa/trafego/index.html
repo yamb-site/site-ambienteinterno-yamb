@@ -863,6 +863,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
     e.aba = e.aba || (e.cliente ? 'cliente' : 'clientes'); if (e.aba === 'geral') e.aba = 'clientes'; e.periodo = e.periodo || 'last_7d';
     if (ehCliente() && ['geral', 'clientes', 'campanhas', 'cliente', 'relatorios'].indexOf(e.aba) < 0) e.aba = 'clientes';
     if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'clientes';
+    e.aba = 'cliente'; e.sub = e.sub || 'resumo'; // prévia: sempre o painel do cliente
     return e;
   }
   function link(mudar) {
@@ -903,6 +904,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
         ' · comparado com ' + data(iv.anterior.since) + (iv.dias > 1 ? ' a ' + data(iv.anterior.until) : '') + ' · atualizado às ' + fmtHora.format(new Date(g.atualizado));
       abertura(g);
       if (!ehCliente()) carregarSugestoes().then(function () { desenharAbas(g); }).catch(function () {});
+      if (!estado.cliente || !g.contas.some(function (c) { return c.id === estado.cliente; })) { var maior = g.contas.slice().sort(function (a, b) { return ((b.totais || {}).gasto || 0) - ((a.totais || {}).gasto || 0); })[0]; if (maior) { estado.cliente = maior.id; history.replaceState(null, '', link({ cliente: maior.id, sub: estado.sub })); } }
       if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);
       if (estado.aba === 'acessos') return pedir('/acessos').then(telaAcessos);
       if (estado.aba === 'relatorios') return telaRelatorios();
@@ -1298,7 +1300,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
       DASH_SUBS.map(function (s) {
         var n = s[0] === 'campanhas' ? d.campanhas.length : s[0] === 'conjuntos' ? d.conjuntos.length : s[0] === 'anuncios' ? d.anuncios.length : null;
         return '<a href="' + link({ sub: s[0], camp: '' }) + '"' + (s[0] === sub ? ' aria-current="page"' : '') + '>' + IC[s[0]] + '<span>' + s[1] + '</span>' + (n != null ? '<span class="n">' + n + '</span>' : '') + '</a>';
-      }).join('') + '<hr><a href="' + link({ aba: 'clientes' }) + '">' + IC.painel + '<span>' + (ehCliente() ? 'Suas contas' : 'Todos') + '</span></a></nav>' +
+      }).join('') + '</nav>' +
       '<div class="dash-main"><header class="dash-top vidro">' + seletorCliente(d) +
       '<div class="dash-tit"><h2>Overview <em>Meta Ads</em></h2><p>' + esc(c.empresa || c.nome) + ' · ' + (d.intervalo ? data(d.intervalo.atual.since) + (d.intervalo.dias > 1 ? ' a ' + data(d.intervalo.atual.until) : '') : '') + ' · conta ' + esc(String(c.status).toLowerCase()) + '</p></div>' +
       '<div class="dash-acoes"><div class="periodos" role="group" aria-label="Período">' +

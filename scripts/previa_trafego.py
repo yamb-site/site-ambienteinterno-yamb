@@ -79,6 +79,15 @@ troca("      : [['geral', 'Visão geral', IC.resumo, 0], ['sugestoes',", "      
 troca("(x[0] === 'geral' ? ' aria-current=\"page\"' : '')", "(x[0] === 'clientes' ? ' aria-current=\"page\"' : '')")
 troca("link({ aba: ehCliente() ? 'clientes' : 'geral' })", "link({ aba: 'clientes' })")
 
+# --- abre só no painel do cliente (Overview Meta Ads); as abas de antes saem ---
+troca("    if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'clientes';\n    return e;",
+      "    if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'clientes';\n    e.aba = 'cliente'; e.sub = e.sub || 'resumo'; // prévia: sempre o painel do cliente\n    return e;")
+troca("      if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);",
+      "      if (!estado.cliente || !g.contas.some(function (c) { return c.id === estado.cliente; })) { var maior = g.contas.slice().sort(function (a, b) { return ((b.totais || {}).gasto || 0) - ((a.totais || {}).gasto || 0); })[0]; if (maior) { estado.cliente = maior.id; history.replaceState(null, '', link({ cliente: maior.id, sub: estado.sub })); } }\n"
+      "      if (estado.aba === 'cliente' && estado.cliente) return carregarCliente(estado.cliente).then(telaCliente);")
+troca("}).join('') + '<hr><a href=\"' + link({ aba: 'clientes' }) + '\">' + IC.painel + '<span>' + (ehCliente() ? 'Suas contas' : 'Todos') + '</span></a></nav>'",
+      "}).join('') + '</nav>'")
+
 # --- modo embutido: quando abre dentro do ambiente interno (?embed=1), some o menu próprio e o fundo ---
 troca('<head>', '<head><script>if(/[?&]embed\\b/.test(location.search))document.documentElement.classList.add("embed")</script>')
 
