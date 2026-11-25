@@ -67,6 +67,9 @@ troca('</body>', '<div id="previa-toast" role="status">Prévia: nada é alterado
       'n.addEventListener("mouseenter",a);n.addEventListener("mouseleave",f);n.addEventListener("focusin",a);n.addEventListener("focusout",function(){setTimeout(function(){if(!n.matches(":hover"))f()},0)});'
       'function m(){document.body.classList.toggle("yr-app",!document.getElementById("painel").hidden)}m();new MutationObserver(m).observe(document.getElementById("painel"),{attributes:true,attributeFilter:["hidden"]});})();</script>\n</body>')
 
+# --- modo embutido: quando abre dentro do ambiente interno (?embed=1), some o menu próprio e o fundo ---
+troca('<head>', '<head><script>if(/[?&]embed\\b/.test(location.search))document.documentElement.classList.add("embed")</script>')
+
 # --- visual novo ---
 CSS = r'''
 /* ===== visual novo (prévia) ===== */
@@ -115,6 +118,16 @@ body.yr-app .wrap{max-width:1560px;padding:26px 26px 72px 136px}
 .cartao-entrar .erro{color:#F0A594}
 .cartao-entrar .volta{color:#F5C86F}
 /* aviso de só leitura */
+html.embed{zoom:1;background:transparent}
+html.embed body{background:transparent;min-height:0}
+html.embed body::before,html.embed body::after{display:none}
+html.embed .yr{display:none!important}
+html.embed .wrap,html.embed body.yr-app .wrap{max-width:none;padding:0 4px 40px!important}
+html.embed #ir-interno,html.embed .cartao-entrar .volta{display:none}
+html.embed .entrar-arte{display:none}
+html.embed #entrar:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 48px);padding:0;grid-template-columns:none}
+html.embed .cartao-entrar{justify-self:center;margin:0 auto}
+html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez com o seu acesso do Tráfego. Na versão final, o login do ambiente interno já vale aqui.";display:block;margin:0 0 18px;padding:12px 14px;border-radius:14px;background:rgba(243,172,47,.08);border:1px solid rgba(243,172,47,.3);color:#F5C86F;font-size:12.5px;line-height:1.5}
 #previa-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);z-index:80;padding:12px 18px;border-radius:999px;background:rgba(18,18,18,.96);border:1px solid rgba(243,172,47,.45);color:#F7E4CE;font-size:13px;opacity:0;pointer-events:none;transition:all .25s}
 #previa-toast.on{opacity:1;transform:translate(-50%,0)}
 .yr-selo{display:none}
