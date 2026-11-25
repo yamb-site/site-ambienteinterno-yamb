@@ -4,13 +4,13 @@
   const ABAS = [
     ['painel', 'Painel', 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 7h6V4h-6z'],
     ['semana', 'Semana', 'M4 7h16v13H4zM4 11h16M9 3v4M15 3v4'],
-    ['stories', 'Stories', 'M12 3a9 9 0 109 9M12 7v5l3 2'],
     ['cadastrar', 'Cadastrar', 'M12 5v14M5 12h14'],
+    ['stories', 'Stories', 'M12 3a9 9 0 109 9M12 7v5l3 2'],
   ];
   const topo = document.createElement('header'); topo.className = 'topo-app';
   topo.innerHTML = '<img src="/assets/flower-gold-512.png" alt=""><b id="appTit">YAMB</b><button type="button" id="appNotif" aria-label="Notificações">' + ico('M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0') + '<span class="cont" id="appNotifN" hidden></span></button>';
   const abas = document.createElement('nav'); abas.className = 'abas-app'; abas.setAttribute('aria-label', 'Atalhos');
-  abas.innerHTML = ABAS.map(([t, n, d]) => '<a href="#' + t + '" data-aba="' + t + '">' + ico(d) + '<span>' + n + '</span></a>').join('') +
+  abas.innerHTML = ABAS.map(([t, n, d]) => '<a href="#' + t + '" data-aba="' + t + '"' + (t === 'cadastrar' ? ' class="meio"' : '') + '>' + ico(d) + '<span>' + n + '</span></a>').join('') +
     '<button type="button" id="appMenu" aria-label="Menu completo" aria-expanded="false">' + ico('M4 7h16M4 12h16M4 17h16') + '<span>Menu</span></button>';
   const veu = document.createElement('div'); veu.className = 'veu-app';
   document.body.append(topo, abas);

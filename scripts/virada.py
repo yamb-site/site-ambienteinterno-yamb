@@ -54,7 +54,8 @@ m = re.search(r"<script>\(function\(\)\{var q=location\.search.*?</script>", vel
 celular = m.group(0)
 assert "location.replace('app/'" in celular
 links = '<link rel="manifest" href="/interno/manifest.webmanifest"><link rel="icon" type="image/png" href="/interno/icon.png"><link rel="apple-touch-icon" href="/interno/icon.png">'
-celular = celular.replace("location.replace('app/'", "location.replace('/interno/app/'")
+celular = celular.replace("location.replace('app/'+q.replace(/[?&]app\\b/,''))", "location.replace('https://app.yamb.com.br/'+q.replace(/[?&]app\\b/,'')+location.hash)")
+assert 'https://app.yamb.com.br/' in celular, 'redirecionamento do celular'
 m = re.search(r"<script>/\* Notificações do ambiente interno.*?</script>", velho, re.S)
 push = m.group(0).replace("register('sw.js')", "register('/interno/sw.js')").replace("const ICON='icon.png'", "const ICON='/interno/icon.png'")
 m = re.search(r"<script>/\* Avisos de postagens \(push às 8h\).*?</script>", velho, re.S)
@@ -108,12 +109,13 @@ i = SAIDA / 'interno/index.html'; s = i.read_text(encoding='utf-8')
 s = re.sub(r'/interno/(base\.js|base\.css|extras\.js|grava\.js|app\.css|app\.js)(\?v=[a-z0-9]+)?', r'/interno/\1?v=' + v, s)
 i.write_text(s, encoding='utf-8')
 # ---------- 3. o mesmo interno novo vira o app do celular em /interno/app/ ----------
-s_app = s.replace(celular, '', 1).replace(links, '<link rel="manifest" href="/interno/app/manifest.webmanifest"><link rel="icon" type="image/png" href="/interno/app/icon.png"><link rel="apple-touch-icon" href="/interno/app/icon.png">'
+paraApp = "<script>(function(){try{var s=matchMedia('(display-mode: standalone)').matches||navigator.standalone;if(location.hostname==='yamb.com.br'&&!s&&!/[?&]ficar/.test(location.search))location.replace('https://app.yamb.com.br/'+location.search+location.hash)}catch(e){}})();</script>"
+s_app = s.replace(celular, paraApp, 1).replace(links, '<link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon.png"><link rel="apple-touch-icon" href="icon.png">'
     '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="YAMB">'
     '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0A0A0B">', 1)
-s_app = s_app.replace("register('/interno/sw.js')", "register('/interno/app/sw.js')")
+s_app = s_app.replace("register('/interno/sw.js')", "register('sw.js')")
 a = '<meta name="viewport" content="width=device-width, initial-scale=1">'
-assert a in s_app and celular not in s_app and '/interno/app/sw.js' in s_app
+assert a in s_app and celular not in s_app and "register('sw.js')" in s_app and 'app.yamb.com.br' in s_app
 s_app = s_app.replace(a, '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">', 1)
 (SAIDA / 'interno/app').mkdir(parents=True, exist_ok=True)
 (SAIDA / 'interno/app/index.html').write_text(s_app, encoding='utf-8')

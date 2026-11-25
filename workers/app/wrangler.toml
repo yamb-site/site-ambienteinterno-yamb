@@ -1,0 +1,7 @@
+name = "yamb-app"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+# app.yamb.com.br = ambiente interno no celular (o Worker só repassa o que está publicado em /interno/app/)
+routes = [{ pattern = "app.yamb.com.br", custom_domain = true }]

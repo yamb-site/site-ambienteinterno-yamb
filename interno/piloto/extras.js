@@ -82,7 +82,7 @@
       (avisos.length ? '<section class="gavisos">' + avisos.map(([t, x]) => '<p class="' + t + '">' + x + '</p>').join('') + '</section>' : '') +
       (['Aprovado', 'Não postado', 'Postado'].includes(i.status) || (i.checklist || []).length ? '<section><h3>Checklist de postagem · <span>' + (CHECKLIST_N - (i.checklist || []).length ? 'faltam ' + plural(CHECKLIST_N - (i.checklist || []).length, 'item', 'itens') + ' na conferência' : 'tudo conferido') + '</span></h3><ul class="gchk">' + CHECKLIST.map((c, j) => { const ok = (i.checklist || []).map(Number).includes(j); return '<li class="' + (ok ? 'ok' : '') + '"><i></i>' + c + '</li>'; }).join('') + '</ul></section>' : '') +
       '<section><h3>Ações</h3><div class="gacoes">' + acoesDe(i).map(([k, t, prim]) => '<button type="button" class="botao' + (prim ? '' : ' sec') + '" data-acao="' + k + '">' + t + '</button>').join('') + '</div></section>' +
-      '<p class="gnota">Orientações completas, referências, arquivos e prazos estão no Trello. Na prévia, as ações abrem a janela como vai ser, mas nada é salvo.</p>';
+      '<p class="gnota">Orientações completas, referências, arquivos e prazos estão no Trello.</p>';
     gav.querySelector('.gfecha').onclick = fecha;
     gav.querySelectorAll('[data-acao]').forEach((b) => { b.onclick = () => acao(b.dataset.acao, i); });
     gav.querySelector('.glink').onclick = (e) => { const b = e.currentTarget, url = location.origin + location.pathname + '#demanda/' + encodeURIComponent(i.id);

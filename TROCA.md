@@ -65,7 +65,7 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 
 ## Fase 5 — virada (checklist)
 Automatizada em `scripts/virada.sh` (usa `scripts/virada.py`). Ensaio local em 2026-11-25 ok. Agendada para 2026-11-25 22h. Voltar: `bash scripts/virada.sh --voltar`.
-App do celular (2026-11-25): o interno novo tem visual de celular (`app.css`/`app.js`, só até 760px). Na virada, `/interno/app/` vira o app novo e o app antigo vai para `/interno/antigo/app/`. Quem instalou na tela inicial continua no mesmo endereço.
+App do celular (2026-11-25): o interno novo tem visual de celular (`app.css`/`app.js`, só até 760px). Na virada, `/interno/app/` vira o app novo e o app antigo vai para `/interno/antigo/app/`. Celular passa a usar **https://app.yamb.com.br** (Worker `yamb-app` em workers/app, só repassa /interno/app/ do site). O interno do computador manda celulares para lá; /interno/app/ aberto no navegador também vai para lá (atalho já instalado na tela inicial continua funcionando). ORIGENS do Worker yamb-trafego inclui app.yamb.com.br (avisos das 8h e Tráfego).
 Depois da virada: exportação nova do interno antigo vai para `interno/antigo/` (não para `interno/`). O Tráfego dentro do interno novo continua vindo de `/interno/previa/trafego/?embed=1`.
 
 1. Backup conferido no dia.  2. `interno/index.html` atual → `interno/antigo/index.html` (e ajustar caminhos relativos).  3. Conteúdo do piloto vira `interno/index.html` (+ base/extras/grava em `interno/`), mantendo o redirecionamento de celular para `app/`, o manifest, o `sw.js` do OneSignal e o bloco dos avisos das 8h após o login.  4. Publicar, limpar cache, conferir.  5. Voltar = repor o `interno/index.html` antigo (minutos).
