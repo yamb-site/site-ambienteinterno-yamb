@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/previa/base.css?v=ea5e5334">
+<link rel="stylesheet" href="/interno/previa/base.css?v=97722d60">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -371,6 +371,57 @@ body.menu-curto:not(.menu-aberto) .trilho-extra{align-items:center}
 body.menu-curto:not(.menu-aberto) .trilho .eu{flex-direction:column;padding:10px 0 0}
 body.menu-curto:not(.menu-aberto) .trilho .eu label{display:none}
 @media (prefers-reduced-motion:reduce){.trilho{transition:none}}
+/* login e aviso das 8h: telas de entrada, sem menu */
+body.sem-menu .trilho,body.sem-menu .aviso{display:none!important}
+#tela-login,#tela-aviso{grid-template-columns:none;display:flex;min-height:calc(100vh - 52px)}
+#tela-login[hidden],#tela-aviso[hidden]{display:none!important}
+#tela-login{gap:28px;align-items:stretch}
+.lg-arte{flex:1.15;position:relative;border-radius:30px;overflow:hidden;border:1px solid rgba(247,228,206,.08);background:radial-gradient(circle at 50% 42%,rgba(224,154,36,.22),transparent 60%),linear-gradient(160deg,rgba(28,28,28,.7),rgba(10,10,10,.7));display:flex;flex-direction:column;justify-content:flex-end;padding:44px;min-height:560px}
+.lg-flor{position:absolute;left:50%;top:40%;width:min(420px,32vw);aspect-ratio:1;transform:translate(-50%,-50%)}
+.lg-flor img{position:absolute;inset:18%;width:64%;height:64%;filter:drop-shadow(0 0 40px rgba(243,172,47,.55));animation:lgGira 60s linear infinite}
+.lg-anel{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(243,172,47,.26)}
+.lg-ticks{position:absolute;inset:6%;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(243,172,47,.55) 0 .35deg,transparent .35deg 6deg);-webkit-mask:radial-gradient(circle,transparent 0 47.4%,#000 47.4% 50%,transparent 50%);mask:radial-gradient(circle,transparent 0 47.4%,#000 47.4% 50%,transparent 50%);animation:lgGira 120s linear infinite reverse}
+@keyframes lgGira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.lg-flor img,.lg-ticks{animation:none}}
+.lg-txt{position:relative;display:flex;flex-direction:column;gap:14px;max-width:560px}
+.lg-ov{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-400);font-weight:600}
+.lg-frase{margin:0;font-size:clamp(28px,2.8vw,42px);line-height:1.15;font-weight:300}
+.lg-frase b{font-weight:600;color:var(--gold-300)}
+.lg-linha{width:120px;height:1px;background:linear-gradient(90deg,var(--gold-500),transparent)}
+.lg-viva{font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:.06em;color:var(--bone)}
+.lg-lado{flex:1;display:flex;align-items:center;justify-content:center}
+.lg-form{position:relative;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;padding:34px 32px;border-radius:28px;background:linear-gradient(160deg,rgba(34,34,34,.78),rgba(14,14,14,.78));border:1px solid rgba(247,228,206,.12);box-shadow:0 34px 90px rgba(0,0,0,.6);backdrop-filter:blur(18px)}
+.lg-brilho{position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(243,172,47,.9),transparent)}
+.lg-form h1{margin:6px 0 4px;font-size:38px}
+.lg-olho{border:0;background:none;color:var(--ink-300);cursor:pointer;display:flex;padding:4px}
+.lg-olho[aria-pressed="true"]{color:var(--gold-300)}
+.lg-erro{min-height:16px;font-size:12.5px;color:var(--bad)}
+.lg-erro:empty{min-height:0}
+#lgEntrar{width:100%;height:48px;font-size:15px}
+.lg-quem{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid rgba(247,228,206,.08)}
+#lgEquipe{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.lg-p{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:14px;border:1px solid transparent;background:rgba(247,228,206,.03);color:inherit;cursor:pointer;text-align:left;min-width:0}
+.lg-p:hover{border-color:rgba(243,172,47,.35)}
+.lg-p.on{border-color:rgba(243,172,47,.6);background:rgba(243,172,47,.12)}
+.lg-p img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;flex:none}
+.lg-p span{display:flex;flex-direction:column;min-width:0}
+.lg-p b{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-p em{font-style:normal;font-size:10.5px;color:var(--ink-300);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tela-aviso{flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(circle at 50% 40%,rgba(224,154,36,.16),transparent 60%)}
+.av8-estados{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:12.5px}
+.av8-caixa{position:relative;width:100%;max-width:460px;padding:32px 30px 28px;border-radius:28px;border:1px solid rgba(243,172,47,.45);background:linear-gradient(160deg,rgba(30,30,30,.95),rgba(12,12,12,.95));box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 60px rgba(243,172,47,.12);display:flex;flex-direction:column;gap:14px}
+.av8-ico{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:rgba(243,172,47,.14);color:var(--gold-300);box-shadow:0 0 26px rgba(243,172,47,.3)}
+.av8-ico.ruim{background:rgba(240,165,148,.12);color:var(--bad);box-shadow:none}
+.av8-tag{align-self:flex-start;padding:4px 11px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#121212;background:var(--gold-400)}
+.av8-caixa h2{margin:0;font-size:22px;line-height:1.25;font-weight:600}
+.av8-caixa p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-200)}
+.av8-caixa p b{color:var(--bone)}
+.av8-horas{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.av8-horas div{padding:12px 14px;border-radius:14px;background:rgba(247,228,206,.04);display:flex;flex-direction:column;gap:2px}
+.av8-horas b{font-family:var(--disp);font-size:20px;color:var(--gold-300)}
+.av8-horas span{font-size:11.5px;color:var(--ink-300)}
+.av8-caixa .botao{width:100%;height:48px;font-size:15px}
+.av8-caixa .botao.sec{height:44px}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -832,6 +883,28 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div class="l3" id="plFil" style="display:flex;gap:8px;flex-wrap:wrap"></div>
 <div class="card l3" style="padding:8px 10px"><table class="pltab"><thead><tr><th>Cliente</th><th>Período</th><th>Responsável</th><th>Situação</th><th>Trello</th></tr></thead><tbody id="plTab"><tr><td colspan="5" class="mut">Carregando…</td></tr></tbody></table></div>
 </main>
+<main id="tela-login" hidden>
+<section class="lg-arte" aria-hidden="true">
+<div class="lg-flor"><span class="lg-anel"></span><span class="lg-ticks"></span><img src="/assets/flower-gold-512.png" alt=""></div>
+<div class="lg-txt"><span class="lg-ov">Ambiente interno</span><p class="lg-frase">Todo mundo vê o processo. Cada um cuida da <b>sua etapa</b>.</p><span class="lg-linha"></span><span class="lg-viva">Viva o Processo</span></div>
+</section>
+<section class="lg-lado">
+<form class="lg-form" id="lgForm" autocomplete="off" novalidate>
+<span class="lg-brilho"></span>
+<div><span class="lg-ov">Acesso da equipe</span><h1 class="num">Entrar</h1></div>
+<label class="campo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><input id="lgUsr" placeholder="Usuário (ex.: gabriel.santos)" aria-label="Usuário" autocomplete="off" spellcheck="false"></label>
+<label class="campo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><input id="lgPwd" type="password" placeholder="Senha" aria-label="Senha" autocomplete="off"><button type="button" class="lg-olho" id="lgVer" aria-label="Mostrar senha" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></label>
+<span class="lg-erro" id="lgErro" role="alert"></span>
+<button class="botao" type="submit" id="lgEntrar">Entrar →</button>
+<div class="lg-quem"><span class="lg-ov" style="letter-spacing:.12em">Quem é você?</span><div id="lgEquipe"></div></div>
+<p class="mut" style="margin:0;font-size:11.5px;line-height:1.5">Prévia: a senha não é conferida nem enviada. Na versão final, o login confere a senha de cada pessoa.</p>
+</form>
+</section>
+</main>
+<main id="tela-aviso" hidden>
+<div class="av8-estados" role="group" aria-label="Ver estado do aviso"><span class="mut">Estado:</span><button type="button" class="chip on" data-e="pedir">Pedir para ligar</button><button type="button" class="chip" data-e="bloq">Bloqueado</button><button type="button" class="chip" data-e="iphone">iPhone</button><button type="button" class="chip" data-e="sem">Navegador sem suporte</button><button type="button" class="chip" data-e="rede">Falha no servidor</button></div>
+<div class="av8-caixa" role="dialog" aria-modal="true" aria-labelledby="av8Tit" id="av8Caixa"></div>
+</main>
 <main id="tela-breve" hidden>
 <section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
 <span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
@@ -843,7 +916,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/previa/base.js?v=ea5e5334"></script>
+<script src="/interno/previa/base.js?v=97722d60"></script>
 <script>
 (() => {
   const SHEET = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec';
@@ -1676,7 +1749,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 (() => {
   const NOMES = {};
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar', 'planejamento'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar', 'planejamento', 'login', 'aviso-8h'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
@@ -1686,15 +1759,18 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     document.getElementById('tela-aprovacoes').hidden = t !== 'aprovacoes';
     document.getElementById('tela-cadastrar').hidden = t !== 'cadastrar';
     document.getElementById('tela-planejamento').hidden = t !== 'planejamento';
+    document.getElementById('tela-login').hidden = t !== 'login';
+    document.getElementById('tela-aviso').hidden = t !== 'aviso-8h';
+    document.body.classList.toggle('sem-menu', t === 'login' || t === 'aviso-8h');
     document.getElementById('tela-breve').hidden = !NOMES[t];
     if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
-    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : t === 'planejamento' ? 'Planejamento' : NOMES[t]) + ' · YAMB (prévia)';
+    document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : t === 'planejamento' ? 'Planejamento' : t === 'login' ? 'Entrar' : t === 'aviso-8h' ? 'Avisos das 8h' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
   }
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/previa/extras.js?v=ea5e5334"></script>
+<script src="/interno/previa/extras.js?v=97722d60"></script>
 </body>
 </html>

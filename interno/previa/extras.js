@@ -107,6 +107,7 @@
   const euBox = document.querySelector('.trilho .eu');
   const extra = document.createElement('div'); extra.className = 'trilho-extra';
   extra.innerHTML =
+    '<a class="ico" href="#login" aria-label="Sair">' + I('M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3') + '<span class="dica">Sair (ver login)</span></a>' +
     '<button class="ico" type="button" id="btNotif" aria-label="Notificações" aria-expanded="false">' + I('M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0') + '<span class="cont" id="notifN" hidden></span><span class="dica">Notificações</span></button>' +
     '';
   euBox.parentNode.insertBefore(extra, euBox);
@@ -209,6 +210,55 @@
       $('avProx').onclick = (e) => { if (!ehHoje) { avDia = somaDias(avDia, 1); pintaAval(); } };
     }
   }
+
+  /* ---------- Login (prévia: não confere nem envia a senha) ---------- */
+  const PAPEL = { vitoria: 'Direção de Conteúdo', gabriel: 'COO / Branding', yasmim: 'CEO / Diretora Geral', anny: 'Planejamento', brisa: 'Social Media', marcus: 'Designer Gráfico', camille: 'Edição de Vídeo', yngra: 'Secretária', vitor: 'Administrativo' };
+  const loginDe = (k) => TEAM[k][1].replace('-', '.');
+  const alvoDe = (u) => { u = String(u || '').trim().toLowerCase().replace(/@yamb\.com\.br$/, ''); return Object.keys(TEAM).find((k) => loginDe(k) === u || k === u); };
+  const lgUsr = $('lgUsr'), lgPwd = $('lgPwd');
+  function pintaLogin() {
+    const al = alvoDe(lgUsr.value);
+    $('lgEntrar').textContent = al ? 'Entrar como ' + primeiro(al) + ' →' : 'Entrar →';
+    $('lgEquipe').innerHTML = Object.keys(TEAM).map((k) => '<button type="button" class="lg-p' + (k === al ? ' on' : '') + '" data-k="' + k + '" aria-pressed="' + (k === al) + '"><img src="/assets/team/' + TEAM[k][1] + '.png" alt=""><span><b>' + esc(TEAM[k][0]) + '</b><em>' + esc(PAPEL[k]) + '</em></span></button>').join('');
+  }
+  if (lgUsr) {
+    pintaLogin();
+    lgUsr.addEventListener('input', () => { $('lgErro').textContent = ''; pintaLogin(); });
+    lgPwd.addEventListener('input', () => { $('lgErro').textContent = ''; });
+    $('lgEquipe').onclick = (e) => { const b = e.target.closest('[data-k]'); if (!b) return; lgUsr.value = loginDe(b.dataset.k); lgPwd.value = ''; $('lgErro').textContent = ''; pintaLogin(); lgPwd.focus(); };
+    $('lgVer').onclick = () => { const v = lgPwd.type === 'password'; lgPwd.type = v ? 'text' : 'password'; $('lgVer').setAttribute('aria-pressed', String(v)); $('lgVer').setAttribute('aria-label', v ? 'Ocultar senha' : 'Mostrar senha'); };
+    $('lgForm').onsubmit = (e) => {
+      e.preventDefault();
+      const al = alvoDe(lgUsr.value);
+      if (!lgUsr.value.trim() || !lgPwd.value) { $('lgErro').textContent = 'Informe usuário e senha.'; return; }
+      if (!al) { $('lgErro').textContent = 'Usuário ou senha incorretos.'; return; }
+      lgPwd.value = ''; // a prévia não guarda nem envia a senha
+      const sel = $('euSel'); if (sel && sel.querySelector('option[value="' + al + '"]')) { sel.value = al; sel.dispatchEvent(new Event('change')); }
+      location.hash = '#aviso-8h'; // na versão final o aviso das 8h aparece logo depois do login
+    };
+  }
+
+  /* ---------- Aviso das 8h (os estados que a pessoa pode ver ao entrar) ---------- */
+  const SINO = 'M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0';
+  const AV8 = {
+    pedir: [SINO, '', 'Ligue os avisos de postagens', 'Todo dia às <b>8h</b> você recebe aqui o que precisa ser postado hoje: posts e stories. Sem os avisos ligados, o ambiente interno não abre.', 'Ligar avisos agora', '', true],
+    bloq: ['M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z', 'ruim', 'Os avisos estão bloqueados neste navegador', 'Clique no <b>cadeado</b> ao lado do endereço, em <b>Notificações</b> escolha <b>Permitir</b> e depois recarregue a página.', 'Já liberei, recarregar', ''],
+    iphone: ['M8 2h8a2 2 0 012 2v16a2 2 0 01-2 2H8a2 2 0 01-2-2V4a2 2 0 012-2zM11 18h2', '', 'Instale o ambiente interno no iPhone', 'No iPhone os avisos só funcionam com o ambiente na tela inicial. Toque em <b>Compartilhar</b> (quadrado com seta) › <b>Adicionar à Tela de Início</b>, depois abra pelo ícone novo e ligue os avisos.', 'Entendi', ''],
+    sem: ['M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z', 'ruim', 'Este navegador não recebe avisos', 'Abra o ambiente interno no <b>Chrome</b>, <b>Edge</b> ou <b>Safari</b> atualizado para ligar os avisos de postagens.', 'Copiar o endereço', ''],
+    rede: ['M1 1l22 22M16.7 11.1A10.9 10.9 0 0119 12.5M5 12.5a10.9 10.9 0 015.2-2.7M10.7 5.1A16 16 0 0122.6 9M1.4 9a16 16 0 014.3-2.8M8.5 16.1a6 6 0 016.9 0M12 20h.01', 'ruim', 'Não consegui ligar os avisos agora', 'O servidor de avisos não respondeu. Tente de novo; se continuar, dá para entrar nesta vez e ligar depois.', 'Tentar de novo', 'Entrar sem avisos desta vez'],
+  };
+  function pintaAv8(k) {
+    av8 = k;
+    const [ic, cl, t, x, b1, b2, horas] = AV8[k];
+    $('av8Caixa').innerHTML = '<span class="av8-ico ' + cl + '">' + I(ic, 26) + '</span><span class="av8-tag">Obrigatório</span><h2 id="av8Tit">' + t + '</h2><p>' + x + '</p>' +
+      (horas ? '<div class="av8-horas"><div><b>8h</b><span>chega a lista de posts do dia</span></div><div><b>8h–12h</b><span>janela dos stories</span></div></div>' : '') +
+      '<button type="button" class="botao">' + b1 + '</button>' + (b2 ? '<button type="button" class="botao sec">' + b2 + '</button>' : '') +
+      '<p class="mut" style="font-size:11.5px">Prévia: os botões não ligam nada.</p>';
+    document.querySelectorAll('.av8-estados [data-e]').forEach((c) => { c.classList.toggle('on', c.dataset.e === k); c.setAttribute('aria-pressed', String(c.dataset.e === k)); });
+  }
+  let av8 = 'pedir';
+  if ($('av8Caixa')) $('av8Caixa').addEventListener('click', (e) => { const b = e.target.closest('.botao'); if (!b) return; if ((av8 === 'pedir' && !b.classList.contains('sec')) || (av8 === 'rede' && b.classList.contains('sec'))) location.hash = '#painel'; });
+  if ($('av8Caixa')) { pintaAv8('pedir'); document.querySelector('.av8-estados').onclick = (e) => { const c = e.target.closest('[data-e]'); if (c) pintaAv8(c.dataset.e); }; }
 
   window.pintaExtras = (b) => { banco = b; contadores(); pintaPlan(); if (!pop.hidden) pintaNotif(); pintaAval(); };
   $('euSel').addEventListener('change', () => { contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
