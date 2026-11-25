@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/novo/base.css?v=fe713852">
+<link rel="stylesheet" href="/interno/novo/base.css?v=63cd1a02">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -540,6 +540,7 @@ body.menu-curto:not(.menu-aberto) .bt-eu .eu-txt,body.menu-curto:not(.menu-abert
 #tela-trafego{display:block}
 #tela-trafego[hidden]{display:none!important}
 #trafegoFrame{display:block;width:100%;height:calc(100vh / .9 - 52px);border:0;background:transparent;color-scheme:dark}
+button.eu-sair{width:100%;border:0;border-top:1px solid rgba(247,228,206,.08);background:none;font:inherit;cursor:pointer;text-align:left}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -1018,7 +1019,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <span class="lg-erro" id="lgErro" role="alert"></span>
 <button class="botao" type="submit" id="lgEntrar">Entrar →</button>
 <div class="lg-quem"><span class="lg-ov" style="letter-spacing:.12em">Quem é você?</span><div id="lgEquipe"></div></div>
-<p class="mut" style="margin:0;font-size:11.5px;line-height:1.5">Prévia: a senha não é conferida nem enviada. Na versão final, o login confere a senha de cada pessoa.</p>
+<p class="mut" style="margin:0;font-size:11.5px;line-height:1.5">Mesmo usuário e senha do interno de hoje. A senha é conferida aqui no navegador e não fica guardada.</p>
 </form>
 </section>
 </main>
@@ -1029,8 +1030,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/novo/base.js?v=fe713852"></script>
-<script src="/interno/novo/grava.js?v=fe713852"></script>
+<script src="/interno/novo/base.js?v=63cd1a02"></script>
+<script src="/interno/novo/grava.js?v=63cd1a02"></script>
 <script>
 (() => {
   const SHEET = 'https://yamb-interno-teste.diretoria-c5d.workers.dev/';
@@ -1047,7 +1048,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   const MIN = new Set(['e','de','da','do','das','dos','a','o','em','para','com']);
   const titulo = (s) => String(s || '').toLowerCase().split(/\s+/).map((w, k) => (k && MIN.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-  let eu = (() => { try { return new URLSearchParams(location.search).get('u') || localStorage.getItem('yamb-previa-eu') || 'gabriel'; } catch (e) { return 'gabriel'; } })();
+  let eu = (() => { try { return sessionStorage.getItem('yamb-novo-sessao') || 'gabriel'; } catch (e) { return 'gabriel'; } })();
   if (!EQUIPE[eu]) eu = 'gabriel';
   const sel = $('euSel');
   sel.innerHTML = Object.entries(EQUIPE).map(([k, v]) => '<option value="' + k + '"' + (k === eu ? ' selected' : '') + ' style="background:#121212">' + v[0] + '</option>').join('');
@@ -1894,6 +1895,6 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/novo/extras.js?v=fe713852"></script>
+<script src="/interno/novo/extras.js?v=63cd1a02"></script>
 </body>
 </html>

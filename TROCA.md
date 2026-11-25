@@ -30,3 +30,10 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 - Teste de edição simultânea (`scripts/teste-gravacao/`, simula o antigo com o código de junção copiado do app.js real): antigo muda X → novo move Y sem recarregar → antigo, desatualizado, muda Z. Resultado: X, Y e Z preservados, e a notificação do novo também. Planilha real intacta (rev 1795567171654).
 - Mesmo item mexido nos dois ao mesmo tempo: vence a mudança mais recente (igual a hoje entre dois aparelhos).
 - **Achado no interno ANTIGO (em produção):** as notificações de troca de etapa usam id `'n' + Date.now()` (13 dígitos), enquanto as outras usam `'n' + Date.now() + Math.random()` (14+ dígitos). Ao gravar, a lista é ordenada pelo número do id e cortada em 30 — as de etapa caem para o fim e são cortadas antes de salvar. Por isso a lista real só tem "Capa pronta", "Demanda editada", "Falta material" e "Conteúdo excluído", e o push de troca de etapa não sai. O novo já usa o formato certo. **Corrigido também no interno da equipe (computador e celular) em 2026-11-24** — ver MANUTENCAO.md.
+
+## Fase 2 — login (2026-11-24)
+- `/interno/novo/` só abre com login. Mesmos usuários e resumos de senha do antigo (`data.js`: SHA-256 de "usuário|senha", conferido no navegador; a senha não é guardada nem enviada). Sessão vale enquanto a aba estiver aberta (sessionStorage `yamb-novo-sessao`).
+- Saiu a troca de usuário: a janela do usuário mostra só quem está e "Sair". O menu por pessoa e o financeiro só para a direção seguem o usuário logado.
+- Testado: senha errada recusada e campo limpo; sem login, qualquer tela volta para o login; sessão aberta cai no Painel da pessoa certa; Sair encerra. O cálculo do resumo confere com o padrão (teste com valor de referência). Não foi testado com senha real (só a equipe digita).
+- Pendente para a fase 5: o bloqueio do aviso das 8h (bloco `Avisos de postagens` do antigo) entra depois do login.
+- Ainda não: a chave da planilha financeira privada (`__finTok`) — o novo lê a planilha de vídeos pelo link público, como a prévia.

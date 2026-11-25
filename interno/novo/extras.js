@@ -267,15 +267,13 @@
     pop.querySelectorAll('[data-abre]').forEach((d) => { const vai = (e) => { e.stopPropagation(); const id = d.dataset.abre; fechaPops(); abre(id); }; d.onclick = vai; d.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vai(e); } }; });
     const ml = pop.querySelector('.pn-lidas'); if (ml) ml.onclick = (e) => { e.stopPropagation(); marcaLidas(); pintaNotif(); };
   }
-  function pintaEuBt() { const u = eu(); $('euNome').textContent = primeiro(u); $('euPapel').textContent = PAPEL_[u] || ''; $('euFoto').src = '/assets/team/' + TEAM[u][1] + '.png'; $('euFoto').alt = ''; btEu.setAttribute('aria-label', 'Usuário: ' + TEAM[u][0] + '. Trocar usuário'); }
+  function pintaEuBt() { const u = eu(); $('euNome').textContent = primeiro(u); $('euPapel').textContent = PAPEL_[u] || ''; $('euFoto').src = '/assets/team/' + TEAM[u][1] + '.png'; $('euFoto').alt = ''; btEu.setAttribute('aria-label', 'Você: ' + TEAM[u][0] + '. Opções da conta'); }
   function pintaEu() {
     const u = eu();
-    popEu.innerHTML = '<div class="ptit">Trocar usuário<span class="pn-nv" style="background:rgba(247,228,206,.08);color:var(--ink-300)">prévia</span></div>' +
-      '<div class="eu-lista">' + Object.keys(TEAM).map((k) => '<button type="button" class="eu-op' + (k === u ? ' on' : '') + '" data-k="' + k + '" aria-pressed="' + (k === u) + '"><img src="/assets/team/' + TEAM[k][1] + '.png" alt=""><span><b>' + esc(TEAM[k][0]) + '</b><em>' + esc(PAPEL_[k]) + '</em></span>' + (k === u ? I('M5 12l5 5L20 7', 16) : '') + '</button>').join('') + '</div>' +
-      '<a class="eu-sair" href="#login">' + I('M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3', 16) + 'Sair (ver login)</a>' +
-      '<p class="pn-rod">Na versão final, cada pessoa entra com seu login e não troca de usuário.</p>';
-    popEu.querySelectorAll('[data-k]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); const sel = $('euSel'); sel.value = b.dataset.k; sel.dispatchEvent(new Event('change')); fechaPops(); }; });
-    popEu.querySelector('.eu-sair').onclick = () => fechaPops();
+    popEu.innerHTML = '<div class="ptit">Você</div>' +
+      '<div class="eu-lista"><div class="eu-op on"><img src="/assets/team/' + TEAM[u][1] + '.png" alt=""><span><b>' + esc(TEAM[u][0]) + '</b><em>' + esc(PAPEL_[u]) + '</em></span></div></div>' +
+      '<button type="button" class="eu-sair">' + I('M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3', 16) + 'Sair</button>';
+    popEu.querySelector('.eu-sair').onclick = (e) => { e.stopPropagation(); fechaPops(); window.sairDoInterno(); };
   }
 
   window.exportarLista = (lista) => {
@@ -377,9 +375,23 @@
     }
   }
 
-  /* ---------- Login (prévia: não confere nem envia a senha) ---------- */
+  /* ---------- Login de verdade: mesmo usuário e senha do interno de hoje ----------
+     Igual ao antigo: confere o resumo SHA-256 de "usuário|senha" no próprio navegador; a senha não é guardada nem enviada.
+     A sessão vale enquanto a aba estiver aberta (sessionStorage), como cada pessoa entrava no antigo. */
+  const ACESSO = { vitoria: ['vitoria.almeida', 'b366765602fdb2dc5d61389e83de17aeb6da7d5369850cbd04bcdbb7fc7e8f73'], gabriel: ['gabriel.santos', 'ef855223e5b55d6649a30cd2d607b30c063a2088afebc8470dfd679a0f0a5895'], yasmim: ['yasmim.barbara', 'b2f5cba45c9d33c38aa68dc6451fe020dcd1321702a24ac9969035eede67bc99'], anny: ['anny.vitoria', '9cf2a2bbd0cf39bca6fd04fb8301f198020a1a9e96aea9ad1b307cb1e9cb6a24'], brisa: ['brisa.franca', 'f8cbb523f6e1af7e08c4e8e6969007936d9238301e2fa7b9f364bb757e471af4'], marcus: ['marcus.fontes', '62fbab857890fe44b1a5579e4d17c0e912512ada5ccbadfae8aa99057cae53f9'], camille: ['camille.danylo', '10910c847e101ef6b9e1f24e2b1c56c82bfef4a9d7c893676330b9f3f5d707dc'], yngra: ['yngra.lyriel', '41d2b7ec2f0d0c1bcc8092869ac7d636b4c9f6b69d0f4b2493499a562423247f'], vitor: ['vitor.nascimento', 'a4859f403fed0d324001a307a02aa771520b8d6eb823c39e73999d1d54209495'] };
+  const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const sessao = { ler: () => { try { const v = sessionStorage.getItem('yamb-novo-sessao'); return ACESSO[v] ? v : null; } catch (x) { return null; } },
+    gravar: (v) => { try { v ? sessionStorage.setItem('yamb-novo-sessao', v) : sessionStorage.removeItem('yamb-novo-sessao'); } catch (x) {} } };
+  const fixaEu = (id) => { const sel = $('euSel'); if (sel && sel.value !== id) { sel.value = id; sel.dispatchEvent(new Event('change')); } };
+  function porteiro() {
+    const quem = sessao.ler(), aqui = (location.hash || '#painel').slice(1);
+    if (!quem) { if (aqui !== 'login') location.hash = '#login'; return; }
+    fixaEu(quem);
+    if (aqui === 'login' || aqui === 'aviso-8h') location.hash = '#painel';
+  }
+  window.sairDoInterno = () => { sessao.gravar(null); location.hash = '#login'; };
   const PAPEL = { vitoria: 'Direção de Conteúdo', gabriel: 'COO / Branding', yasmim: 'CEO / Diretora Geral', anny: 'Planejamento', brisa: 'Social Media', marcus: 'Designer Gráfico', camille: 'Edição de Vídeo', yngra: 'Secretária', vitor: 'Administrativo' };
-  const loginDe = (k) => TEAM[k][1].replace('-', '.');
+  const loginDe = (k) => ACESSO[k][0];
   const alvoDe = (u) => { u = String(u || '').trim().toLowerCase().replace(/@yamb\.com\.br$/, ''); return Object.keys(TEAM).find((k) => loginDe(k) === u || k === u); };
   const lgUsr = $('lgUsr'), lgPwd = $('lgPwd');
   function pintaLogin() {
@@ -393,16 +405,19 @@
     lgPwd.addEventListener('input', () => { $('lgErro').textContent = ''; });
     $('lgEquipe').onclick = (e) => { const b = e.target.closest('[data-k]'); if (!b) return; lgUsr.value = loginDe(b.dataset.k); lgPwd.value = ''; $('lgErro').textContent = ''; pintaLogin(); lgPwd.focus(); };
     $('lgVer').onclick = () => { const v = lgPwd.type === 'password'; lgPwd.type = v ? 'text' : 'password'; $('lgVer').setAttribute('aria-pressed', String(v)); $('lgVer').setAttribute('aria-label', v ? 'Ocultar senha' : 'Mostrar senha'); };
-    $('lgForm').onsubmit = (e) => {
+    $('lgForm').onsubmit = async (e) => {
       e.preventDefault();
-      const al = alvoDe(lgUsr.value);
-      if (!lgUsr.value.trim() || !lgPwd.value) { $('lgErro').textContent = 'Informe usuário e senha.'; return; }
-      if (!al) { $('lgErro').textContent = 'Usuário ou senha incorretos.'; return; }
-      lgPwd.value = ''; // a prévia não guarda nem envia a senha
-      const sel = $('euSel'); if (sel && sel.querySelector('option[value="' + al + '"]')) { sel.value = al; sel.dispatchEvent(new Event('change')); }
-      location.hash = '#aviso-8h'; // na versão final o aviso das 8h aparece logo depois do login
+      const al = alvoDe(lgUsr.value), senha = lgPwd.value;
+      if (!lgUsr.value.trim() || !senha) { $('lgErro').textContent = 'Informe usuário e senha.'; return; }
+      const certo = al && (await sha(ACESSO[al][0] + '|' + senha)) === ACESSO[al][1];
+      lgPwd.value = ''; // a senha não fica guardada em lugar nenhum
+      if (!certo) { $('lgErro').textContent = 'Usuário ou senha incorretos.'; lgPwd.focus(); return; }
+      sessao.gravar(al); lgUsr.value = ''; pintaLogin();
+      porteiro();
     };
   }
+  addEventListener('hashchange', porteiro);
+  porteiro();
 
   /* ---------- Aviso das 8h (os estados que a pessoa pode ver ao entrar) ---------- */
   const SINO = 'M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0';
