@@ -18,7 +18,7 @@ R = pathlib.Path(__file__).resolve().parent.parent
 ensaio = sys.argv[2] if len(sys.argv) > 2 and sys.argv[1] == '--ensaio' else None
 SAIDA = pathlib.Path(ensaio) if ensaio else R
 I, P = R / 'interno', R / 'interno/piloto'
-ARQS = ['base.js', 'base.css', 'extras.js', 'grava.js']
+ARQS = ['base.js', 'base.css', 'extras.js', 'grava.js', 'app.css', 'app.js']
 
 velho = (I / 'index.html').read_text(encoding='utf-8')
 if len(velho) < 1_000_000 or 'Avisos de postagens (push às 8h)' not in velho:
@@ -28,7 +28,7 @@ if len(velho) < 1_000_000 or 'Avisos de postagens (push às 8h)' not in velho:
 ant = velho
 troca_ant = [
     ("location.replace('app/'", "location.replace('/interno/app/'"),
-    ('url(../../assets/', 'url(../../../assets/'),
+    ('../../assets/', '/assets/'),
 ]
 for a, b in troca_ant:
     assert a in ant, a
@@ -37,6 +37,17 @@ da = SAIDA / 'interno/antigo'; da.mkdir(parents=True, exist_ok=True)
 (da / 'index.html').write_text(ant, encoding='utf-8')
 for f in ['sw.js', 'icon.png', 'manifest.webmanifest']:
     shutil.copy2(I / f, da / f)
+# app antigo do celular -> /interno/antigo/app/
+appv = (I / 'app/index.html').read_text(encoding='utf-8')
+assert len(appv) > 1_000_000 and 'Avisos de postagens (push às 8h)' in appv, 'interno/app/ não parece o app antigo'
+a2 = '"../website/index.html":"../../"'
+assert a2 in appv
+appv = appv.replace(a2, '"../website/index.html":"/"')
+appv = appv.replace('../../assets/', '/assets/')
+(da / 'app').mkdir(exist_ok=True)
+(da / 'app/index.html').write_text(appv, encoding='utf-8')
+for f in ['sw.js', 'icon.png', 'manifest.webmanifest']:
+    shutil.copy2(I / 'app' / f, da / 'app' / f)
 
 # ---------- peças do antigo que o novo precisa manter ----------
 m = re.search(r"<script>\(function\(\)\{var q=location\.search.*?</script>", velho)
@@ -94,9 +105,22 @@ for f in ARQS + ['index.html']:
 
 v = hashlib.sha1(b''.join((SAIDA / 'interno' / f).read_bytes() for f in ARQS)).hexdigest()[:8]
 i = SAIDA / 'interno/index.html'; s = i.read_text(encoding='utf-8')
-s = re.sub(r'/interno/(base\.js|base\.css|extras\.js|grava\.js)(\?v=[a-z0-9]+)?', r'/interno/\1?v=' + v, s)
+s = re.sub(r'/interno/(base\.js|base\.css|extras\.js|grava\.js|app\.css|app\.js)(\?v=[a-z0-9]+)?', r'/interno/\1?v=' + v, s)
 i.write_text(s, encoding='utf-8')
-tudo = ''.join((SAIDA / 'interno' / f).read_text() for f in ARQS + ['index.html'])
+# ---------- 3. o mesmo interno novo vira o app do celular em /interno/app/ ----------
+s_app = s.replace(celular, '', 1).replace(links, '<link rel="manifest" href="/interno/app/manifest.webmanifest"><link rel="icon" type="image/png" href="/interno/app/icon.png"><link rel="apple-touch-icon" href="/interno/app/icon.png">'
+    '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="YAMB">'
+    '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0A0A0B">', 1)
+s_app = s_app.replace("register('/interno/sw.js')", "register('/interno/app/sw.js')")
+a = '<meta name="viewport" content="width=device-width, initial-scale=1">'
+assert a in s_app and celular not in s_app and '/interno/app/sw.js' in s_app
+s_app = s_app.replace(a, '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">', 1)
+(SAIDA / 'interno/app').mkdir(parents=True, exist_ok=True)
+(SAIDA / 'interno/app/index.html').write_text(s_app, encoding='utf-8')
+if ensaio:
+    for f in ['sw.js', 'icon.png', 'manifest.webmanifest']:
+        shutil.copy2(I / 'app' / f, SAIDA / 'interno/app' / f)
+tudo = ''.join((SAIDA / 'interno' / f).read_text() for f in ARQS + ['index.html', 'app/index.html'])
 for proibido in ['yamb-interno-teste', '/interno/piloto/', 'Piloto do interno', 'PILOTO']:
     assert proibido not in tudo, proibido
 print('ok: virada gerada em', SAIDA / 'interno', '· versão', v)

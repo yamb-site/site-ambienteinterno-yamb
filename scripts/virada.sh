@@ -11,7 +11,7 @@ publicar() {
   npx -y wrangler pages deploy "$D" --project-name site-yamb --branch main --commit-dirty=true 2>&1 | tail -1
   curl -s -X POST "https://api.cloudflare.com/client/v4/zones/d002b128bdd3037c7c2c87250ca5f3a7/purge_cache" \
     -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
-    --data '{"files":["https://yamb.com.br/interno/","https://yamb.com.br/interno/index.html","https://yamb.com.br/interno/antigo/","https://yamb.com.br/interno/antigo/index.html"]}' \
+    --data '{"files":["https://yamb.com.br/interno/","https://yamb.com.br/interno/index.html","https://yamb.com.br/interno/antigo/","https://yamb.com.br/interno/antigo/index.html","https://yamb.com.br/interno/app/","https://yamb.com.br/interno/app/index.html","https://yamb.com.br/interno/antigo/app/"]}' \
     | python3 -c "import json,sys;print('cache limpo:',json.load(sys.stdin)['success'])"
   git push -q origin HEAD; git push -q pages HEAD
 }
@@ -46,4 +46,8 @@ echo "$H" | grep -q 'Avisos de postagens (push às 8h)' || { echo "ERRO: sem avi
 echo "$H" | grep -q 'Piloto do interno' && { echo "ERRO: faixa do piloto no ar"; exit 1; }
 curl -s "https://yamb.com.br/interno/$V" | grep -q 'yamb-interno-sessao' || { echo "ERRO: extras.js novo não está no ar"; exit 1; }
 curl -s https://yamb.com.br/interno/antigo/ | grep -q "location.replace('/interno/app/'" || { echo "ERRO: /interno/antigo/ não está no ar"; exit 1; }
-echo "PRONTO: interno novo no ar em /interno/, antigo em /interno/antigo/."
+A=$(curl -s https://yamb.com.br/interno/app/)
+echo "$A" | grep -q 'yamb-avisos-obrigatorio\|Avisos de postagens (push às 8h)' || { echo "ERRO: app sem avisos das 8h"; exit 1; }
+echo "$A" | grep -q '/interno/app.js?v=' || { echo "ERRO: app novo não está no ar"; exit 1; }
+curl -s https://yamb.com.br/interno/antigo/app/ | grep -q 'Avisos de postagens (push às 8h)' || { echo "ERRO: /interno/antigo/app/ não está no ar"; exit 1; }
+echo "PRONTO: interno novo no ar em /interno/ e /interno/app/ (celular); antigos em /interno/antigo/ e /interno/antigo/app/."

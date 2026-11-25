@@ -7,7 +7,7 @@ REAL = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J70
 TESTE = 'https://yamb-interno-teste.diretoria-c5d.workers.dev/'
 PILOTO = ['gabriel', 'vitoria', 'yasmim', 'vitor']  # quem usa o piloto
 src, dst = R / 'interno/novo', R / 'interno/piloto'; dst.mkdir(exist_ok=True)
-arqs = ['base.js', 'base.css', 'extras.js', 'grava.js']
+arqs = ['base.js', 'base.css', 'extras.js', 'grava.js', 'app.css', 'app.js']
 for f in arqs + ['index.html']:
     s = (src / f).read_text(encoding='utf-8')
     s = s.replace(TESTE, REAL).replace('/interno/novo/', '/interno/piloto/')
@@ -26,7 +26,7 @@ for f in arqs + ['index.html']:
     (dst / f).write_text(s, encoding='utf-8')
 v = hashlib.sha1(b''.join((dst / f).read_bytes() for f in arqs)).hexdigest()[:8]
 i = dst / 'index.html'; s = i.read_text(encoding='utf-8')
-s = re.sub(r'/interno/piloto/(base\.js|base\.css|extras\.js|grava\.js)(\?v=[a-z0-9]+)?', r'/interno/piloto/\1?v=' + v, s)
+s = re.sub(r'/interno/piloto/(base\.js|base\.css|extras\.js|grava\.js|app\.css|app\.js)(\?v=[a-z0-9]+)?', r'/interno/piloto/\1?v=' + v, s)
 i.write_text(s, encoding='utf-8')
 assert TESTE not in ''.join((dst / f).read_text() for f in arqs + ['index.html'])
 print('ok: interno/piloto gerado, versão', v)

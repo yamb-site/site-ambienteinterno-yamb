@@ -1,0 +1,67 @@
+/* Interno novo no celular (app). Só vale em telas até 760px; o computador não muda. */
+.topo-app,.abas-app,.veu-app{display:none}
+@media (max-width:760px){
+  html{zoom:1!important;-webkit-text-size-adjust:100%}
+  body{overscroll-behavior-y:none}
+  .app{padding:calc(64px + env(safe-area-inset-top)) 12px calc(92px + env(safe-area-inset-bottom))!important;flex-direction:column!important;gap:12px!important}
+  main{display:flex!important;flex-direction:column!important;gap:12px!important;width:100%;min-width:0}
+  main[hidden]{display:none!important}
+  main,main>*{scroll-margin-top:calc(72px + env(safe-area-inset-top))}
+  main>*{grid-column:auto!important;min-width:0;max-width:100%}
+  .card{padding:18px!important;border-radius:22px!important}
+  h1.num,.hero h1{font-size:32px!important;line-height:1.05!important}
+  .num{word-break:break-word}
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  input,select,textarea{font-size:16px!important}
+  button,.ico,a{-webkit-tap-highlight-color:transparent}
+
+  /* topo: flor, nome da tela, avisos */
+  .topo-app{display:flex;position:fixed;z-index:60;top:0;left:0;right:0;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:linear-gradient(180deg,rgba(10,10,11,.96),rgba(10,10,11,.82));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(247,228,206,.08)}
+  .topo-app img{width:30px;height:30px;filter:drop-shadow(0 0 10px rgba(243,172,47,.5))}
+  .topo-app b{flex:1;min-width:0;font:600 16px Sora,system-ui,sans-serif;color:var(--bone,#FEF8EE);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topo-app button{position:relative;width:42px;height:42px;border-radius:50%;border:1px solid rgba(247,228,206,.14);background:rgba(18,18,18,.7);color:var(--gold-300,#F5C86F);display:flex;align-items:center;justify-content:center}
+  .topo-app .cont{position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font:700 10px system-ui;display:flex;align-items:center;justify-content:center}
+
+  /* barra de baixo */
+  .abas-app{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;z-index:60;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));height:66px;padding:6px;border-radius:24px;background:linear-gradient(180deg,rgba(30,30,30,.94),rgba(12,12,12,.96));border:1px solid rgba(247,228,206,.12);box-shadow:0 18px 50px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  .abas-app a,.abas-app button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;background:none;border-radius:18px;color:var(--ink-300,#A89F94);font:500 10.5px Sora,system-ui,sans-serif;text-decoration:none;min-width:0}
+  .abas-app .on{color:#121212;background:linear-gradient(135deg,#FDEBC9,#F5C86F 55%,#E09A24);box-shadow:0 0 18px rgba(243,172,47,.35)}
+  .abas-app span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  /* menu completo: o trilho vira uma folha que sobe de baixo */
+  .trilho{position:fixed!important;z-index:70!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:auto!important;min-height:0!important;max-height:84vh;margin:0!important;padding:18px 14px calc(18px + env(safe-area-inset-bottom))!important;border-radius:26px 26px 0 0!important;flex-direction:column!important;align-items:stretch!important;overflow-y:auto;transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.8,.2,1)!important;background:linear-gradient(180deg,rgba(30,30,30,.98),rgba(12,12,12,.99))!important}
+  body.gaveta .trilho{transform:none}
+  .trilho .flor{display:none!important}
+  .trilho .ico{width:auto!important;height:48px!important;padding:0 14px!important;justify-content:flex-start!important;gap:14px!important}
+  .trilho .ico .dica{display:block!important;position:static!important;transform:none!important;opacity:1!important;background:none!important;border:0!important;padding:0!important;font-size:15px!important;color:inherit!important}
+  .trilho .ico .cont{position:static!important;margin-left:auto!important}
+  .trilho-extra{align-items:stretch!important;margin-top:8px!important}
+  .trilho .eu{flex-direction:row!important;padding:12px 4px 0!important}
+  .trilho .eu label{display:none!important}
+  .bt-eu{justify-content:flex-start!important}
+  .bt-eu .eu-txt,.bt-eu svg{display:flex!important}
+  .veu-app{display:block;position:fixed;inset:0;z-index:65;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .25s}
+  body.gaveta .veu-app{opacity:1;pointer-events:auto}
+  body.gaveta .abas-app,body.gaveta>div[style*="position:fixed;top:0"]{opacity:0;pointer-events:none}
+  .trilho::before{content:"";display:block;flex:none;width:44px;height:5px;margin:-6px auto 12px;border-radius:999px;background:rgba(247,228,206,.22)}
+  body.sem-menu .topo-app,body.sem-menu .abas-app{display:none!important}
+  body.sem-menu .app{padding:16px 12px!important}
+
+  /* janelas (avisos, trocar usuário) viram folhas de baixo */
+  .rpop{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:auto!important;max-height:80vh!important;border-radius:26px 26px 0 0!important;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;z-index:80!important}
+
+  /* Semana: dias lado a lado, deslizando com o dedo */
+  #tela-semana .quadro{display:grid!important;grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:76%;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:6px;margin:6px -18px 0;padding-left:18px;padding-right:18px;scroll-padding-left:18px}
+  #tela-semana .dcol{scroll-snap-align:start}
+  #tela-semana .cab .num{font-size:26px!important}
+  /* Indicadores: 2 por linha */
+  #tela-indicadores .kgrid,#tela-indicadores .kgrid.q4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #tela-indicadores .kgrid .num{font-size:28px!important;word-break:normal}
+  #tela-indicadores .kgrid>div{padding:14px!important;min-height:0!important}
+  /* faixa de teste/piloto não cobre o topo */
+  body>div[style*="position:fixed;top:0"]{top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;border-radius:10px!important;font-size:9px!important;padding:3px 10px!important;white-space:nowrap}
+
+  /* janelas de ação ocupam a largura */
+  .jan,.janela,[role=dialog]:not(.rpop):not(#yamb-avisos-obrigatorio){max-width:100vw}
+}
+@media (max-width:760px) and (prefers-reduced-motion:reduce){.trilho,.veu-app{transition:none!important}}
