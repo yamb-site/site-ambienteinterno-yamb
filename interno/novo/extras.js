@@ -123,10 +123,16 @@
     jan.innerHTML = '<div class="jcab"><span class="jic" style="color:' + (o.cor || 'var(--gold-300)') + '">' + I(o.ic, 20) + '</span><div><h2 id="janTit">' + o.tit + '</h2>' + (o.sub ? '<p class="jsub">' + o.sub + '</p>' : '') + '</div><button type="button" class="gfecha jx" aria-label="Fechar">' + I('M6 6l12 12M18 6L6 18', 16) + '</button></div>' +
       '<div class="jcorpo">' + o.corpo + '</div><p class="jerro" role="alert"></p>' +
       '<div class="jbt"><button type="button" class="botao sec jcanc">Cancelar</button>' + (o.ok ? '<button type="button" class="botao jok"' + (o.okCor ? ' style="background:' + o.okCor + '"' : '') + '>' + o.ok + '</button>' : '') + '</div>' +
-      '<p class="jprev">Prévia: nada é salvo nem enviado para a equipe.</p>';
+      '<p class="jprev">' + (o.faz ? 'Grava na CÓPIA DE TESTE dos dados (não é a planilha da equipe).' : 'Ainda não ligado: nada é salvo.') + '</p>';
     jan.querySelector('.jx').onclick = fechaJan; jan.querySelector('.jcanc').onclick = fechaJan;
     const ok = jan.querySelector('.jok');
-    if (ok) ok.onclick = () => { const er = o.valida ? o.valida(jan) : ''; if (er) { jan.querySelector('.jerro').textContent = er; return; } fechaJan(); toast(o.feito || 'Feito.'); };
+    if (ok) ok.onclick = async () => {
+      const er = o.valida ? o.valida(jan) : ''; if (er) { jan.querySelector('.jerro').textContent = er; return; }
+      if (!o.faz) { fechaJan(); toast(o.feito || 'Feito.'); return; }
+      ok.disabled = true; ok.textContent = 'Salvando…';
+      try { const salvo = await o.faz(jan); fechaJan(); if (!gav.hidden) fecha(); toast(salvo ? o.feito : 'Guardado aqui; a gravação vai tentar de novo sozinha.'); }
+      catch (e) { ok.disabled = false; ok.textContent = o.ok; jan.querySelector('.jerro').textContent = 'Não deu para salvar: ' + (e.message || e); }
+    };
     if (o.monta) o.monta(jan);
     jan.hidden = false; jFundo.hidden = false;
     const f = jan.querySelector('textarea, input, .jok'); if (f) f.focus();
@@ -147,7 +153,7 @@
   function acao(k, i) {
     const nx = proxima(i.status);
     const J = {
-      mover: () => janela({ ic: 'M5 12h14M13 6l6 6-6 6', tit: 'Mover para ' + nx, sub: 'A equipe recebe uma notificação.', corpo: resumo(i) + '<p class="jtxt">De <b>' + esc(i.status) + '</b> para <b>' + esc(nx) + '</b>.' + (precisaCapa(i) && !(i.capa && i.capa.pronta) && nx === 'Enviado' ? '<br><span style="color:var(--bad)">Este Reels precisa da capa pronta antes de ser enviado.</span>' : '') + '</p>', ok: 'Mover', feito: 'Movido para ' + nx + ' (prévia, nada salvo).' }),
+      mover: () => janela({ ic: 'M5 12h14M13 6l6 6-6 6', tit: 'Mover para ' + nx, sub: 'A equipe recebe uma notificação.', corpo: resumo(i) + '<p class="jtxt">De <b>' + esc(i.status) + '</b> para <b>' + esc(nx) + '</b>.' + (precisaCapa(i) && !(i.capa && i.capa.pronta) && nx === 'Enviado' ? '<br><span style="color:var(--bad)">Este Reels precisa da capa pronta antes de ser enviado.</span>' : '') + '</p>', ok: 'Mover', feito: 'Movido para ' + nx + '.', valida: () => (nx === 'Enviado' && precisaCapa(i) && !(i.capa && i.capa.pronta)) ? 'Este Reels precisa da capa pronta antes de ser enviado.' : '', faz: () => window.Grava.moverEtapa(i.id, nx, eu()) }),
       aprovar: () => janela({ ic: IC.ok, cor: 'var(--ok)', tit: 'Aprovar material', sub: 'Aprovar libera o material para postagem.', corpo: resumo(i) + '<label class="jcampo"><span>Observações (opcional)</span><textarea rows="3" placeholder="Ex.: pode postar às 19h."></textarea></label>', ok: 'Aprovar e liberar', okCor: 'var(--ok)', feito: 'Aprovado (prévia, nada salvo).' }),
       ajuste: () => janela({ ic: IC.ajuste, cor: 'var(--bad)', tit: 'Pedir ajuste', sub: 'O material vai para Ajustar com o motivo anotado, e a equipe recebe uma notificação. Depois de corrigido, volta para Enviado.', corpo: resumo(i) + '<label class="jcampo"><span>Motivo do ajuste</span><textarea rows="3" placeholder="Cliente pediu para trocar a foto de capa."></textarea></label>', ok: 'Pedir ajuste', okCor: 'var(--bad)', valida: (j) => j.querySelector('textarea').value.trim() ? '' : 'Escreva o motivo do ajuste.', feito: 'Ajuste pedido (prévia, nada salvo).' }),
       semmaterial: () => janela({ ic: IC.falta, cor: 'var(--bad)', tit: 'Que material está faltando?', sub: 'A demanda fica marcada como "Sem material" e o prazo da etapa para de contar.', corpo: resumo(i) + '<div class="jchips">' + ['Fotos do produto', 'Texto da campanha', 'Gravação', 'Aprovação do cliente'].map((c) => '<button type="button" class="chip" data-v="' + c + '">' + c + '</button>').join('') + '</div><label class="jcampo"><span>O que falta</span><input placeholder="ex.: fotos do produto, texto da campanha, gravação"></label>', ok: 'Avisar falta de material', okCor: 'var(--bad)', monta: (j) => j.querySelectorAll('[data-v]').forEach((c) => { c.onclick = () => { j.querySelector('input').value = c.dataset.v; }; }), valida: (j) => j.querySelector('input').value.trim() ? '' : 'Diga o que está faltando.', feito: 'Falta de material avisada (prévia, nada salvo).' }),

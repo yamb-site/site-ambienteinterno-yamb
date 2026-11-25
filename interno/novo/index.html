@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/novo/base.css?v=60ad3335">
+<link rel="stylesheet" href="/interno/novo/base.css?v=fe713852">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -1029,7 +1029,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/novo/base.js?v=60ad3335"></script>
+<script src="/interno/novo/base.js?v=fe713852"></script>
+<script src="/interno/novo/grava.js?v=fe713852"></script>
 <script>
 (() => {
   const SHEET = 'https://yamb-interno-teste.diretoria-c5d.workers.dev/';
@@ -1059,25 +1060,25 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   }
 
   let banco = null;
+  // o banco que as telas mostram é uma cópia; quem grava é o motor (grava.js), com os dados crus
+  function aplica(b) {
+    banco = b;
+    // só para mostrar: Produção com motivo conta como Ajustar; datas no formato dd/mm/aaaa
+    (banco.items || []).forEach((i) => { if (i.status === 'Produção' && i.nota) i.status = 'Ajustar'; const d = Y.parse(i.data); if (d) i.data = Y.fmt(d); });
+    pinta();
+    ['pintaVisao', 'pintaSemana', 'pintaStories', 'pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro', 'pintaExtras'].forEach((f) => { if (window[f]) window[f](banco); });
+  }
+  const hm = () => p2(new Date().getHours()) + ':' + p2(new Date().getMinutes());
+  const AVISO = { ok: () => 'Cópia de TESTE dos dados · atualizado às ' + hm(), salvando: () => 'Cópia de TESTE · salvando…', erro: () => 'Cópia de TESTE · não consegui salvar, tentando de novo…' };
+  Grava.ouvir((e) => { $('aviso').textContent = AVISO[e](); });
+  addEventListener('grava:mudou', (e) => aplica(e.detail));
+  addEventListener('grava:salvo', (e) => aplica(e.detail));
   async function carrega() {
     try {
-      const r = await fetch(SHEET + '?t=' + Date.now());
-      const j = await r.json();
-      banco = j.data || j;
-      // mesmas correções do interno: item em Produção com motivo de ajuste conta como Ajustar; datas no formato dd/mm/aaaa
-      (banco.items || []).forEach((i) => { if (i.status === 'Produção' && i.nota) i.status = 'Ajustar'; const d = Y.parse(i.data); if (d) i.data = Y.fmt(d); });
-      $('aviso').textContent = 'Cópia de TESTE dos dados · atualizado às ' + p2(new Date().getHours()) + ':' + p2(new Date().getMinutes()) + ' · só leitura';
-      pinta();
-      if (window.pintaVisao) window.pintaVisao(banco);
-      if (window.pintaSemana) window.pintaSemana(banco);
-      if (window.pintaStories) window.pintaStories(banco);
-      if (window.pintaIndicadores) window.pintaIndicadores(banco);
-      if (window.pintaPaineis) window.pintaPaineis(banco);
-      if (window.pintaAprov) window.pintaAprov(banco);
-      if (window.pintaCadastro) window.pintaCadastro(banco);
-      if (window.pintaExtras) window.pintaExtras(banco);
+      aplica(await Grava.ler());
+      if (Grava.estado() === 'ok') $('aviso').textContent = AVISO.ok();
     } catch (e) {
-      $('aviso').textContent = 'Não consegui ler o interno agora. Tento de novo em 1 minuto.';
+      $('aviso').textContent = 'Não consegui ler os dados agora. Tento de novo em instantes.';
     }
   }
 
@@ -1191,7 +1192,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   }
 
   relogio(); setInterval(relogio, 20000);
-  carrega(); setInterval(carrega, 60000);
+  carrega(); setInterval(() => { if (!document.hidden) carrega(); }, 15000); document.addEventListener("visibilitychange", () => { if (!document.hidden) carrega(); });
 })();
 </script>
 <script>
@@ -1893,6 +1894,6 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/novo/extras.js?v=60ad3335"></script>
+<script src="/interno/novo/extras.js?v=fe713852"></script>
 </body>
 </html>
