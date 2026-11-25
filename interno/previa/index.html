@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/previa/base.css?v=2d121520">
+<link rel="stylesheet" href="/interno/previa/base.css?v=01db2765">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -470,6 +470,12 @@ body.menu-curto:not(.menu-aberto) .bt-eu .eu-txt,body.menu-curto:not(.menu-abert
 .eu-op svg{color:var(--gold-300);flex:none}
 .eu-sair{display:flex;align-items:center;gap:10px;padding:10px;border-radius:13px;border-top:1px solid rgba(247,228,206,.08);color:var(--ink-200);font-size:13px}
 .eu-sair:hover{color:var(--bone);background:rgba(247,228,206,.05)}
+.trilho [hidden]{display:none!important}
+.glink{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px;border-radius:999px;border:1px solid rgba(247,228,206,.14);background:none;color:var(--ink-200);font-size:12px;cursor:pointer;margin-left:auto}
+.glink:hover{color:var(--bone);border-color:rgba(243,172,47,.5)}
+.glink+.gfecha{margin-left:4px}
+.pop-notif .pn.abre{cursor:pointer}
+.pop-notif .pn.abre:hover,.pop-notif .pn.abre:focus-visible{background:rgba(247,228,206,.06)}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -952,18 +958,10 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div class="av8-estados" role="group" aria-label="Ver estado do aviso"><span class="mut">Estado:</span><button type="button" class="chip on" data-e="pedir">Pedir para ligar</button><button type="button" class="chip" data-e="bloq">Bloqueado</button><button type="button" class="chip" data-e="iphone">iPhone</button><button type="button" class="chip" data-e="sem">Navegador sem suporte</button><button type="button" class="chip" data-e="rede">Falha no servidor</button></div>
 <div class="av8-caixa" role="dialog" aria-modal="true" aria-labelledby="av8Tit" id="av8Caixa"></div>
 </main>
-<main id="tela-breve" hidden>
-<section class="card l3" style="align-items:flex-start;gap:16px;padding:40px">
-<span class="mut" style="font-size:14px">Próxima etapa da prévia</span>
-<h1 class="num" id="breveTit" style="margin:0;font-size:40px">—</h1>
-<p style="margin:0;max-width:620px;font-size:15px;line-height:1.6;color:var(--ink-200)">Esta tela ainda vai ser refeita no visual novo. Já estão prontas: Visão geral, Semana de postagem, Stories, Indicadores, Meus painéis e Aprovações. Falta: Cadastrar conteúdo. Cada uma entra aqui, nesta mesma prévia, para você aprovar.</p>
-<a class="botao" href="#painel" style="display:inline-flex;align-items:center">Voltar ao painel</a>
-</section>
-</main>
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/previa/base.js?v=2d121520"></script>
+<script src="/interno/previa/base.js?v=01db2765"></script>
 <script>
 (() => {
   const SHEET = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec';
@@ -1600,7 +1598,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
   const capaPronta = (i) => !!(i.capa && i.capa.pronta);
   const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0);
-  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false;
+  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null;
 
   const card = (i, extra = '') => {
     const t = 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
@@ -1629,9 +1627,14 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     $('paParados').classList.toggle('on', soParados);
     const itens = todos.filter((i) => (!cf || i.cliente === cf) && (!q || (i.cliente + ' ' + (i.titulo || '')).toLowerCase().includes(q)) && (!soParados || atraso(i) > 0));
     const eu = ($('euSel') && $('euSel').value) || 'gabriel';
+    // cada pessoa cai na área dela e só vê as abas dela; a direção vê todas
+    const GEST = ['gabriel', 'yasmim', 'vitoria'].includes(eu), minhasAreas = ['design', 'video', 'social'].filter((k) => PAINEIS[k].includes(eu));
+    if (eu !== euAntes) { euAntes = eu; quem = {}; if (minhasAreas.length) painel = minhasAreas[0]; }
+    const areas = GEST ? ['design', 'video', 'social'] : minhasAreas.length ? minhasAreas : ['design', 'video', 'social'];
+    if (!areas.includes(painel)) painel = areas[0];
     if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
     const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
-    $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
+    $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].filter(([k]) => areas.includes(k)).map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
     $('paQuem').innerHTML = '<span>Painel de</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
 
     const k = (ov, cor, v, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span></div>';
@@ -1796,7 +1799,9 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 (() => {
   const NOMES = {};
   function vai() {
-    let t = (location.hash || '#painel').slice(1); if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar', 'planejamento', 'login', 'aviso-8h'].includes(t) && !NOMES[t]) t = 'painel';
+    let t = (location.hash || '#painel').slice(1);
+    if (t.startsWith('demanda/')) return; // endereço de uma demanda: abre os detalhes por cima da tela atual
+    if (!['painel', 'visao-geral', 'semana', 'stories', 'indicadores', 'paineis', 'aprovacoes', 'cadastrar', 'planejamento', 'login', 'aviso-8h'].includes(t) && !NOMES[t]) t = 'painel';
     document.getElementById('painel').hidden = t !== 'painel';
     document.getElementById('tela-visao').hidden = t !== 'visao-geral';
     document.getElementById('tela-semana').hidden = t !== 'semana';
@@ -1809,8 +1814,6 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     document.getElementById('tela-login').hidden = t !== 'login';
     document.getElementById('tela-aviso').hidden = t !== 'aviso-8h';
     document.body.classList.toggle('sem-menu', t === 'login' || t === 'aviso-8h');
-    document.getElementById('tela-breve').hidden = !NOMES[t];
-    if (NOMES[t]) document.getElementById('breveTit').textContent = NOMES[t];
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });
     document.title = (t === 'painel' ? 'Painel' : t === 'visao-geral' ? 'Visão geral' : t === 'semana' ? 'Semana de postagem' : t === 'stories' ? 'Stories' : t === 'indicadores' ? 'Indicadores' : t === 'paineis' ? 'Meus painéis' : t === 'aprovacoes' ? 'Aprovações' : t === 'cadastrar' ? 'Cadastrar conteúdo' : t === 'planejamento' ? 'Planejamento' : t === 'login' ? 'Entrar' : t === 'aviso-8h' ? 'Avisos das 8h' : NOMES[t]) + ' · YAMB (prévia)';
     window.scrollTo(0, 0);
@@ -1818,6 +1821,6 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/previa/extras.js?v=2d121520"></script>
+<script src="/interno/previa/extras.js?v=01db2765"></script>
 </body>
 </html>
