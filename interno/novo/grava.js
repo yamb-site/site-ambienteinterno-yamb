@@ -124,6 +124,16 @@
       if (kind) d.notifs = [{ id: idNotif(), to: ['geral'], kind, by: quem, text: it.tipo + ' de ' + it.cliente + ' — ' + it.titulo + txt(it) + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
     });
   }
+  // pedir ajuste — igual ao setAjuste do antigo (vai para Ajustar com o motivo; notificação "Solicitação de ajuste")
+  function pedirAjuste(id, motivo, quem) {
+    return mudar((d) => {
+      const i = d.items.find((x) => x.id === id); if (!i) throw new Error('demanda não encontrada');
+      i.status = 'Ajustar'; i.nota = motivo; i.historico = stampHist(i, 'Ajustar', quem);
+      d.notifs = [{ id: idNotif(), to: ['geral'], kind: 'Solicitação de ajuste', by: quem, text: i.cliente + ' — ' + motivo + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
+    });
+  }
+  // aprovar — igual ao antigo: mover para Aprovado com {obs, por: nome de quem aprovou}
+  const aprovar = (id, obs, quem) => moverEtapa(id, 'Aprovado', quem, { obs: String(obs || ''), por: NOMES[quem] || quem });
   const acoes = (quem) => ({
     semMaterial: (id, falta) => upd(id, (i) => ({ ...i, semMaterial: { falta: String(falta || '').trim() || 'Material não informado', desde: Date.now(), por: quem } }), 'Falta material', (i) => ': falta ' + i.semMaterial.falta, quem),
     materialRecebido: (id) => upd(id, (i) => { const n = { ...i }; delete n.semMaterial; return n; }, 'Material recebido', () => ' · pode produzir', quem),
@@ -134,5 +144,5 @@
   });
 
   addEventListener('beforeunload', (e) => { if (sujo || gravando) { e.preventDefault(); e.returnValue = ''; } });
-  window.Grava = { ler, mudar, moverEtapa, acoes, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
+  window.Grava = { ler, mudar, moverEtapa, acoes, aprovar, pedirAjuste, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
 })();

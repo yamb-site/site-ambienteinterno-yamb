@@ -42,3 +42,7 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 - Ligadas de verdade (na cópia de teste), iguais ao `yambAcoesDe` do antigo, com as mesmas notificações: mover etapa, sem material, material recebido, marcar/desfazer capa pronta, precisa / não precisa de capa, quem faz a capa, quem faz a demanda (produção).
 - Ficam no painel de detalhes (abre ao clicar em qualquer cartão, inclusive em Meus painéis).
 - Testado: as 8 ações gravaram certo; o antigo (desatualizado) gravou outra demanda no meio e nada se perdeu; planilha real intacta.
+
+## Fase 3 · passo 9 — aprovar e pedir ajuste (2026-11-24)
+- Aprovar = mover para Aprovado com `{data, por: nome, obs}` (igual ao antigo). Pedir ajuste = Ajustar + `nota` (motivo obrigatório) + notificação "Solicitação de ajuste" (igual ao `setAjuste`).
+- No painel de detalhes (clicar no cartão em Aprovações). Testado com a sessão da Brisa: aprovação com observação e ajuste com motivo gravados, histórico com quem e quando, notificações certas; o antigo gravou outra demanda no meio sem perda; planilha real intacta.
