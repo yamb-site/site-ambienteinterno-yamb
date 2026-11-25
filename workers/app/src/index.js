@@ -18,6 +18,9 @@ export default {
     // Até a virada, /interno/app/ ainda é o app antigo: mostra o interno novo (piloto).
     // Depois da virada (app novo tem /interno/app.js), passa a mostrar o app novo sozinho.
     if (url.pathname === '/' || url.pathname === '/index.html') {
+      // app é só para celular: computador vai para o interno do site (?desktop evita voltar para cá)
+      const ua = req.headers.get('User-Agent') || '';
+      if (!/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) return Response.redirect('https://yamb.com.br/interno/?desktop' + url.hash, 302);
       const r = await fetch(new URL('/interno/app/', ORIGEM));
       const html = await r.text();
       if (!html.includes('/interno/app.js?v=')) caminho = '/interno/piloto/';
