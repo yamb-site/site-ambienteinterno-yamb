@@ -64,4 +64,7 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 - Para começar: 2–3 pessoas entram em /interno/piloto/ no computador, com o mesmo login, por alguns dias; o resto segue no /interno/. Conferir todo dia a planilha contra o backup.
 
 ## Fase 5 — virada (checklist)
+Automatizada em `scripts/virada.sh` (usa `scripts/virada.py`). Ensaio local em 2026-11-25 ok. Agendada para 2026-11-25 22h. Voltar: `bash scripts/virada.sh --voltar`.
+Depois da virada: exportação nova do interno antigo vai para `interno/antigo/` (não para `interno/`). O Tráfego dentro do interno novo continua vindo de `/interno/previa/trafego/?embed=1`.
+
 1. Backup conferido no dia.  2. `interno/index.html` atual → `interno/antigo/index.html` (e ajustar caminhos relativos).  3. Conteúdo do piloto vira `interno/index.html` (+ base/extras/grava em `interno/`), mantendo o redirecionamento de celular para `app/`, o manifest, o `sw.js` do OneSignal e o bloco dos avisos das 8h após o login.  4. Publicar, limpar cache, conferir.  5. Voltar = repor o `interno/index.html` antigo (minutos).
