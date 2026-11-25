@@ -414,9 +414,10 @@
   /* ---------- Login de verdade: mesmo usuário e senha do interno de hoje ----------
      Igual ao antigo: confere o resumo SHA-256 de "usuário|senha" no próprio navegador; a senha não é guardada nem enviada.
      A sessão vale enquanto a aba estiver aberta (sessionStorage), como cada pessoa entrava no antigo. */
+  const PILOTO = ["gabriel", "vitoria", "yasmim", "vitor"];
   const ACESSO = { vitoria: ['vitoria.almeida', 'b366765602fdb2dc5d61389e83de17aeb6da7d5369850cbd04bcdbb7fc7e8f73'], gabriel: ['gabriel.santos', 'ef855223e5b55d6649a30cd2d607b30c063a2088afebc8470dfd679a0f0a5895'], yasmim: ['yasmim.barbara', 'b2f5cba45c9d33c38aa68dc6451fe020dcd1321702a24ac9969035eede67bc99'], anny: ['anny.vitoria', '9cf2a2bbd0cf39bca6fd04fb8301f198020a1a9e96aea9ad1b307cb1e9cb6a24'], brisa: ['brisa.franca', 'f8cbb523f6e1af7e08c4e8e6969007936d9238301e2fa7b9f364bb757e471af4'], marcus: ['marcus.fontes', '62fbab857890fe44b1a5579e4d17c0e912512ada5ccbadfae8aa99057cae53f9'], camille: ['camille.danylo', '10910c847e101ef6b9e1f24e2b1c56c82bfef4a9d7c893676330b9f3f5d707dc'], yngra: ['yngra.lyriel', '41d2b7ec2f0d0c1bcc8092869ac7d636b4c9f6b69d0f4b2493499a562423247f'], vitor: ['vitor.nascimento', 'a4859f403fed0d324001a307a02aa771520b8d6eb823c39e73999d1d54209495'] };
   const sha = async (t) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map((b) => b.toString(16).padStart(2, '0')).join('');
-  const sessao = { ler: () => { try { const v = sessionStorage.getItem('yamb-piloto-sessao'); return ACESSO[v] ? v : null; } catch (x) { return null; } },
+  const sessao = { ler: () => { try { const v = sessionStorage.getItem('yamb-piloto-sessao'); return ACESSO[v] && PILOTO.includes(v) ? v : null; } catch (x) { return null; } },
     gravar: (v) => { try { v ? sessionStorage.setItem('yamb-piloto-sessao', v) : sessionStorage.removeItem('yamb-piloto-sessao'); } catch (x) {} } };
   const fixaEu = (id) => { const sel = $('euSel'); if (sel && sel.value !== id) { sel.value = id; sel.dispatchEvent(new Event('change')); } };
   function porteiro() {
@@ -448,6 +449,7 @@
       const certo = al && (await sha(ACESSO[al][0] + '|' + senha)) === ACESSO[al][1];
       lgPwd.value = ''; // a senha não fica guardada em lugar nenhum
       if (!certo) { $('lgErro').textContent = 'Usuário ou senha incorretos.'; lgPwd.focus(); return; }
+      if (!PILOTO.includes(al)) { $('lgErro').textContent = 'Você ainda não está no piloto. Use o interno de sempre: yamb.com.br/interno/'; return; }
       sessao.gravar(al); lgUsr.value = ''; pintaLogin();
       porteiro();
     };
