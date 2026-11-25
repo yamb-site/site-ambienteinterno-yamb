@@ -46,3 +46,22 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 ## Fase 3 · passo 9 — aprovar e pedir ajuste (2026-11-24)
 - Aprovar = mover para Aprovado com `{data, por: nome, obs}` (igual ao antigo). Pedir ajuste = Ajustar + `nota` (motivo obrigatório) + notificação "Solicitação de ajuste" (igual ao `setAjuste`).
 - No painel de detalhes (clicar no cartão em Aprovações). Testado com a sessão da Brisa: aprovação com observação e ajuste com motivo gravados, histórico com quem e quando, notificações certas; o antigo gravou outra demanda no meio sem perda; planilha real intacta.
+
+## Fase 3 · passos 10 a 15 (2026-11-24, feitos sem pausa a pedido do dono)
+- 10 checklist (cada marcação grava; postar não fica travado, igual ao antigo), marcar postado, não postado com motivo.
+- 11 cadastrar e notificar (igual ao `addItem`: Pendente, social Brisa, capa do Reels, "Nova demanda cadastrada").
+- 12 stories: marcar publicado (toque na bolinha do dia da rotina) e salvar rotina (dias + conteúdo fixo).
+- 13 planejamento: seletor de situação por cliente.
+- 14 financeiro: marcar pago / desfazer (só direção, com qtd, valor e lista de vídeos) e comprovante que abre a impressão para salvar PDF.
+- 15 avaliação do dia (estrelas + comentário no Painel), editar demanda, trocar formato, excluir.
+- Teste completo na cópia com o antigo gravando por cima: tudo preservado.
+- **Defeito achado e corrigido no motor:** se a releitura automática (15 s) caísse nos 300 ms entre a mudança e a gravação, a mudança local podia ser descartada. Agora a mudança fica marcada como pendente na hora e a releitura junta em vez de substituir. Testado forçando releituras no meio.
+- **Trava de segurança:** o motor se recusa a gravar se o resultado tiver menos demandas, planejamentos ou stories marcados do que a planilha já tem.
+
+## Fase 4 — piloto (preparado em 2026-11-24, esperando a equipe)
+- Endereço: https://yamb.com.br/interno/piloto/ — o interno novo gravando na PLANILHA REAL (faixa laranja "Piloto do interno novo · grava na planilha da equipe"). Gerado de `interno/novo/` por `python3 scripts/gera_piloto.py` (rodar de novo a cada mudança no novo).
+- Conferido: abre pedindo login e só LÊ a planilha até alguém agir; nenhuma gravação foi feita na planilha real pelos testes (rev 1795567171654).
+- Para começar: 2–3 pessoas entram em /interno/piloto/ no computador, com o mesmo login, por alguns dias; o resto segue no /interno/. Conferir todo dia a planilha contra o backup.
+
+## Fase 5 — virada (checklist)
+1. Backup conferido no dia.  2. `interno/index.html` atual → `interno/antigo/index.html` (e ajustar caminhos relativos).  3. Conteúdo do piloto vira `interno/index.html` (+ base/extras/grava em `interno/`), mantendo o redirecionamento de celular para `app/`, o manifest, o `sw.js` do OneSignal e o bloco dos avisos das 8h após o login.  4. Publicar, limpar cache, conferir.  5. Voltar = repor o `interno/index.html` antigo (minutos).

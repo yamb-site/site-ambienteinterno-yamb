@@ -1,0 +1,14 @@
+import fs from 'fs'; import { ler } from './antigo.mjs';
+const d = await ler(); const ids = JSON.parse(fs.readFileSync('ids.json')); const g = id => d.items.find(i => i.id === id);
+const novo = d.items.filter(i => /TESTE automático/.test(i.titulo));
+console.log('cadastro:', novo.map(i => [i.cliente, i.tipo, i.data, i.status, i.produtor, i.social, i.cadastradoPor, i.trello].join(' · ')));
+console.log('story:', JSON.stringify((d.storiesFeitos || []).find(f => f.id === 'AMELYS|23/11/2026')));
+console.log('rotina:', JSON.stringify((d.stories || []).find(s => s.cliente === 'AMELYS')));
+console.log('plano:', JSON.stringify((d.planos || []).find(p => p.cliente === 'AMELYS')));
+const E = g(ids.E); console.log('editar:', E.titulo, '|', E.hora);
+const F = g(ids.F); console.log('formato:', F.tipo, '| produtor', F.produtor);
+console.log('excluir:', JSON.stringify(g(ids.Xc).excluido));
+console.log('avaliação:', JSON.stringify((d.avaliacoes || []).find(a => a.usuario === 'gabriel' && a.data === new Date().toLocaleDateString('pt-BR'))));
+console.log('pago:', JSON.stringify((d.pagosVideos || []).find(p => p.id === '2026-11'), (k, v) => k === 'ids' ? v.length + ' vídeos' : v));
+console.log('antigo X:', g(ids.X).status, '| itens', d.items.length);
+console.log('notifs:\n  ' + d.notifs.slice(0, 7).map(n => n.kind + ' — ' + n.text.slice(0, 70)).join('\n  '));

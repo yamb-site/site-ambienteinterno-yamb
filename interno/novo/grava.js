@@ -73,6 +73,10 @@
     try {
       const j = await lerRemoto();
       const junto = merge(cru, j && j.data);
+      // trava de segurança: nunca gravar algo menor que o que já está na planilha (a junção só soma)
+      const rem = (j && j.data) || {};
+      if (!junto || !Array.isArray(junto.items) || junto.items.length < (rem.items || []).length || (junto.planos || []).length < (rem.planos || []).length || (junto.storiesFeitos || []).length < (rem.storiesFeitos || []).length)
+        throw new Error('gravação barrada pela trava de segurança');
       cru = junto;
       const r = await fetch(URL_DADOS, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ data: junto }) });
       const o = await r.json();
@@ -94,6 +98,7 @@
     fn(cru);
     stamp(cru.items, antes.items, 'id'); stamp(cru.planos, antes.planos, 'cliente'); stamp(cru.stories, antes.stories, 'cliente');
     stamp(cru.storiesFeitos, antes.storiesFeitos, 'id'); stamp(cru.avaliacoes, antes.avaliacoes, 'id'); stamp(cru.pagosVideos, antes.pagosVideos, 'id');
+    sujo = true; // mudança local pendente: a releitura automática junta em vez de substituir
     window.dispatchEvent(new CustomEvent('grava:mudou', { detail: copia(cru) }));
     clearTimeout(tentar); tentar = setTimeout(gravar, 300);
     return new Promise((res) => { const f = (e) => { if (e !== 'salvando') { ouvintes = ouvintes.filter((x) => x !== f); res(e === 'ok'); } }; ouvintes.push(f); });
@@ -132,6 +137,69 @@
       d.notifs = [{ id: idNotif(), to: ['geral'], kind: 'Solicitação de ajuste', by: quem, text: i.cliente + ' — ' + motivo + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
     });
   }
+  // checklist — igual ao toggleCheck do antigo (cada item marcado/desmarcado grava na hora)
+  const marcarChecklist = (id, k) => mudar((d) => {
+    const i = d.items.find((x) => x.id === id); if (!i) throw new Error('demanda não encontrada');
+    const l = i.checklist || []; i.checklist = l.includes(k) ? l.filter((x) => x !== k) : [...l, k];
+  });
+  // não postado — igual ao antigo: vai para "Não postado" com {motivo, desde, por} e o motivo entra no texto da notificação
+  function naoPostado(id, motivo, quem) {
+    motivo = String(motivo || '').trim() || 'Sem motivo informado';
+    return mudar((d) => {
+      const i = d.items.find((x) => x.id === id); if (!i) throw new Error('demanda não encontrada');
+      i.status = 'Não postado'; i.nota = ''; i.historico = stampHist(i, 'Não postado', quem);
+      i.naoPostado = { motivo, desde: Date.now(), por: quem };
+      d.notifs = [{ id: idNotif(), to: ['geral'], kind: NOTIF_BY_STATUS['Não postado'], by: quem, text: i.tipo + ' de ' + i.cliente + ' — ' + i.titulo + ' · por ' + (NOMES[quem] || quem) + ' · motivo: ' + motivo, ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
+    });
+  }
+  // cadastrar — igual ao addItem do antigo (entra em Pendente, social = Brisa, notificação "Nova demanda cadastrada")
+  const PAD = { design: 'marcus', video: 'camille' }, PODE = { design: ['gabriel', 'marcus'], video: ['vitoria', 'gabriel', 'yasmim', 'camille'] };
+  const produtorDe = (t) => (t === 'Vídeo' || t === 'Reels') ? 'video' : 'design';
+  const produtorPara = (tipo, id) => { const r = produtorDe(tipo); return PODE[r].includes(id) ? id : PAD[r]; };
+  function cadastrar(form, quem) {
+    return mudar((d) => {
+      const prod = produtorPara(form.tipo, form.produtor);
+      const it = { id: 'c' + Date.now(), cliente: form.cliente, tipo: form.tipo, data: form.data, titulo: form.titulo, trello: form.trello || 'https://trello.com/c/yamb-novo', status: 'Pendente',
+        produtor: prod, social: 'brisa', cadastradoPor: quem, checklist: [], aprovacao: null, nota: '', historico: stampHist({}, 'Pendente', quem) };
+      if (form.tipo === 'Reels') it.capa = { precisa: form.precisaCapa !== false, pronta: false, designer: PODE.design.includes(form.capaDesigner) ? form.capaDesigner : PAD.design };
+      d.items = [...d.items, it];
+      d.notifs = [{ id: idNotif(), to: ['geral'], kind: 'Nova demanda cadastrada', by: quem, text: form.tipo + ' de ' + form.cliente + ' — postagem ' + form.data + ' · produção: ' + (NOMES[prod] || '—') + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
+    });
+  }
+  // stories — iguais ao setStory e ao toggleFeito do antigo (id do feito: "CLIENTE|dd/mm/aaaa")
+  const setStory = (cliente, patch) => mudar((d) => {
+    const l = d.stories || [], cur = l.find((x) => x.cliente === cliente) || { cliente, dias: [], fixo: '' }, n = { ...cur, ...patch };
+    d.stories = l.some((x) => x.cliente === cliente) ? l.map((x) => x.cliente === cliente ? n : x) : [...l, n];
+  });
+  const marcarStory = (id) => mudar((d) => {
+    const l = d.storiesFeitos || [], cur = l.find((f) => f.id === id);
+    d.storiesFeitos = cur ? l.map((f) => f.id === id ? { ...f, ok: !f.ok } : f) : [...l, { id, ok: true }];
+  });
+  // planejamento — igual ao setPlano
+  const setPlano = (cliente, status) => mudar((d) => { d.planos = d.planos.map((p) => p.cliente === cliente ? { ...p, status } : p); });
+  // pagamento dos vídeos — igual ao setPagoVideo (só a direção)
+  const FIN = ['yasmim', 'gabriel', 'vitor'];
+  const setPagoVideo = (mes, pago, info, quem) => {
+    if (!FIN.includes(quem)) return Promise.reject(new Error('só a direção marca pagamento'));
+    return mudar((d) => {
+      const l = d.pagosVideos || [], n = { id: mes, pago, por: quem, em: new Date().toLocaleDateString('pt-BR'), ...(info || {}) };
+      d.pagosVideos = l.some((x) => x.id === mes) ? l.map((x) => x.id === mes ? (pago ? n : { ...x, pago: false, por: quem, em: n.em }) : x) : [...l, n];
+    });
+  };
+  // avaliação do dia — igual ao salvarAvaliacao (id "pessoa|dd/mm/aaaa")
+  const salvarAvaliacao = (nota, comentario, quem) => mudar((d) => {
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    const av = { id: quem + '|' + hoje, usuario: quem, nome: NOMES[quem] || quem, data: hoje, nota, comentario: String(comentario || '').trim(), ts: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) };
+    const l = d.avaliacoes || []; d.avaliacoes = l.some((x) => x.id === av.id) ? l.map((x) => x.id === av.id ? av : x) : [...l, av];
+  });
+  // formato — igual ao setTipo
+  function setTipo(id, tipo, quem) {
+    return mudar((d) => {
+      const i = d.items.find((x) => x.id === id); if (!i || i.tipo === tipo) return;
+      const antes = i.tipo; i.tipo = tipo; i.produtor = produtorPara(tipo, i.produtor);
+      d.notifs = [{ id: idNotif(), to: ['geral'], kind: 'Formato alterado', by: quem, text: i.cliente + ' — ' + i.titulo + ': ' + antes + ' → ' + tipo + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
+    });
+  }
   // aprovar — igual ao antigo: mover para Aprovado com {obs, por: nome de quem aprovou}
   const aprovar = (id, obs, quem) => moverEtapa(id, 'Aprovado', quem, { obs: String(obs || ''), por: NOMES[quem] || quem });
   const acoes = (quem) => ({
@@ -141,8 +209,11 @@
     precisaCapa: (id, sim) => upd(id, (i) => ({ ...i, capa: { ...(i.capa || {}), precisa: sim, pronta: false } }), null, () => '', quem),
     capaDesigner: (id, pid) => upd(id, (i) => ({ ...i, capa: { ...(i.capa || {}), precisa: true, designer: pid } }), 'Responsável pela capa alterado', () => ' · capa: ' + (NOMES[pid] || '—'), quem),
     produtor: (id, pid) => upd(id, (i) => ({ ...i, produtor: pid }), 'Responsável alterado', (i) => ' · produção: ' + (NOMES[i.produtor] || '—'), quem),
+    editar: (id, patch) => { let mud = ''; const R = { cliente: 'cliente', titulo: 'conteúdo', data: 'data', hora: 'horário', trello: 'link do Trello' };
+      return upd(id, (i) => { const n = { ...i, ...patch }; mud = Object.keys(R).filter((k) => (i[k] || '') !== (n[k] || '')).map((k) => R[k]).join(', '); return n; }, 'Demanda editada', () => mud ? ' · alterado: ' + mud : '', quem); },
+    excluir: (id) => upd(id, (i) => ({ ...i, excluido: { por: quem, em: Date.now() } }), 'Conteúdo excluído', () => '', quem),
   });
 
   addEventListener('beforeunload', (e) => { if (sujo || gravando) { e.preventDefault(); e.returnValue = ''; } });
-  window.Grava = { ler, mudar, moverEtapa, acoes, aprovar, pedirAjuste, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
+  window.Grava = { ler, mudar, cadastrar, setStory, marcarStory, setPlano, setPagoVideo, salvarAvaliacao, setTipo, moverEtapa, acoes, aprovar, pedirAjuste, marcarChecklist, naoPostado, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
 })();
