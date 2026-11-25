@@ -67,6 +67,18 @@ troca('</body>', '<div id="previa-toast" role="status">Prévia: nada é alterado
       'n.addEventListener("mouseenter",a);n.addEventListener("mouseleave",f);n.addEventListener("focusin",a);n.addEventListener("focusout",function(){setTimeout(function(){if(!n.matches(":hover"))f()},0)});'
       'function m(){document.body.classList.toggle("yr-app",!document.getElementById("painel").hidden)}m();new MutationObserver(m).observe(document.getElementById("painel"),{attributes:true,attributeFilter:["hidden"]});})();</script>\n</body>')
 
+# --- sem a aba "Visão geral": o painel abre direto em Clientes ---
+troca("e.aba = e.aba || (e.cliente ? 'cliente' : 'geral');", "e.aba = e.aba || (e.cliente ? 'cliente' : 'clientes'); if (e.aba === 'geral') e.aba = 'clientes';")
+troca("'relatorios'].indexOf(e.aba) < 0) e.aba = 'geral';", "'relatorios'].indexOf(e.aba) < 0) e.aba = 'clientes';")
+troca("if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'geral';", "if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'clientes';")
+troca("!(k === 'aba' && e[k] === 'geral')", "!(k === 'aba' && e[k] === 'clientes')")
+troca("var abas = ehCliente() ? [['geral', 'Visão geral'], ", "var abas = ehCliente() ? [")
+troca("      : [['geral', 'Visão geral'], ['sugestoes',", "      : [['sugestoes',")
+troca("var it = ehCliente() ? [['geral', 'Visão geral', IC.resumo, 0], ", "var it = ehCliente() ? [")
+troca("      : [['geral', 'Visão geral', IC.resumo, 0], ['sugestoes',", "      : [['sugestoes',")
+troca("(x[0] === 'geral' ? ' aria-current=\"page\"' : '')", "(x[0] === 'clientes' ? ' aria-current=\"page\"' : '')")
+troca("link({ aba: ehCliente() ? 'clientes' : 'geral' })", "link({ aba: 'clientes' })")
+
 # --- modo embutido: quando abre dentro do ambiente interno (?embed=1), some o menu próprio e o fundo ---
 troca('<head>', '<head><script>if(/[?&]embed\\b/.test(location.search))document.documentElement.classList.add("embed")</script>')
 
@@ -128,11 +140,6 @@ html.embed .entrar-arte{display:none}
 html.embed #entrar:not([hidden]){display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 48px);padding:0;grid-template-columns:none}
 html.embed .cartao-entrar{justify-self:center;margin:0 auto}
 html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez com o seu acesso do Tráfego. Na versão final, o login do ambiente interno já vale aqui.";display:block;margin:0 0 18px;padding:12px 14px;border-radius:14px;background:rgba(243,172,47,.08);border:1px solid rgba(243,172,47,.3);color:#F5C86F;font-size:12.5px;line-height:1.5}
-/* sem o bloco grande de abertura: só a faixa com informações e período */
-.abertura{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 0 16px!important;overflow:visible;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
-.abertura .flor-mini,.abertura .orb,.abertura h1,.abertura #sobre{display:none!important}
-.abertura .info{order:2;margin:0!important;font-size:12.5px}
-.abertura .periodos{order:1}
 #previa-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);z-index:80;padding:12px 18px;border-radius:999px;background:rgba(18,18,18,.96);border:1px solid rgba(243,172,47,.45);color:#F7E4CE;font-size:13px;opacity:0;pointer-events:none;transition:all .25s}
 #previa-toast.on{opacity:1;transform:translate(-50%,0)}
 .yr-selo{display:none}
