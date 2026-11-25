@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/previa/base.css?v=01db2765">
+<link rel="stylesheet" href="/interno/previa/base.css?v=60ad3335">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -476,6 +476,66 @@ body.menu-curto:not(.menu-aberto) .bt-eu .eu-txt,body.menu-curto:not(.menu-abert
 .glink+.gfecha{margin-left:4px}
 .pop-notif .pn.abre{cursor:pointer}
 .pop-notif .pn.abre:hover,.pop-notif .pn.abre:focus-visible{background:rgba(247,228,206,.06)}
+/* janelas de ação */
+.jan-fundo{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+.jan-fundo[hidden],.janela[hidden]{display:none!important}
+.janela{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:61;width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow-y:auto;padding:24px 26px 18px;border-radius:26px;background:linear-gradient(160deg,#1d1d1d,#0e0e0e);border:1px solid rgba(247,228,206,.14);box-shadow:0 40px 100px rgba(0,0,0,.75);display:flex;flex-direction:column;gap:14px;animation:janEntra .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes janEntra{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
+@media (prefers-reduced-motion:reduce){.janela{animation:none}}
+.jcab{display:flex;gap:14px;align-items:flex-start}
+.jic{width:44px;height:44px;flex:none;border-radius:14px;background:rgba(247,228,206,.06);display:flex;align-items:center;justify-content:center}
+.jcab h2{margin:2px 0 0;font-size:19px;font-weight:600;line-height:1.3}
+.jsub{margin:4px 0 0;font-size:12.5px;line-height:1.5;color:var(--ink-300)}
+.jx{margin-left:auto;flex:none}
+.jcorpo{display:flex;flex-direction:column;gap:12px}
+.jitem{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:14px;background:rgba(247,228,206,.04);border:1px solid rgba(247,228,206,.07)}
+.jitem b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-400)}
+.jitem span{font-size:14px;font-weight:600}
+.jitem em{font-style:normal;font-size:12px;color:var(--ink-300)}
+.jtxt{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-200)}
+.jtxt b{color:var(--bone)}
+.jcampo{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink-300)}
+.jcampo input,.jcampo textarea{width:100%;padding:11px 14px;border-radius:14px;border:1px solid rgba(247,228,206,.14);background:rgba(18,18,18,.8);color:var(--bone);font:inherit;font-size:14px;resize:vertical;color-scheme:dark}
+.jcampo input:focus,.jcampo textarea:focus{outline:none;border-color:rgba(243,172,47,.6);box-shadow:0 0 0 3px rgba(243,172,47,.15)}
+.jgrade{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.jgrade .l2j{grid-column:1/-1}
+.jchips{display:flex;flex-wrap:wrap;gap:6px}
+.jchips .chip{height:30px;font-size:12px}
+.jchk{display:flex;flex-direction:column;gap:2px}
+.jchk label{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;font-size:13.5px;cursor:pointer}
+.jchk label:hover{background:rgba(247,228,206,.04)}
+.jchk input{width:18px;height:18px;accent-color:#E09A24}
+.jdias{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.jdias button{height:44px;border-radius:12px;border:1px solid rgba(247,228,206,.14);background:none;color:var(--ink-200);font-size:12.5px;font-weight:600;cursor:pointer}
+.jdias button.on{background:rgba(243,172,47,.16);border-color:rgba(243,172,47,.6);color:var(--gold-300);box-shadow:0 0 14px rgba(243,172,47,.25)}
+.jpag{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.jpag div{padding:12px;border-radius:14px;background:rgba(247,228,206,.04);display:flex;flex-direction:column;gap:3px}
+.jpag span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-300)}
+.jpag b{font-size:16px;font-weight:600}.jpag b.ouro{color:var(--gold-300)}
+.jrecibo{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;border:1px solid rgba(247,228,206,.1);background:rgba(10,10,10,.6)}
+.jr-cab{display:flex;justify-content:space-between;align-items:center}
+.jr-cab div{display:flex;flex-direction:column;gap:2px}.jr-cab span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-400)}
+.jr-cab b{font-family:var(--disp);font-size:20px}.jr-cab img{width:34px;height:34px}
+.jrecibo table{width:100%;border-collapse:collapse;font-size:12px}
+.jrecibo th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-300);padding:6px 4px;font-weight:600}
+.jrecibo td{padding:6px 4px;border-top:1px solid rgba(247,228,206,.06)}
+.jrecibo tr.g td{font-weight:600;color:var(--gold-200);padding-top:10px}
+.jrecibo td:nth-child(3),.jrecibo td:nth-child(4),.jrecibo th:nth-child(3),.jrecibo th:nth-child(4){text-align:right;white-space:nowrap}
+.jr-rod{margin:0;font-size:11px;color:var(--ink-300);text-align:right}
+.jerro{margin:0;font-size:12.5px;color:var(--bad)}.jerro:empty{display:none}
+.jbt{display:flex;gap:10px;justify-content:flex-end}
+.jbt .botao{height:44px}
+.jok[disabled]{opacity:.4;cursor:not-allowed}
+.jprev{margin:0;font-size:11px;color:var(--ink-300);text-align:right}
+.jtoast{position:fixed;left:50%;bottom:64px;transform:translate(-50%,20px);z-index:70;padding:12px 18px;border-radius:999px;background:rgba(18,18,18,.96);border:1px solid rgba(158,214,176,.4);color:var(--bone);font-size:13px;opacity:0;pointer-events:none;transition:all .25s}
+.jtoast b{color:var(--ok)}
+.jtoast.on{opacity:1;transform:translate(-50%,0)}
+.gacoes{display:flex;flex-wrap:wrap;gap:8px}
+.gacoes .botao{height:38px;padding:0 16px;font-size:13px}
+.fin-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.fin-acoes .botao{height:40px;font-size:13px;padding:0 16px}
+#tela-stories [data-rotina]{cursor:pointer;border-radius:10px}
+#tela-stories [data-rotina]:hover .elip{color:var(--gold-300)}
 /* extras: gaveta, notificações, planejamento, avaliação */
 [data-item]{cursor:pointer}
 .ico .cont{position:absolute;top:2px;right:0;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#E09A24;color:#121212;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1}
@@ -831,7 +891,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <span class="mut" id="finConta" style="font-size:13px">—</span>
 <span class="pill" id="finStatus" style="align-self:flex-start">—</span>
 <span class="mut" id="finStatusTx" style="font-size:12.5px;line-height:1.5"></span>
-<p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e gerar o comprovante continuam no interno.</p>
+<div class="fin-acoes"><button type="button" class="botao" id="finPagar">Marcar mês como pago</button><button type="button" class="botao sec" id="finComp">Comprovante PDF</button></div>
+<p class="mut" style="margin:auto 0 0;font-size:12px;line-height:1.5">Edição: <b style="color:var(--bone)">Camille</b> · R$ 25 por vídeo. Marcar como pago e o comprovante abrem a janela como vai ser; na prévia nada é salvo.</p>
 </section>
 <section class="card l2 v-fin" hidden>
 <div class="tit">Editados · ainda sem postar<small id="finSPn"></small></div>
@@ -961,7 +1022,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/previa/base.js?v=01db2765"></script>
+<script src="/interno/previa/base.js?v=60ad3335"></script>
 <script>
 (() => {
   const SHEET = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec';
@@ -1364,7 +1425,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const lista = rows.filter((r) => filt === 'Todos' || (filt === 'Com rotina' ? r.dias.length : !r.dias.length)).sort((a, b) => (b.dias.length > 0) - (a.dias.length > 0) || a.cliente.localeCompare(b.cliente));
     $('stGrade').classList.toggle('semfixo', !rows.some((r) => r.fixo));
     $('stGrade').innerHTML = '<span class="th l">Cliente</span><span class="th l fx">Conteúdo fixo</span>' + dias.map((d, k) => '<span class="th' + (k === iH ? ' hj' : '') + '">' + CURTOS[k] + '<small>' + d.slice(0, 5) + '</small></span>').join('') + '<span class="th" style="text-align:right">Semana</span>' +
-      (lista.map((r) => '<span class="cli"><span class="ini">' + esc(ini(r.cliente)) + '</span><span class="elip">' + esc(titulo(r.cliente)) + '</span></span><span class="fixo elip">' + (esc(r.fixo) || '<span class="mut">—</span>') + '</span>' +
+      (lista.map((r) => '<span class="cli" data-rotina="' + esc(r.cliente) + '" role="button" tabindex="0" title="Editar rotina de ' + esc(titulo(r.cliente)) + '"><span class="ini">' + esc(ini(r.cliente)) + '</span><span class="elip">' + esc(titulo(r.cliente)) + '</span></span><span class="fixo elip">' + (esc(r.fixo) || '<span class="mut">—</span>') + '</span>' +
         dias.map((d, k) => { const on = r.dias.includes(k), ok = on && feito.has(r.cliente + '|' + d);
           return '<span class="cel' + (k === iH ? ' hj' : '') + '"><span class="bol ' + (ok ? 'ok' : on ? 'falta' + (k === iH ? ' hj' : '') : 'fora') + '" title="' + (ok ? 'Publicado' : on ? 'Na rotina, falta' : 'Fora da rotina') + '">' + (ok ? check : '') + '</span></span>'; }).join('') +
         '<span class="sem">' + (r.dias.length ? '<span class="barra" style="max-width:40px"><i style="width:' + Math.round(r.feitos / r.dias.length * 100) + '%"></i></span>' + r.feitos + '/' + r.dias.length : '<span class="mut">sem rotina</span>') + '</span>').join('') ||
@@ -1564,6 +1625,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const mxb = Math.max(1, ...gl.map((g) => g.n));
     $('finBar').innerHTML = !vids ? '' : gl.map((g, j) => '<div class="fb"><span class="elip">' + (j + 1) + '. ' + esc(titulo(g.c)) + '</span><b>' + g.n + '</b><em>' + BRL(g.n * VAL) + '</em><span class="barra"><i style="width:' + (g.n / mxb * 100) + '%"></i></span></div>').join('') || '<p class="mut" style="margin:0;font-size:13px">Nada no mês.</p>';
     $('finPagTit').textContent = 'Pagamento · ' + Mes(mes.getMonth()) + ' ' + mes.getFullYear();
+    window.finAtual = vids ? { rot: Mes(mes.getMonth()) + ' ' + mes.getFullYear(), per, q, valor: q * VAL, pg, VAL } : null;
+    $('finPagar').textContent = pg ? 'Desfazer pagamento' : 'Marcar mês como pago';
     $('finValor').textContent = vids ? BRL(q * VAL) : '—';
     $('finConta').textContent = vids ? q + ' vídeo' + (q === 1 ? '' : 's') + ' × ' + BRL(VAL) : 'lendo a planilha…';
     $('finStatus').innerHTML = pg ? '<span style="color:var(--ok)">✓ Pago</span>' : 'Em aberto';
@@ -1821,6 +1884,6 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/previa/extras.js?v=01db2765"></script>
+<script src="/interno/previa/extras.js?v=60ad3335"></script>
 </body>
 </html>

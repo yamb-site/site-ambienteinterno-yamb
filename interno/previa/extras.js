@@ -81,8 +81,10 @@
       '</section>' +
       (avisos.length ? '<section class="gavisos">' + avisos.map(([t, x]) => '<p class="' + t + '">' + x + '</p>').join('') + '</section>' : '') +
       (['Aprovado', 'Não postado', 'Postado'].includes(i.status) || (i.checklist || []).length ? '<section><h3>Checklist de postagem · <span>' + (CHECKLIST_N - (i.checklist || []).length ? 'faltam ' + plural(CHECKLIST_N - (i.checklist || []).length, 'item', 'itens') + ' na conferência' : 'tudo conferido') + '</span></h3><ul class="gchk">' + CHECKLIST.map((c, j) => { const ok = (i.checklist || []).map(Number).includes(j); return '<li class="' + (ok ? 'ok' : '') + '"><i></i>' + c + '</li>'; }).join('') + '</ul></section>' : '') +
-      '<p class="gnota">Orientações completas, referências, arquivos e prazos estão no Trello. Na versão final, é aqui que se move a etapa, troca formato e responsável e marca a capa. Na prévia, só leitura.</p>';
+      '<section><h3>Ações</h3><div class="gacoes">' + acoesDe(i).map(([k, t, prim]) => '<button type="button" class="botao' + (prim ? '' : ' sec') + '" data-acao="' + k + '">' + t + '</button>').join('') + '</div></section>' +
+      '<p class="gnota">Orientações completas, referências, arquivos e prazos estão no Trello. Na prévia, as ações abrem a janela como vai ser, mas nada é salvo.</p>';
     gav.querySelector('.gfecha').onclick = fecha;
+    gav.querySelectorAll('[data-acao]').forEach((b) => { b.onclick = () => acao(b.dataset.acao, i); });
     gav.querySelector('.glink').onclick = (e) => { const b = e.currentTarget, url = location.origin + location.pathname + '#demanda/' + encodeURIComponent(i.id);
       const ok = () => { b.querySelector('span').textContent = 'Link copiado'; setTimeout(() => { b.querySelector('span').textContent = 'Copiar link'; }, 2000); };
       if (navigator.clipboard) navigator.clipboard.writeText(url).then(ok, () => prompt('Copie o link:', url)); else prompt('Copie o link:', url); };
@@ -105,6 +107,91 @@
   });
   // deixa os cartões alcançáveis pelo teclado
   new MutationObserver(() => document.querySelectorAll('[data-item]:not([tabindex]):not(a)').forEach((el) => { el.tabIndex = 0; el.setAttribute('role', 'button'); })).observe(document.body, { childList: true, subtree: true });
+
+  /* ---------- janelas de ação (prévia: mostram como vai ser, nada é salvo) ---------- */
+  const jFundo = document.createElement('div'); jFundo.className = 'jan-fundo'; jFundo.hidden = true;
+  const jan = document.createElement('div'); jan.className = 'janela'; jan.hidden = true; jan.setAttribute('role', 'dialog'); jan.setAttribute('aria-modal', 'true'); jan.setAttribute('aria-labelledby', 'janTit');
+  document.body.append(jFundo, jan);
+  let janVolta = null;
+  function fechaJan() { jan.hidden = true; jFundo.hidden = true; if (janVolta && janVolta.focus) janVolta.focus(); }
+  jFundo.onclick = fechaJan;
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && !jan.hidden) { e.stopImmediatePropagation(); fechaJan(); } }, true);
+  const toast = (t) => { let el = document.querySelector('.jtoast'); if (!el) { el = document.createElement('div'); el.className = 'jtoast'; el.setAttribute('role', 'status'); document.body.append(el); } el.innerHTML = '<b>✓</b> ' + t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 3200); };
+  // abre uma janela: {ic, cor, tit, sub, corpo, ok, okCor, valida(jan) -> erro|'' , feito}
+  function janela(o) {
+    janVolta = document.activeElement;
+    jan.innerHTML = '<div class="jcab"><span class="jic" style="color:' + (o.cor || 'var(--gold-300)') + '">' + I(o.ic, 20) + '</span><div><h2 id="janTit">' + o.tit + '</h2>' + (o.sub ? '<p class="jsub">' + o.sub + '</p>' : '') + '</div><button type="button" class="gfecha jx" aria-label="Fechar">' + I('M6 6l12 12M18 6L6 18', 16) + '</button></div>' +
+      '<div class="jcorpo">' + o.corpo + '</div><p class="jerro" role="alert"></p>' +
+      '<div class="jbt"><button type="button" class="botao sec jcanc">Cancelar</button>' + (o.ok ? '<button type="button" class="botao jok"' + (o.okCor ? ' style="background:' + o.okCor + '"' : '') + '>' + o.ok + '</button>' : '') + '</div>' +
+      '<p class="jprev">Prévia: nada é salvo nem enviado para a equipe.</p>';
+    jan.querySelector('.jx').onclick = fechaJan; jan.querySelector('.jcanc').onclick = fechaJan;
+    const ok = jan.querySelector('.jok');
+    if (ok) ok.onclick = () => { const er = o.valida ? o.valida(jan) : ''; if (er) { jan.querySelector('.jerro').textContent = er; return; } fechaJan(); toast(o.feito || 'Feito.'); };
+    if (o.monta) o.monta(jan);
+    jan.hidden = false; jFundo.hidden = false;
+    const f = jan.querySelector('textarea, input, .jok'); if (f) f.focus();
+  }
+  const resumo = (i) => '<div class="jitem"><b>' + esc(titulo(i.cliente)) + '</b><span>' + esc(i.titulo || '(sem título)') + '</span><em>' + esc(i.tipo) + ' · ' + esc(i.data || '') + (i.hora ? ' · ' + esc(i.hora) : '') + '</em></div>';
+  const IC = { ok: 'M5 12l5 5L20 7', ajuste: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4', falta: 'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z', nao: 'M12 3a9 9 0 100 18 9 9 0 000-18zM5.6 5.6l12.8 12.8', editar: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4', check: 'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11', capa: 'M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5', lixo: 'M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13', rotina: 'M12 3a9 9 0 109 9M12 7v5l3 2', pago: 'M3 7h18v10H3zM7 12h.01M17 12h.01M12 10a2 2 0 100 4 2 2 0 000-4z', recibo: 'M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6' };
+  const proxima = (st) => { const k = FLUXO.indexOf(st); return st === 'Ajustar' ? 'Enviado' : st === 'Não postado' ? 'Postado' : k >= 0 && k < FLUXO.length - 1 ? FLUXO[k === 3 ? 5 : k + 1] : null; };
+  function acoesDe(i) {
+    const l = [], nx = proxima(i.status);
+    if (i.status === 'Enviado') l.push(['aprovar', 'Aprovar', true], ['ajuste', 'Pedir ajuste']);
+    else if (i.status === 'Aprovado') l.push(['checklist', 'Checklist e postar', true], ['naopostado', 'Não foi postado']);
+    else if (nx) l.push(['mover', 'Mover para ' + nx, true]);
+    if (['Pendente', 'Produção'].includes(i.status)) l.push(i.semMaterial ? ['recebido', 'Material recebido'] : ['semmaterial', 'Sem material?']);
+    if (i.tipo === 'Reels' && precisaCapa(i)) l.push(i.capa && i.capa.pronta ? ['capadesfaz', 'Desfazer capa pronta'] : ['capa', 'Marcar capa pronta'], ['semcapa', 'Não precisa de capa']);
+    l.push(['editar', 'Editar demanda'], ['excluir', 'Excluir']);
+    return l;
+  }
+  function acao(k, i) {
+    const nx = proxima(i.status);
+    const J = {
+      mover: () => janela({ ic: 'M5 12h14M13 6l6 6-6 6', tit: 'Mover para ' + nx, sub: 'A equipe recebe uma notificação.', corpo: resumo(i) + '<p class="jtxt">De <b>' + esc(i.status) + '</b> para <b>' + esc(nx) + '</b>.' + (precisaCapa(i) && !(i.capa && i.capa.pronta) && nx === 'Enviado' ? '<br><span style="color:var(--bad)">Este Reels precisa da capa pronta antes de ser enviado.</span>' : '') + '</p>', ok: 'Mover', feito: 'Movido para ' + nx + ' (prévia, nada salvo).' }),
+      aprovar: () => janela({ ic: IC.ok, cor: 'var(--ok)', tit: 'Aprovar material', sub: 'Aprovar libera o material para postagem.', corpo: resumo(i) + '<label class="jcampo"><span>Observações (opcional)</span><textarea rows="3" placeholder="Ex.: pode postar às 19h."></textarea></label>', ok: 'Aprovar e liberar', okCor: 'var(--ok)', feito: 'Aprovado (prévia, nada salvo).' }),
+      ajuste: () => janela({ ic: IC.ajuste, cor: 'var(--bad)', tit: 'Pedir ajuste', sub: 'O material vai para Ajustar com o motivo anotado, e a equipe recebe uma notificação. Depois de corrigido, volta para Enviado.', corpo: resumo(i) + '<label class="jcampo"><span>Motivo do ajuste</span><textarea rows="3" placeholder="Cliente pediu para trocar a foto de capa."></textarea></label>', ok: 'Pedir ajuste', okCor: 'var(--bad)', valida: (j) => j.querySelector('textarea').value.trim() ? '' : 'Escreva o motivo do ajuste.', feito: 'Ajuste pedido (prévia, nada salvo).' }),
+      semmaterial: () => janela({ ic: IC.falta, cor: 'var(--bad)', tit: 'Que material está faltando?', sub: 'A demanda fica marcada como "Sem material" e o prazo da etapa para de contar.', corpo: resumo(i) + '<div class="jchips">' + ['Fotos do produto', 'Texto da campanha', 'Gravação', 'Aprovação do cliente'].map((c) => '<button type="button" class="chip" data-v="' + c + '">' + c + '</button>').join('') + '</div><label class="jcampo"><span>O que falta</span><input placeholder="ex.: fotos do produto, texto da campanha, gravação"></label>', ok: 'Avisar falta de material', okCor: 'var(--bad)', monta: (j) => j.querySelectorAll('[data-v]').forEach((c) => { c.onclick = () => { j.querySelector('input').value = c.dataset.v; }; }), valida: (j) => j.querySelector('input').value.trim() ? '' : 'Diga o que está faltando.', feito: 'Falta de material avisada (prévia, nada salvo).' }),
+      recebido: () => janela({ ic: IC.ok, cor: 'var(--ok)', tit: 'Material recebido?', corpo: resumo(i) + '<p class="jtxt">Falta anotada: <b>' + esc((i.semMaterial || {}).falta || '—') + '</b>. A demanda volta ao fluxo normal.</p>', ok: 'Material recebido', okCor: 'var(--ok)', feito: 'Material recebido (prévia, nada salvo).' }),
+      naopostado: () => janela({ ic: IC.nao, cor: 'var(--bad)', tit: 'Por que não foi postado?', sub: 'O conteúdo vai para "Não postado" com o motivo.', corpo: resumo(i) + '<div class="jchips">' + ['Cliente pediu para segurar', 'Erro na publicação', 'Mudou a data'].map((c) => '<button type="button" class="chip" data-v="' + c + '">' + c + '</button>').join('') + '</div><label class="jcampo"><span>Motivo</span><textarea rows="2" placeholder="ex.: cliente pediu para segurar, erro na publicação"></textarea></label>', ok: 'Marcar como não postado', okCor: 'var(--bad)', monta: (j) => j.querySelectorAll('[data-v]').forEach((c) => { c.onclick = () => { j.querySelector('textarea').value = c.dataset.v; }; }), feito: 'Marcado como não postado (prévia, nada salvo).' }),
+      checklist: () => janela({ ic: IC.check, tit: 'Checklist de postagem', sub: 'Confira tudo antes de marcar como postado.', corpo: resumo(i) + '<div class="jchk">' + CHECKLIST.map((c, j) => '<label><input type="checkbox"' + ((i.checklist || []).map(Number).includes(j) ? ' checked' : '') + '><span>' + c + '</span></label>').join('') + '</div><p class="jtxt jfalta"></p>', ok: 'Marcar como postado', okCor: 'var(--ok)',
+        monta: (j) => { const at = () => { const f = [...j.querySelectorAll('.jchk input')].filter((x) => !x.checked).length; j.querySelector('.jfalta').textContent = f ? 'Faltam ' + plural(f, 'item', 'itens') + ' na conferência.' : 'Tudo conferido.'; j.querySelector('.jok').disabled = !!f; }; j.querySelectorAll('.jchk input').forEach((x) => x.onchange = at); at(); }, feito: 'Marcado como postado (prévia, nada salvo).' }),
+      capa: () => janela({ ic: IC.capa, cor: 'var(--ok)', tit: 'Marcar capa pronta', corpo: resumo(i) + '<p class="jtxt">Quem faz a capa: <b>' + esc(primeiro(capaDesigner(i))) + '</b>. A edição recebe o aviso de que a capa está pronta.</p>', ok: 'Capa pronta', okCor: 'var(--ok)', feito: 'Capa marcada como pronta (prévia, nada salvo).' }),
+      capadesfaz: () => janela({ ic: IC.capa, tit: 'Desfazer capa pronta?', corpo: resumo(i), ok: 'Desfazer', feito: 'Capa voltou para pendente (prévia, nada salvo).' }),
+      semcapa: () => janela({ ic: IC.capa, tit: 'Este Reels não precisa de capa?', sub: 'Ele sai da lista de Capas de Reels do design.', corpo: resumo(i), ok: 'Não precisa de capa', feito: 'Reels sem capa (prévia, nada salvo).' }),
+      editar: () => janela({ ic: IC.editar, tit: 'Editar demanda', sub: 'Formato e etapa se alteram nos botões do painel. Salvar avisa a equipe.', corpo: '<div class="jgrade"><label class="jcampo"><span>Cliente</span><input value="' + esc(titulo(i.cliente)) + '"></label><label class="jcampo"><span>Data prevista</span><input type="date" value="' + (() => { const d = parse(i.data); return d ? d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) : ''; })() + '"></label><label class="jcampo l2j"><span>Conteúdo</span><input value="' + esc(i.titulo || '') + '"></label><label class="jcampo"><span>Horário</span><input value="' + esc(i.hora || '') + '" placeholder="ex.: 19h"></label><label class="jcampo"><span>Link do Trello</span><input value="' + esc(i.trello || '') + '" placeholder="https://trello.com/c/…"></label></div>', ok: 'Salvar alterações', feito: 'Alterações salvas (prévia, nada salvo).' }),
+      excluir: () => janela({ ic: IC.lixo, cor: 'var(--bad)', tit: 'Excluir este conteúdo?', sub: 'Ele sai de todas as listas, painéis e indicadores, para toda a equipe.', corpo: resumo(i), ok: 'Excluir', okCor: 'var(--bad)', feito: 'Excluído (prévia, nada salvo).' }),
+    };
+    (J[k] || (() => {}))();
+  }
+  // rotina de stories: clicar no cliente na grade de Stories
+  const DIAS_R = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  function abreRotina(cli) {
+    const r = ((banco && banco.stories) || []).find((x) => x.cliente === cli) || { cliente: cli, dias: [], fixo: '' };
+    janela({ ic: IC.rotina, tit: 'Rotina de stories', sub: 'Toque nos dias para incluir ou tirar da rotina. A rotina vale para todas as semanas.', corpo: '<div class="jitem"><b>' + esc(titulo(cli)) + '</b><span>' + ((r.dias || []).length ? plural(r.dias.length, 'dia', 'dias') + ' por semana' : 'Sem rotina') + '</span></div>' +
+      '<div class="jdias">' + DIAS_R.map((d, k) => '<button type="button" class="' + ((r.dias || []).includes(k) ? 'on' : '') + '" aria-pressed="' + (r.dias || []).includes(k) + '">' + d + '</button>').join('') + '</div>' +
+      '<label class="jcampo"><span>Conteúdo fixo</span><input value="' + esc(r.fixo || '') + '" placeholder="ex.: bastidores, cardápio do dia, depoimento"></label>', ok: 'Salvar rotina', feito: 'Rotina salva (prévia, nada salvo).',
+      monta: (j) => j.querySelectorAll('.jdias button').forEach((b) => { b.onclick = () => { b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')); }; }) });
+  }
+  document.addEventListener('click', (e) => { const c = e.target.closest('[data-rotina]'); if (c) abreRotina(c.dataset.rotina); });
+  document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[data-rotina]')) { e.preventDefault(); abreRotina(e.target.dataset.rotina); } });
+  // financeiro: marcar pago e comprovante
+  const BRL = (n) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  document.addEventListener('click', (e) => {
+    const f = window.finAtual;
+    if (e.target.closest('#finPagar')) {
+      if (!f) return toast('A planilha de vídeos ainda está carregando.');
+      janela(f.pg ? { ic: IC.pago, tit: 'Desfazer pagamento de ' + f.rot + '?', sub: 'O mês volta para "Em aberto".', corpo: '<p class="jtxt">Registrado por ' + esc(primeiro(f.pg.por)) + ' em ' + esc(f.pg.em || '') + '.</p>', ok: 'Desfazer pagamento', okCor: 'var(--bad)', feito: 'Pagamento desfeito (prévia, nada salvo).' }
+        : { ic: IC.pago, cor: 'var(--ok)', tit: 'Marcar ' + f.rot + ' como pago?', sub: 'Fica registrado quem marcou e quando. Se a planilha mudar depois, o painel avisa.', corpo: '<div class="jpag"><div><span>Vídeos</span><b>' + f.q + '</b></div><div><span>Por vídeo</span><b>' + BRL(f.VAL) + '</b></div><div><span>Total</span><b class="ouro">' + BRL(f.valor) + '</b></div></div><p class="jtxt">Edição: <b>Camille e Danylo</b>.</p>', ok: 'Marcar como pago', okCor: 'var(--ok)', feito: f.rot + ' marcado como pago (prévia, nada salvo).' });
+    }
+    if (e.target.closest('#finComp')) {
+      if (!f) return toast('A planilha de vídeos ainda está carregando.');
+      const grupos = {}; f.per.forEach((v) => { (grupos[v.cliente] = grupos[v.cliente] || []).push(v); });
+      janela({ ic: IC.recibo, tit: 'Comprovante · ' + f.rot, sub: 'Comprovante de edição de vídeos, pronto para salvar em PDF.', corpo: '<div class="jrecibo"><div class="jr-cab"><div><span>Comprovante de edição de vídeos</span><b>' + f.rot + '</b></div><img src="/assets/flower-gold-512.png" alt="YAMB"></div>' +
+        '<div class="jpag"><div><span>Editora</span><b>Camille e Danylo</b></div><div><span>Vídeos</span><b>' + f.q + '</b></div><div><span>Total</span><b class="ouro">' + BRL(f.valor) + '</b></div></div>' +
+        '<table><thead><tr><th>Entrega</th><th>Vídeo</th><th>Qtd.</th><th>Valor</th></tr></thead><tbody>' + Object.entries(grupos).map(([c, l]) => '<tr class="g"><td colspan="2">' + esc(titulo(c)) + '</td><td>' + l.reduce((a, v) => a + v.qtd, 0) + '</td><td>' + BRL(l.reduce((a, v) => a + v.qtd, 0) * f.VAL) + '</td></tr>' + l.map((v) => '<tr><td>' + (v.data ? p2(v.data.getDate()) + '/' + p2(v.data.getMonth() + 1) : '—') + '</td><td>' + esc(v.titulo || v.link || '—') + '</td><td>' + v.qtd + '</td><td>' + BRL(v.qtd * f.VAL) + '</td></tr>').join('')).join('') + '</tbody></table><p class="jr-rod">YAMB · Marketing &amp; Branding</p></div>',
+        ok: 'Salvar em PDF', feito: 'Na versão final abre a impressão para salvar o PDF.' });
+    }
+  });
 
   /* ---------- trilho: contadores, notificações, exportar ---------- */
   // menu recolhido; abre sozinho com o mouse (ou ao navegar pelo teclado) e recolhe ao sair
