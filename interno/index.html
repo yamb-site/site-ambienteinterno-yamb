@@ -87405,7 +87405,7 @@ function App() {
     const it = items.find(i => i.id === id);
     const cfg = NOTIF_BY_STATUS[to];
     const notifs = cfg ? [{
-      id: 'n' + Date.now(),
+      id: 'n' + Date.now() + Math.random(),
       to: cfg.to,
       kind: cfg.kind,
       by: user.id,
@@ -87460,7 +87460,7 @@ function App() {
       ...d,
       items,
       notifs: [{
-        id: 'n' + Date.now(),
+        id: 'n' + Date.now() + Math.random(),
         to: ['geral'],
         kind: 'Solicitação de ajuste',
         by: user.id,
@@ -87499,7 +87499,7 @@ function App() {
       ...d,
       items: [...d.items, it],
       notifs: [{
-        id: 'n' + Date.now(),
+        id: 'n' + Date.now() + Math.random(),
         to: ['geral'],
         kind: 'Nova demanda cadastrada',
         by: user.id,
@@ -87525,7 +87525,7 @@ function App() {
       ...d,
       items,
       notifs: [{
-        id: 'n' + Date.now(),
+        id: 'n' + Date.now() + Math.random(),
         to: ['geral'],
         kind: 'Formato alterado',
         by: user.id,

@@ -87810,7 +87810,7 @@ function App() {
     s.t = setTimeout(pushNow, 400);
   }, [db]);
   const note = (d, kind, text) => [{
-    id: 'n' + Date.now(),
+    id: 'n' + Date.now() + Math.random(),
     to: ['geral'],
     kind,
     by: user.id,

@@ -54,3 +54,8 @@ Todas automáticas em `scripts/otimizar.py` (rode depois de cada exportação). 
 - Lighthouse (celular, site-yamb.pages.dev): desempenho **26**, acessibilidade 89, boas práticas 100, SEO 100. LCP 13,2 s, FCP 6,9 s, bloqueio 3,2 s, 2,3 MB. Acessibilidade: contraste insuficiente e alvos de toque pequenos.
 - Pendente (🔴 desempenho): página demora ~13 s para mostrar o conteúdo principal no celular — HTML de 2,8 MB com React e imagens embutidas, tudo processado antes de desenhar.
 - Pendente: o HTML inicial da página não tem `<h1>` (o texto é montado por JavaScript) — avaliar versão do conteúdo principal em HTML puro.
+
+## 2026-11-24 — notificações de troca de etapa sumiam
+- Causa: algumas notificações eram criadas com id `'n' + Date.now()` (13 dígitos); as demais usam `'n' + Date.now() + Math.random()` (14+). Ao gravar, a lista é ordenada pelo número do id e cortada em 30, então essas caíam para o fim e eram cortadas antes de salvar (e o push delas não saía).
+- Afetava no computador: mover etapa, pedir ajuste, nova demanda e mais um aviso; no celular: todas as notificações criadas pelo app (`note`).
+- Correção: id com `+ Math.random()` em `interno/index.html` (4 pontos), `interno/app/index.html` (1) e nos mesmos arquivos de `fonte/`. **Reaplicar depois de cada exportação nova do interno.**
