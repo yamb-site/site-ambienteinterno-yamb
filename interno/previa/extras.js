@@ -13,6 +13,7 @@
     yngra: ['Yngra Lyriel', 'yngra-lyriel', ['geral', 'indicadores', 'semana', 'stories', 'cadastro']],
     vitor: ['Vitor Nascimento', 'vitor-nascimento', ['geral', 'indicadores', 'semana', 'stories', 'cadastro']],
   };
+  const PAPEL_ = { vitoria: 'Direção de Conteúdo', gabriel: 'COO / Branding', yasmim: 'CEO / Diretora Geral', anny: 'Planejamento', brisa: 'Social Media', marcus: 'Designer Gráfico', camille: 'Edição de Vídeo', yngra: 'Secretária', vitor: 'Administrativo' };
   const nome = (id) => (TEAM[id] || [id ? titulo(id) : '—'])[0];
   const primeiro = (id) => nome(id).split(' ')[0];
   const STATUS_DESC = { 'Pendente': 'Demanda registrada, aguardando início', 'Produção': 'Material em desenvolvimento', 'Pronto': 'Material finalizado, pronto para enviar', 'Enviado': 'Encaminhado para avaliação', 'Ajustar': 'A avaliação pediu ajuste: corrigir e reenviar', 'Aprovado': 'Material liberado', 'Não postado': 'Aprovado, mas ainda não publicado', 'Postado': 'Publicado no Instagram' };
@@ -100,30 +101,70 @@
   const trilho = document.querySelector('.trilho');
   let tFecha = null;
   const abreMenu = () => { clearTimeout(tFecha); document.body.classList.add('menu-aberto'); };
-  const fechaMenu = () => { clearTimeout(tFecha); tFecha = setTimeout(() => { if (!trilho.matches(':focus-within') && !trilho.querySelector('select:focus')) document.body.classList.remove('menu-aberto'); }, 180); };
+  const fechaMenu = () => { clearTimeout(tFecha); tFecha = setTimeout(() => { if (!trilho.matches(':focus-within') && !trilho.querySelector('.rpop:not([hidden])')) document.body.classList.remove('menu-aberto'); }, 180); };
   trilho.addEventListener('mouseenter', abreMenu); trilho.addEventListener('mouseleave', fechaMenu);
   trilho.addEventListener('focusin', abreMenu); trilho.addEventListener('focusout', () => setTimeout(() => { if (!trilho.matches(':hover')) fechaMenu(); }, 0));
 
+  // ---- botões do pé do menu: notificações e troca de usuário, cada um com sua janela ao lado do menu ----
   const euBox = document.querySelector('.trilho .eu');
   const extra = document.createElement('div'); extra.className = 'trilho-extra';
-  extra.innerHTML =
-    '<a class="ico" href="#login" aria-label="Sair">' + I('M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3') + '<span class="dica">Sair (ver login)</span></a>' +
-    '<button class="ico" type="button" id="btNotif" aria-label="Notificações" aria-expanded="false">' + I('M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0') + '<span class="cont" id="notifN" hidden></span><span class="dica">Notificações</span></button>' +
-    '';
+  extra.innerHTML = '<button class="ico" type="button" id="btNotif" aria-label="Notificações" aria-expanded="false" aria-controls="popNotif">' + I('M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 003.4 0') + '<span class="cont" id="notifN" hidden></span><span class="dica">Notificações</span></button>';
   euBox.parentNode.insertBefore(extra, euBox);
-  const pop = document.createElement('div'); pop.className = 'pop-notif'; pop.hidden = true; pop.id = 'popNotif';
-  document.body.append(pop);
-  function fechaPops() { pop.hidden = true; $('btNotif').setAttribute('aria-expanded', 'false'); }
-  $('btNotif').onclick = (e) => { e.stopPropagation(); const abrir = pop.hidden; fechaPops(); if (abrir) { pintaNotif(); pop.hidden = false; $('btNotif').setAttribute('aria-expanded', 'true'); try { localStorage.setItem('yamb-previa-notif-' + eu(), String(Date.now())); } catch (x) {} contadores(); } };
-  document.addEventListener('click', (e) => { if (!pop.hidden && !pop.contains(e.target)) fechaPops(); });
+  const btEu = document.createElement('button'); btEu.type = 'button'; btEu.className = 'bt-eu'; btEu.id = 'btEu'; btEu.setAttribute('aria-expanded', 'false'); btEu.setAttribute('aria-controls', 'popEu');
+  euBox.prepend(btEu); btEu.appendChild($('euFoto'));
+  btEu.insertAdjacentHTML('beforeend', '<span class="eu-txt"><b id="euNome"></b><em id="euPapel"></em></span>' + I('M8 9l4-4 4 4M8 15l4 4 4-4', 15));
+  const pop = document.createElement('div'); pop.className = 'rpop pop-notif'; pop.hidden = true; pop.id = 'popNotif'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Notificações');
+  const popEu = document.createElement('div'); popEu.className = 'rpop pop-eu'; popEu.hidden = true; popEu.id = 'popEu'; popEu.setAttribute('role', 'dialog'); popEu.setAttribute('aria-label', 'Trocar usuário');
+  trilho.append(pop, popEu);
+  const visto = () => { try { return +localStorage.getItem('yamb-previa-notif-' + eu()) || 0; } catch (x) { return 0; } };
+  const marcaLidas = () => { try { localStorage.setItem('yamb-previa-notif-' + eu(), String(Date.now())); } catch (x) {} contadores(); };
+  function fechaPops() {
+    if (!pop.hidden) marcaLidas();
+    pop.hidden = true; popEu.hidden = true;
+    $('btNotif').setAttribute('aria-expanded', 'false'); btEu.setAttribute('aria-expanded', 'false');
+    if (!trilho.matches(':hover')) { if (trilho.contains(document.activeElement)) document.activeElement.blur(); fechaMenu(); }
+  }
+  const alterna = (p, bt, pinta) => (e) => { e.stopPropagation(); const abrir = p.hidden; fechaPops(); if (abrir) { pinta(); p.hidden = false; bt.setAttribute('aria-expanded', 'true'); abreMenu(); const f = p.querySelector('button'); if (f) f.focus(); } };
+  $('btNotif').onclick = alterna(pop, $('btNotif'), () => pintaNotif());
+  btEu.onclick = alterna(popEu, btEu, () => pintaEu());
+  document.addEventListener('click', (e) => { if ((!pop.hidden && !pop.contains(e.target)) || (!popEu.hidden && !popEu.contains(e.target))) fechaPops(); });
   const minhas = () => { const pn = (TEAM[eu()] || TEAM.gabriel)[2]; return (banco && banco.notifs || []).filter((n) => (n.to || []).some((t) => t === 'geral' || pn.includes(t))); };
   const tsNotif = (n) => { const m = String(n.id).match(/^n(\d{13})/); return m ? +m[1] : 0; };
+  const ICO_N = { 'Capa pronta': ['M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5', 'var(--ok)'], 'Demanda editada': ['M4 20h4L19 9l-4-4L4 16zM13 7l4 4', 'var(--gold-300)'], 'Falta material': ['M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z', 'var(--bad)'], 'Conteúdo excluído': ['M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13', 'var(--bad)'], 'Nova demanda': ['M12 5v14M5 12h14', 'var(--gold-300)'] };
+  const quando = (n) => { const t = tsNotif(n); if (!t) return esc(n.ts || ''); const m = Math.floor((Date.now() - t) / 6e4); return m < 1 ? 'agora' : m < 60 ? 'há ' + m + ' min' : m < 1440 ? 'há ' + Math.floor(m / 60) + ' h' : esc(String(n.ts || '').split(',')[0]); };
+  let nFil = 'todas';
   function pintaNotif() {
-    const l = minhas();
-    pop.innerHTML = '<div class="ptit">Notificações · equipe <small>' + l.length + '</small></div>' +
-      '<p class="mut" style="margin:0 0 6px;font-size:11.5px">Na versão final, os avisos também chegam no celular e no computador.</p>' +
-      (l.map((n) => '<div class="pn"><span class="k">' + esc(n.kind) + '<em>' + esc(n.ts || '') + '</em></span><span>' + esc(n.text) + '</span></div>').join('') || '<p class="mut">Nenhuma notificação.</p>');
+    const l = minhas(), v = visto(), novas = l.filter((n) => tsNotif(n) > v);
+    const lista = nFil === 'novas' ? novas : l;
+    const h0 = +hoje0(), grupo = (n) => { const t = tsNotif(n); return !t ? 'Antes' : t >= h0 ? 'Hoje' : t >= h0 - 864e5 ? 'Ontem' : 'Antes'; };
+    let g = '', html = '';
+    lista.forEach((n) => {
+      const gr = grupo(n); if (gr !== g) { g = gr; html += '<div class="pn-g">' + gr + '</div>'; }
+      const [ic, cor] = ICO_N[n.kind] || ['M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9', 'var(--gold-300)'];
+      const nova = tsNotif(n) > v, por = TEAM[n.by];
+      html += '<div class="pn' + (nova ? ' nova' : '') + '"><span class="pn-i" style="color:' + cor + '">' + I(ic, 16) + '</span><div class="pn-c"><span class="k">' + esc(n.kind) + '<em>' + quando(n) + '</em></span><span class="pn-t">' + esc(String(n.text).replace(/ · por .*$/, '')) + '</span>' +
+        (por ? '<span class="pn-por"><img src="/assets/team/' + por[1] + '.png" alt="">' + esc(primeiro(n.by)) + '</span>' : '') + '</div></div>';
+    });
+    pop.innerHTML = '<div class="ptit">Notificações' + (novas.length ? '<span class="pn-nv">' + novas.length + ' nova' + (novas.length === 1 ? '' : 's') + '</span>' : '') + '<button type="button" class="pn-x" aria-label="Fechar">' + I('M6 6l12 12M18 6L6 18', 15) + '</button></div>' +
+      '<div class="pn-abas" role="tablist"><button type="button" role="tab" data-f="todas" aria-selected="' + (nFil === 'todas') + '" class="' + (nFil === 'todas' ? 'on' : '') + '">Todas <b>' + l.length + '</b></button><button type="button" role="tab" data-f="novas" aria-selected="' + (nFil === 'novas') + '" class="' + (nFil === 'novas' ? 'on' : '') + '">Novas <b>' + novas.length + '</b></button>' +
+      (novas.length ? '<button type="button" class="pn-lidas">Marcar como lidas</button>' : '') + '</div>' +
+      '<div class="pn-lista">' + (html || '<p class="mut" style="margin:16px 0;font-size:13px;text-align:center">' + (nFil === 'novas' ? 'Nada novo por aqui.' : 'Nenhuma notificação.') + '</p>') + '</div>' +
+      '<p class="pn-rod">Na versão final, os avisos também chegam no celular e no computador.</p>';
+    pop.querySelector('.pn-x').onclick = (e) => { e.stopPropagation(); fechaPops(); };
+    pop.querySelectorAll('[data-f]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); nFil = b.dataset.f; pintaNotif(); }; });
+    const ml = pop.querySelector('.pn-lidas'); if (ml) ml.onclick = (e) => { e.stopPropagation(); marcaLidas(); pintaNotif(); };
   }
+  function pintaEuBt() { const u = eu(); $('euNome').textContent = primeiro(u); $('euPapel').textContent = PAPEL_[u] || ''; $('euFoto').src = '/assets/team/' + TEAM[u][1] + '.png'; $('euFoto').alt = ''; btEu.setAttribute('aria-label', 'Usuário: ' + TEAM[u][0] + '. Trocar usuário'); }
+  function pintaEu() {
+    const u = eu();
+    popEu.innerHTML = '<div class="ptit">Trocar usuário<span class="pn-nv" style="background:rgba(247,228,206,.08);color:var(--ink-300)">prévia</span></div>' +
+      '<div class="eu-lista">' + Object.keys(TEAM).map((k) => '<button type="button" class="eu-op' + (k === u ? ' on' : '') + '" data-k="' + k + '" aria-pressed="' + (k === u) + '"><img src="/assets/team/' + TEAM[k][1] + '.png" alt=""><span><b>' + esc(TEAM[k][0]) + '</b><em>' + esc(PAPEL_[k]) + '</em></span>' + (k === u ? I('M5 12l5 5L20 7', 16) : '') + '</button>').join('') + '</div>' +
+      '<a class="eu-sair" href="#login">' + I('M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3', 16) + 'Sair (ver login)</a>' +
+      '<p class="pn-rod">Na versão final, cada pessoa entra com seu login e não troca de usuário.</p>';
+    popEu.querySelectorAll('[data-k]').forEach((b) => { b.onclick = (e) => { e.stopPropagation(); const sel = $('euSel'); sel.value = b.dataset.k; sel.dispatchEvent(new Event('change')); fechaPops(); }; });
+    popEu.querySelector('.eu-sair').onclick = () => fechaPops();
+  }
+
   window.exportarLista = (lista) => {
     const its = lista || (banco && banco.items || []).filter((i) => !i.excluido);
     const c = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
@@ -261,5 +302,6 @@
   if ($('av8Caixa')) { pintaAv8('pedir'); document.querySelector('.av8-estados').onclick = (e) => { const c = e.target.closest('[data-e]'); if (c) pintaAv8(c.dataset.e); }; }
 
   window.pintaExtras = (b) => { banco = b; contadores(); pintaPlan(); if (!pop.hidden) pintaNotif(); pintaAval(); };
-  $('euSel').addEventListener('change', () => { contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
+  pintaEuBt();
+  $('euSel').addEventListener('change', () => { pintaEuBt(); contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
 })();
