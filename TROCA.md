@@ -37,3 +37,8 @@ Plano aprovado pelo dono em 2026-11-24. Nada muda no interno da equipe (`/intern
 - Testado: senha errada recusada e campo limpo; sem login, qualquer tela volta para o login; sessão aberta cai no Painel da pessoa certa; Sair encerra. O cálculo do resumo confere com o padrão (teste com valor de referência). Não foi testado com senha real (só a equipe digita).
 - Pendente para a fase 5: o bloqueio do aviso das 8h (bloco `Avisos de postagens` do antigo) entra depois do login.
 - Ainda não: a chave da planilha financeira privada (`__finTok`) — o novo lê a planilha de vídeos pelo link público, como a prévia.
+
+## Fase 3 · passo 8 — etapa, material e capa (2026-11-24)
+- Ligadas de verdade (na cópia de teste), iguais ao `yambAcoesDe` do antigo, com as mesmas notificações: mover etapa, sem material, material recebido, marcar/desfazer capa pronta, precisa / não precisa de capa, quem faz a capa, quem faz a demanda (produção).
+- Ficam no painel de detalhes (abre ao clicar em qualquer cartão, inclusive em Meus painéis).
+- Testado: as 8 ações gravaram certo; o antigo (desatualizado) gravou outra demanda no meio e nada se perdeu; planilha real intacta.

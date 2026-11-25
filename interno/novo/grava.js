@@ -116,6 +116,23 @@
     });
   }
 
+  // mesmas ações do interno antigo (data.js · yambAcoesDe): muda a demanda e, quando é o caso, cria a notificação
+  function upd(id, fn, kind, txt, quem) {
+    return mudar((d) => {
+      const k = d.items.findIndex((i) => i.id === id); if (k < 0) throw new Error('demanda não encontrada');
+      d.items[k] = fn(d.items[k]); const it = d.items[k];
+      if (kind) d.notifs = [{ id: idNotif(), to: ['geral'], kind, by: quem, text: it.tipo + ' de ' + it.cliente + ' — ' + it.titulo + txt(it) + ' · por ' + (NOMES[quem] || quem), ts: tsCurto() }, ...(d.notifs || [])].slice(0, 30);
+    });
+  }
+  const acoes = (quem) => ({
+    semMaterial: (id, falta) => upd(id, (i) => ({ ...i, semMaterial: { falta: String(falta || '').trim() || 'Material não informado', desde: Date.now(), por: quem } }), 'Falta material', (i) => ': falta ' + i.semMaterial.falta, quem),
+    materialRecebido: (id) => upd(id, (i) => { const n = { ...i }; delete n.semMaterial; return n; }, 'Material recebido', () => ' · pode produzir', quem),
+    capaPronta: (id, ok) => upd(id, (i) => ({ ...i, capa: { ...(i.capa || {}), precisa: true, pronta: ok, por: quem, em: Date.now() } }), ok ? 'Capa pronta' : null, () => '', quem),
+    precisaCapa: (id, sim) => upd(id, (i) => ({ ...i, capa: { ...(i.capa || {}), precisa: sim, pronta: false } }), null, () => '', quem),
+    capaDesigner: (id, pid) => upd(id, (i) => ({ ...i, capa: { ...(i.capa || {}), precisa: true, designer: pid } }), 'Responsável pela capa alterado', () => ' · capa: ' + (NOMES[pid] || '—'), quem),
+    produtor: (id, pid) => upd(id, (i) => ({ ...i, produtor: pid }), 'Responsável alterado', (i) => ' · produção: ' + (NOMES[i.produtor] || '—'), quem),
+  });
+
   addEventListener('beforeunload', (e) => { if (sujo || gravando) { e.preventDefault(); e.returnValue = ''; } });
-  window.Grava = { ler, mudar, moverEtapa, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
+  window.Grava = { ler, mudar, moverEtapa, acoes, estado: () => estado, ouvir: (f) => { ouvintes.push(f); }, rev: () => rev, _merge: merge };
 })();
