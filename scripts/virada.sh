@@ -50,5 +50,5 @@ A=$(curl -s https://yamb.com.br/interno/app/)
 echo "$A" | grep -q 'yamb-avisos-obrigatorio\|Avisos de postagens (push às 8h)' || { echo "ERRO: app sem avisos das 8h"; exit 1; }
 echo "$A" | grep -q '/interno/app.js?v=' || { echo "ERRO: app novo não está no ar"; exit 1; }
 curl -s https://yamb.com.br/interno/antigo/app/ | grep -q 'Avisos de postagens (push às 8h)' || { echo "ERRO: /interno/antigo/app/ não está no ar"; exit 1; }
-curl -s https://app.yamb.com.br/ | grep -q '/interno/app.js?v=' || { echo "ERRO: app.yamb.com.br não mostra o app novo"; exit 1; }
+curl -s -A 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) Mobile/15E148' https://app.yamb.com.br/ | grep -q '/interno/app.js?v=' || { echo "ERRO: app.yamb.com.br não mostra o app novo"; exit 1; }
 echo "PRONTO: interno novo no ar em /interno/ e /interno/app/ (celular); antigos em /interno/antigo/ e /interno/antigo/app/."
