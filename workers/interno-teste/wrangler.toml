@@ -1,0 +1,14 @@
+name = "yamb-interno-teste"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[vars]
+# Planilha REAL: o teste só lê dela, no /recarregar
+SHEET_URL = "https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec"
+ORIGENS = "https://yamb.com.br,https://www.yamb.com.br,https://site-yamb.pages.dev,https://site-yamb-csc.pages.dev"
+# Segredo (nunca aqui): RECARREGAR_TOKEN
+
+[[kv_namespaces]]
+binding = "DADOS"
+id = "4bd8f4c87a32442a912a437d25b6f987"
