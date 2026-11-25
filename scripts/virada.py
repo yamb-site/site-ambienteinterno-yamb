@@ -95,6 +95,9 @@ for f in ARQS + ['index.html']:
         i = s.index(a); j = s.index('\n', i)
         s = s[:j + 1] + "  window.__minhasNotifs = minhas; window.__euInterno = eu;\n" + s[j + 1:]
         assert 'PILOTO' not in s
+        b = '  const BOAS_VINDAS = false; // no piloto só com ?boasvindas; liga na virada'
+        assert b in s, 'boas-vindas'
+        s = s.replace(b, '  const BOAS_VINDAS = true; // boas-vindas da virada')
     if f == 'index.html':
         s, n = re.subn(r'<div style="position:fixed;top:0;left:50%[^>]*>Piloto do interno novo · grava na planilha da equipe</div>', '', s)
         assert n == 1, 'faixa do piloto'

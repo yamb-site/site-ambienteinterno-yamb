@@ -484,4 +484,46 @@
   window.pintaExtras = (b) => { banco = b; abrePeloEndereco(); contadores(); if (!$('plTab').contains(document.activeElement)) pintaPlan(); if (!pop.hidden) pintaNotif(); if (!pAv.contains(document.activeElement)) pintaAval(); };
   pintaEuBt();
   $('euSel').addEventListener('change', () => { pintaEuBt(); contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
+
+  /* ---------- Boas-vindas da virada: aparece uma vez por pessoa, na primeira vez que ela entra no painel novo ---------- */
+  const BOAS_VINDAS = false; // no piloto só com ?boasvindas; liga na virada
+  (function () {
+    const CH = 'yamb-boasvindas-v1-';
+    const forcar = /[?&]boasvindas/.test(location.search);
+    function mostra(quem) {
+      if (!quem || !TEAM[quem] || document.getElementById('yamb-boasvindas')) return;
+      try { if (!forcar && localStorage.getItem(CH + quem)) return; } catch (x) {}
+      const st = document.createElement('style');
+      st.textContent = '#yamb-boasvindas{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(120% 80% at 50% 30%,rgba(94,61,20,.55),rgba(10,10,11,.97) 60%),#0a0a0b;color:#FEF8EE;font-family:Sora,system-ui,sans-serif;text-align:center;opacity:0;transition:opacity .5s}' +
+        '#yamb-boasvindas.on{opacity:1}#yamb-boasvindas.sai{opacity:0;transition:opacity .45s}' +
+        '#yamb-boasvindas .bv{max-width:520px;display:flex;flex-direction:column;align-items:center;gap:18px}' +
+        '#yamb-boasvindas .flor{width:120px;height:120px;filter:drop-shadow(0 0 30px rgba(243,172,47,.55));transform:rotate(-140deg) scale(.4);opacity:0;transition:transform 1.4s cubic-bezier(.2,.8,.2,1),opacity .8s}' +
+        '#yamb-boasvindas.on .flor{transform:none;opacity:1}' +
+        '#yamb-boasvindas .foto{width:84px;height:84px;border-radius:50%;object-fit:cover;border:2px solid #F5C86F;box-shadow:0 0 0 6px rgba(245,200,111,.12);margin-top:-46px;margin-left:96px;opacity:0;transform:scale(.6);transition:all .6s .9s cubic-bezier(.2,.8,.2,1)}' +
+        '#yamb-boasvindas.on .foto{opacity:1;transform:none}' +
+        '#yamb-boasvindas .sobe{opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.2,.8,.2,1)}#yamb-boasvindas.on .sobe{opacity:1;transform:none}' +
+        '#yamb-boasvindas small{letter-spacing:.22em;text-transform:uppercase;font-size:11px;color:#F5C86F;transition-delay:1.1s}' +
+        '#yamb-boasvindas h1{margin:0;font:800 clamp(28px,6vw,44px)/1.08 "Monument Extended",Sora,sans-serif;transition-delay:1.3s}' +
+        '#yamb-boasvindas h1 b{background:linear-gradient(135deg,#FDEBC9,#F5C86F 55%,#E09A24);-webkit-background-clip:text;background-clip:text;color:transparent}' +
+        '#yamb-boasvindas p{margin:0;font-size:15px;line-height:1.5;color:#CFC6BA;transition-delay:1.55s}' +
+        '#yamb-boasvindas button{margin-top:8px;border:0;border-radius:999px;padding:15px 30px;font:600 15px Sora,system-ui,sans-serif;color:#121212;background:linear-gradient(135deg,#FDEBC9,#F5C86F 55%,#E09A24);box-shadow:0 10px 30px rgba(243,172,47,.35);cursor:pointer;transition-delay:1.8s}' +
+        '#yamb-boasvindas button:focus-visible{outline:3px solid #FEF8EE;outline-offset:3px}' +
+        '@media (prefers-reduced-motion:reduce){#yamb-boasvindas *,#yamb-boasvindas{transition:none!important}}';
+      const d = document.createElement('div');
+      d.id = 'yamb-boasvindas'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'bvTit');
+      d.innerHTML = '<div class="bv"><div><img class="flor" src="/assets/flower-gold-512.png" alt=""><br><img class="foto" src="/assets/team/' + TEAM[quem][1] + '.png" alt=""></div>' +
+        '<small class="sobe">Ambiente interno · visual novo</small>' +
+        '<h1 class="sobe" id="bvTit">Boas-vindas, <b>' + primeiro(quem) + '</b>,<br>ao seu novo painel da YAMB</h1>' +
+        '<p class="sobe">Tudo do processo num lugar só, com a sua parte em destaque. Viva o Processo.</p>' +
+        '<button type="button" class="sobe" id="bvOk">Acessar o meu painel →</button></div>';
+      document.head.appendChild(st); document.body.appendChild(d);
+      requestAnimationFrame(() => requestAnimationFrame(() => d.classList.add('on')));
+      const fecha = () => { try { localStorage.setItem(CH + quem, new Date().toISOString()); } catch (x) {} d.classList.add('sai'); setTimeout(() => { d.remove(); st.remove(); }, 480); };
+      document.getElementById('bvOk').onclick = fecha;
+      d.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecha(); });
+      setTimeout(() => { const b = document.getElementById('bvOk'); if (b) b.focus({ preventScroll: true }); }, 1900);
+    }
+    const tenta = () => { if (!BOAS_VINDAS && !forcar) return; const q = sessao.ler(), h = (location.hash || '#painel').slice(1); if (q && h !== 'login') mostra(q); };
+    addEventListener('hashchange', tenta); tenta();
+  })();
 })();

@@ -22,6 +22,8 @@ for f in arqs + ['index.html']:
         c = "return ACESSO[v] ? v : null;"
         assert a in s and c in s
         s = s.replace(a, b).replace(c, "return ACESSO[v] && PILOTO.includes(v) ? v : null;")
+        assert '  const BOAS_VINDAS = true;' in s
+        s = s.replace('  const BOAS_VINDAS = true;', '  const BOAS_VINDAS = false; // no piloto só com ?boasvindas; liga na virada')
         s = s.replace('  const ACESSO = {', '  const PILOTO = ' + repr(PILOTO).replace("'", '"') + ';\n  const ACESSO = {', 1)
     (dst / f).write_text(s, encoding='utf-8')
 v = hashlib.sha1(b''.join((dst / f).read_bytes() for f in arqs)).hexdigest()[:8]
