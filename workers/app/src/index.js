@@ -4,7 +4,7 @@
 //   /manifest.webmanifest, /sw.js, /icon.png -> /interno/app/...
 //   o resto (/interno/..., /assets/...) passa igual.
 const ORIGEM = 'https://site-yamb-csc.pages.dev';
-const DO_APP = new Set(['/manifest.webmanifest', '/sw.js', '/icon.png']);
+const DO_APP = new Set(['/manifest.webmanifest', '/sw.js', '/icon.png', '/icon-192.png', '/apple-touch-icon.png']);
 
 export default {
   async fetch(req) {
