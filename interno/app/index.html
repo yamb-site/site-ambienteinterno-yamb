@@ -1164,9 +1164,9 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     $('stFalta').textContent = !plan.length ? 'Sem stories hoje' : !falta ? 'Todos feitos' : agoraH < 12 ? 'Faltam ' + falta + ' até 12h' : falta + ' ficaram para trás';
 
     // sai hoje
-    const ordem = { 'Ajustar': 0, 'Produção': 1, 'Pendente': 2, 'Pronto': 3, 'Enviado': 4, 'Aprovado': 5, 'Não postado': 6, 'Postado': 7 };
+    const ordem = { 'Postado': 0, 'Não postado': 1, 'Aprovado': 2, 'Enviado': 3, 'Pronto': 4, 'Ajustar': 5, 'Produção': 6, 'Pendente': 7 }; // o que está mais pronto sobe, pendentes por último
     const cor = { 'Pronto': 'var(--ok)', 'Postado': 'var(--ok)', 'Aprovado': 'var(--ok)', 'Pendente': 'var(--ink-300)', 'Produção': 'var(--gold-300)', 'Enviado': 'var(--gold-200)', 'Ajustar': 'var(--bad)', 'Não postado': 'var(--bad)' };
-    const lista = hojeI.slice().sort((a, b) => (ordem[a.status] ?? 9) - (ordem[b.status] ?? 9));
+    const lista = hojeI.slice().sort((a, b) => (ordem[a.status] ?? 9) - (ordem[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
     $('filaInfo').textContent = lista.length ? lista.filter(feito).length + ' de ' + lista.length + ' postados' : '';
     $('fila').innerHTML = lista.length ? lista.slice(0, 7).map((t) => {
       const ok = feito(t);
@@ -1322,7 +1322,9 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   function pintaLista() {
     // hoje e os próximos dias primeiro; os dias que já passaram vêm depois, do mais recente para o mais antigo
     const h0 = +hoje0(), dt = (i) => +(parse(i.data) || 0);
-    const mesmo = (a, b) => String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente));
+    const ORD = { 'Postado': 0, 'Não postado': 1, 'Aprovado': 2, 'Enviado': 3, 'Pronto': 4, 'Ajustar': 5, 'Produção': 6, 'Pendente': 7 };
+    const atrK = (i) => { const d = parse(i.data); return d && d < hoje0() && !['Aprovado', 'Não postado', 'Postado'].includes(i.status) ? 1 : 0; }; // atrasadas por último
+    const mesmo = (a, b) => atrK(a) - atrK(b) || (ORD[a.status] ?? 9) - (ORD[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente));
     const todos = filtrados();
     const l = todos.filter((i) => dt(i) >= h0).sort((a, b) => dt(a) - dt(b) || mesmo(a, b))
       .concat(todos.filter((i) => dt(i) < h0).sort((a, b) => dt(b) - dt(a) || mesmo(a, b)));
@@ -1391,7 +1393,9 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const cli = $('sCliente').value, tp = $('sTipo').value;
     const base = itens.filter((i) => (!cli || i.cliente === cli) && (!tp || i.tipo === tp));
     const dias = [...Array(7)].map((_, k) => somaDias(seg, k)), hs = fmt(hoje0());
-    const doDia = (d) => base.filter((i) => i.data === fmt(d)).sort((a, b) => String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
+    const ORDs = { 'Postado': 0, 'Não postado': 1, 'Aprovado': 2, 'Enviado': 3, 'Pronto': 4, 'Ajustar': 5, 'Produção': 6, 'Pendente': 7 };
+    const atrKs = (i) => { const d = parse(i.data); return d && d < hoje0() && !['Aprovado', 'Não postado', 'Postado'].includes(i.status) ? 1 : 0; }; // atrasadas por último
+    const doDia = (d) => base.filter((i) => i.data === fmt(d)).sort((a, b) => atrKs(a) - atrKs(b) || (ORDs[a.status] ?? 9) - (ORDs[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
     const semana = dias.flatMap(doDia);
     const pub = semana.filter((i) => i.status === 'Postado').length;
     const risco = semana.filter((i) => !ok(i.status));
@@ -1711,7 +1715,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   const precisaCapa = (i) => i.tipo === 'Reels' && ['Pendente', 'Produção', 'Pronto'].includes(i.status) && !(i.capa && i.capa.precisa === false);
   const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
   const capaPronta = (i) => !!(i.capa && i.capa.pronta);
-  const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0);
+  const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0) || String(a.hora || '').localeCompare(String(b.hora || ''));
   let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null, vista = 'prazo';
 
   const card = (i, extra = '') => {
