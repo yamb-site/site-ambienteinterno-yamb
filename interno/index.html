@@ -1735,7 +1735,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 (() => {
   const { $, esc, fmt, parse, somaDias, titulo, hoje0, COR, EQUIPE, atraso, diasNaEtapa } = Y;
   const PAINEIS = { design: ['gabriel', 'marcus'], video: ['vitoria', 'gabriel', 'yasmim', 'camille'], social: ['brisa'] };
-  const PADRAO = { design: 'marcus', video: 'camille', social: 'brisa' };
+  PAINEIS.tudo = [...new Set([...PAINEIS.design, ...PAINEIS.video])]; // tudo = artes + vídeos + Reels da pessoa num painel só
+  const PADRAO = { design: 'marcus', video: 'camille', social: 'brisa', tudo: 'gabriel' };
   const CHECK = 10;
   const produtorDe = (t) => (t === 'Vídeo' || t === 'Reels') ? 'video' : 'design';
   const produtorPara = (tipo, id) => { const r = produtorDe(tipo); return PAINEIS[r].includes(id) ? id : PADRAO[r]; };
@@ -1773,23 +1774,24 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const itens0 = todos.filter((i) => (!cf || i.cliente === cf) && (!q || (i.cliente + ' ' + (i.titulo || '')).toLowerCase().includes(q)) && (!soParados || atraso(i) > 0));
     const eu = ($('euSel') && $('euSel').value) || 'gabriel';
     // cada pessoa cai na área dela e só vê as abas dela; a direção vê todas
-    const GEST = ['gabriel', 'yasmim', 'vitoria'].includes(eu), minhasAreas = ['design', 'video', 'social'].filter((k) => PAINEIS[k].includes(eu));
+    const GEST = ['gabriel', 'yasmim', 'vitoria'].includes(eu), minhasAreas0 = ['design', 'video', 'social'].filter((k) => PAINEIS[k].includes(eu));
+    const minhasAreas = (PAINEIS.design.includes(eu) && PAINEIS.video.includes(eu)) || GEST ? ['tudo', ...minhasAreas0] : minhasAreas0;
     if (eu !== euAntes) { euAntes = eu; quem = {}; if (minhasAreas.length) painel = minhasAreas[0]; }
-    const areas = GEST ? ['design', 'video', 'social'] : minhasAreas.length ? minhasAreas : ['design', 'video', 'social'];
+    const areas = GEST ? ['tudo', 'design', 'video', 'social'] : minhasAreas.length ? minhasAreas : ['design', 'video', 'social'];
     if (!areas.includes(painel)) painel = areas[0];
     if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
     const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
     // atrasadas = data já passou e a demanda ainda não terminou a parte desta área; ficam numa aba só delas
     const h0p = hoje0(), FIMp = painel === 'social' ? ['Não postado', 'Postado'] : ['Aprovado', 'Não postado', 'Postado'];
     const atrasada = (i) => { const d = parse(i.data); return !!d && d < h0p && !FIMp.includes(i.status); };
-    const minhaP = (i) => !FIMp.includes(i.status) && (painel === 'social' || (produtorDe(i.tipo) === painel && produtorPara(i.tipo, i.produtor) === p));
+    const minhaP = (i) => !FIMp.includes(i.status) && (painel === 'social' || ((painel === 'tudo' || produtorDe(i.tipo) === painel) && produtorPara(i.tipo, i.produtor) === p));
     const hsP = fmt(h0p), doDiaP = (i) => i.data === hsP;
     const nAtr = itens0.filter((i) => atrasada(i) && minhaP(i)).length, nHoje = itens0.filter((i) => doDiaP(i) && minhaP(i)).length, nProx = itens0.filter((i) => !atrasada(i) && !doDiaP(i) && minhaP(i)).length;
     if (!['hoje', 'prox', 'atraso'].includes(vista)) vista = 'hoje';
     // Hoje = só o que é do dia · Próximos dias = de amanhã em diante · Atrasadas = data já passou
     const itens = vista === 'atraso' ? itens0.filter(atrasada) : vista === 'hoje' ? itens0.filter(doDiaP) : itens0.filter((i) => !atrasada(i) && !doDiaP(i));
     $('paVista').innerHTML = [['hoje', 'Hoje', nHoje], ['prox', 'Próximos dias', nProx], ['atraso', 'Atrasadas', nAtr]].map(([kk, n, c]) => '<button type="button" class="aba' + (kk === 'atraso' ? ' aba-atr' : '') + (vista === kk ? ' on' : '') + '" data-v="' + kk + '" aria-pressed="' + (vista === kk) + '">' + n + ' <b>' + c + '</b></button>').join('');
-    $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].filter(([k]) => areas.includes(k)).map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
+    $('paAbas').innerHTML = [['tudo', 'Tudo'], ['design', 'Design'], ['video', 'Vídeo e Reels'], ['social', 'Social']].filter(([k]) => areas.includes(k)).map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
     $('paQuem').innerHTML = '<span>Painel de</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
 
     const k = (ov, cor, v, d) => '<div' + (d ? ' class="d"' : '') + '><span class="ov"><i style="background:' + cor + '"></i>' + ov + '</span><span class="num">' + v + '</span></div>';
@@ -1807,26 +1809,26 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
         coluna('Enviados', 'var(--gold-200)', bs('Enviado')) + coluna('Aprovados · liberados', 'var(--ok)', bs('Aprovado'), 12, chk) + coluna('Não postados', 'var(--bad)', bs('Não postado'), 12, chk) + (vista === 'atraso' ? '' : coluna('Postados no mês', 'var(--ok)', post, 8));
       $('paQuadro').style.setProperty('--cols', vista === 'atraso' ? 6 : 7);
     } else {
-      const isD = painel === 'design';
+      const tudo = painel === 'tudo', isD = painel === 'design' || (tudo && PAINEIS.design.includes(p));
       if (!isD) sub = 'artes';
-      $('paTit').textContent = 'Meu painel · ' + (isD ? 'Design' : 'Vídeo');
-      const mine = itens.filter((i) => produtorDe(i.tipo) === painel && produtorPara(i.tipo, i.produtor) === p);
+      $('paTit').textContent = 'Meu painel · ' + (tudo ? 'Tudo' : isD ? 'Design' : 'Vídeo e Reels');
+      const mine = itens.filter((i) => (tudo || produtorDe(i.tipo) === painel) && produtorPara(i.tipo, i.produtor) === p);
       const ativos = mine.filter((i) => !i.semMaterial), bk = (s) => ativos.filter((i) => i.status === s);
       espera = mine.filter((i) => i.semMaterial && ['Pendente', 'Produção'].includes(i.status));
       const capas = itens.filter((i) => precisaCapa(i) && capaDesigner(i) === p && i.status !== 'Postado');
       const cF = capas.filter((i) => !capaPronta(i) && !i.semMaterial), cE = capas.filter((i) => !capaPronta(i) && i.semMaterial), cO = capas.filter(capaPronta);
-      $('paSub2').innerHTML = isD ? [['artes', 'Artes', ativos.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status)).length], ['capas', 'Capas de Reels', cF.length]].map(([kk, n, c]) => '<button type="button" class="aba' + (sub === kk ? ' on' : '') + '" data-s="' + kk + '">' + n + ' <b>' + c + '</b></button>').join('') : '';
+      $('paSub2').innerHTML = isD ? [['artes', tudo ? 'Demandas' : 'Artes', ativos.filter((i) => ['Pendente', 'Produção', 'Ajustar'].includes(i.status)).length], ['capas', 'Capas de Reels', cF.length]].map(([kk, n, c]) => '<button type="button" class="aba' + (sub === kk ? ' on' : '') + '" data-s="' + kk + '">' + n + ' <b>' + c + '</b></button>').join('') : '';
       if (isD && sub === 'capas') {
         $('paSub').textContent = 'Capas dos Reels de ' + nome + ' — a edição segue com o vídeo';
         kp = k('Capas a fazer', 'var(--gold-400)', cF.length, true) + k('Aguardando material', 'var(--bad)', cE.length) + k('Capas prontas', 'var(--ok)', cO.length);
         cols = coluna('Capas a fazer', 'var(--gold-400)', cF, 20) + coluna('Aguardando material', 'var(--bad)', cE, 20) + coluna('Capas prontas', 'var(--ok)', cO, 20);
         $('paQuadro').style.setProperty('--cols', 3); espera = [];
       } else {
-        $('paSub').textContent = (isD ? 'Artes e peças estáticas' : 'Vídeos e Reels') + ' indicadas para ' + nome;
+        $('paSub').textContent = (tudo ? 'Artes, vídeos e Reels' : isD ? 'Artes e peças estáticas' : 'Vídeos e Reels') + ' indicados para ' + nome;
         const ok = ativos.filter((i) => ['Aprovado', 'Não postado', 'Postado'].includes(i.status));
         const okRec = ok.filter((i) => { const d = parse(i.data); return d && d >= somaDias(hoje0(), -14); }).reverse();
-        kp = k('Pendentes', 'var(--ink-300)', bk('Pendente').length) + k(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção').length, true) + k('Ajustar', 'var(--bad)', bk('Ajustar').length) + k('Prontos', 'var(--ok)', bk('Pronto').length) + k('Enviados', 'var(--gold-200)', bk('Enviado').length) + k('Aguardando material', 'var(--bad)', espera.length);
-        cols = coluna('Pendentes', 'var(--ink-300)', bk('Pendente')) + coluna(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção')) + coluna('Ajustar', 'var(--bad)', bk('Ajustar')) +
+        kp = k('Pendentes', 'var(--ink-300)', bk('Pendente').length) + k(tudo || isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção').length, true) + k('Ajustar', 'var(--bad)', bk('Ajustar').length) + k('Prontos', 'var(--ok)', bk('Pronto').length) + k('Enviados', 'var(--gold-200)', bk('Enviado').length) + k('Aguardando material', 'var(--bad)', espera.length);
+        cols = coluna('Pendentes', 'var(--ink-300)', bk('Pendente')) + coluna(tudo || isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção')) + coluna('Ajustar', 'var(--bad)', bk('Ajustar')) +
           coluna('Prontos', 'var(--ok)', bk('Pronto')) + coluna('Enviados', 'var(--gold-200)', bk('Enviado')) + (vista === 'atraso' ? '' : coluna('Aprovados e postados · 14 dias', 'var(--ok)', okRec, 8));
         $('paQuadro').style.setProperty('--cols', vista === 'atraso' ? 5 : 6);
       }
