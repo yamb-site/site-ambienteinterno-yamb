@@ -583,6 +583,17 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 .getapas .feito b{color:var(--bone)}
 .getapas .on{background:rgba(243,172,47,.14);border-color:rgba(243,172,47,.55);box-shadow:0 0 16px rgba(243,172,47,.22)}
 .getapas .on b{color:var(--gold-300)}
+.fabas{display:flex;gap:4px;padding:4px;margin:2px 0 8px;border-radius:999px;background:rgba(18,18,18,.6);border:1px solid rgba(247,228,206,.10);align-self:flex-start}
+.fab{height:34px;padding:0 16px;border-radius:999px;border:0;background:transparent;color:var(--ink-200);font:600 13px Sora,system-ui,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.fab b{font-size:11px;padding:1px 7px;border-radius:999px;background:rgba(247,228,206,.1)}
+.fab.on{background:#E09A24;color:#121212;box-shadow:0 0 18px rgba(243,172,47,.4)}
+.fab.on b{background:rgba(18,18,18,.18)}
+.fab.atr b{color:var(--bad)}
+.fab.atr.on{background:rgba(240,165,148,.18);color:var(--bad);border:1px solid rgba(240,165,148,.6);box-shadow:none}
+.fab.atr.on b{color:var(--bad);background:rgba(240,165,148,.14)}
+.post .atrde{align-self:flex-start;margin-top:2px;font-size:10.5px;font-weight:600;color:var(--bad);padding:2px 8px;border-radius:999px;border:1px solid rgba(240,165,148,.45);background:rgba(240,165,148,.1)}
+.post:has(.atrde){border-color:rgba(240,165,148,.35)}
+.fab:focus-visible{outline:2px solid var(--gold-300);outline-offset:2px}
 .getapas.mov button{font:inherit;text-align:left;cursor:pointer;padding:10px 11px;border-radius:12px;border:1px solid rgba(247,228,206,.12);background:rgba(28,28,28,.6);color:inherit;display:flex;flex-direction:column;gap:4px;min-width:0;min-height:58px;transition:border-color .15s,background .15s,transform .15s}
 .getapas.mov button:hover:not(:disabled){border-color:rgba(243,172,47,.6);background:rgba(243,172,47,.08);transform:translateY(-1px)}
 .getapas.mov button:focus-visible{outline:2px solid var(--gold-300);outline-offset:2px}
@@ -696,7 +707,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div style="display:flex;gap:40px;margin-top:10px;flex-wrap:wrap">
 <div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Postados</span><span id="postMes" style="font-size:20px;font-weight:600">—</span></div>
 <div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Previstos</span><span id="prevMes" style="font-size:20px;font-weight:600">—</span></div>
-<div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Atrasados</span><span id="atras" style="font-size:20px;font-weight:600;color:var(--bad)">—</span></div>
+<div style="display:flex;flex-direction:column;gap:4px"><span class="mut" style="font-size:12px">Atrasados</span><button type="button" id="atras" title="Ver as atrasadas" style="font:600 20px inherit;color:var(--bad);background:none;border:0;padding:0;cursor:pointer;text-align:left;text-decoration:underline dotted;text-underline-offset:4px">—</button></div>
 </div>
 </div>
 <svg viewBox="0 0 160 160" width="170" height="170" role="img" id="anelMes" aria-label="Progresso do mês" style="flex:none;transform:rotate(-90deg);filter:drop-shadow(0 0 14px rgba(243,172,47,.45))">
@@ -721,6 +732,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 
 <section class="card l2">
 <div class="tit">Sai hoje<small id="filaInfo"></small><a href="#visao-geral" aria-label="Abrir a Visão geral" style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(247,228,206,.14);display:flex;align-items:center;justify-content:center;color:var(--bone)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></a></div>
+<div class="fabas" id="filaAbas" role="tablist" aria-label="Hoje ou atrasadas"></div>
 <div id="fila"></div>
 </section>
 
@@ -1125,6 +1137,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     }
   }
 
+  let filaVista = 'hoje';
   function pinta() {
     if (!banco) return;
     const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
@@ -1167,16 +1180,25 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const ordem = { 'Postado': 0, 'Não postado': 1, 'Aprovado': 2, 'Enviado': 3, 'Pronto': 4, 'Ajustar': 5, 'Produção': 6, 'Pendente': 7 }; // o que está mais pronto sobe, pendentes por último
     const cor = { 'Pronto': 'var(--ok)', 'Postado': 'var(--ok)', 'Aprovado': 'var(--ok)', 'Pendente': 'var(--ink-300)', 'Produção': 'var(--gold-300)', 'Enviado': 'var(--gold-200)', 'Ajustar': 'var(--bad)', 'Não postado': 'var(--bad)' };
     const lista = hojeI.slice().sort((a, b) => (ordem[a.status] ?? 9) - (ordem[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
-    $('filaInfo').textContent = lista.length ? lista.filter(feito).length + ' de ' + lista.length + ' postados' : '';
-    $('fila').innerHTML = lista.length ? lista.slice(0, 7).map((t) => {
+    // atrasadas: data já passou e ainda não foi postada; cada um vê as suas (a direção vê todas)
+    const GESTh = ['gabriel', 'yasmim', 'vitoria'].includes(eu);
+    const atrTodas = itens.filter(atrasado), atrMinhas = atrTodas.filter((i) => (i.produtor === eu && i.status !== 'Aprovado') || i.social === eu); // quem produz não responde pelo que já foi aprovado
+    const atrL = (GESTh || !atrMinhas.length ? atrTodas : atrMinhas).slice().sort((a, b) => (parse(a.data) || 0) - (parse(b.data) || 0) || (ordem[a.status] ?? 9) - (ordem[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')));
+    $('filaAbas').innerHTML = [['hoje', 'Hoje', lista.length], ['atraso', 'Atrasadas', atrL.length]].map(([k, n, c]) => '<button type="button" role="tab" class="fab' + (k === 'atraso' ? ' atr' : '') + (filaVista === k ? ' on' : '') + '" aria-selected="' + (filaVista === k) + '" data-fv="' + k + '">' + n + ' <b>' + c + '</b></button>').join('');
+    $('filaAbas').onclick = (e) => { const x = e.target.closest('[data-fv]'); if (x) { filaVista = x.dataset.fv; pinta(); } };
+    $('atras').onclick = () => { filaVista = 'atraso'; pinta(); $('fila').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    const hd = new Date(); hd.setHours(0, 0, 0, 0);
+    const mostra = filaVista === 'atraso' ? atrL : lista;
+    $('filaInfo').textContent = filaVista === 'atraso' ? (GESTh || !atrMinhas.length ? 'de toda a equipe' : 'suas') : lista.length ? lista.filter(feito).length + ' de ' + lista.length + ' postados' : '';
+    $('fila').innerHTML = mostra.length ? mostra.map((t) => {
       const ok = feito(t);
       const nome = '<span class="elip" style="font-size:14px">' + esc(t.titulo || '(sem título)') + '</span>';
       return '<div class="lin" data-item="' + esc(t.id) + '"><span class="chk' + (ok ? ' ok' : '') + '">' + (ok ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>' : '') + '</span>' +
         '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' + nome +
-        '<span class="mut" style="font-size:12px">' + esc(titulo(t.cliente)) + ' · ' + esc(t.tipo) + (t.hora ? ' · ' + esc(t.hora) : '') + '</span></div>' +
+        '<span class="mut" style="font-size:12px">' + esc(titulo(t.cliente)) + ' · ' + esc(t.tipo) + (filaVista === 'atraso' ? ' · ' + esc(String(t.data || '').slice(0, 5)) + ' · <b style="color:var(--bad);font-weight:600">' + Math.round((hd - parse(t.data)) / 864e5) + 'd atrasada</b>' : t.hora ? ' · ' + esc(t.hora) : '') + '</span></div>' +
         '<span style="font-size:12px;font-weight:600;color:' + (cor[t.status] || 'var(--ink-300)') + '">' + esc(t.status) + '</span></div>';
-    }).join('') + (lista.length > 7 ? '<a href="#visao-geral" style="font-size:13px;padding-top:6px">E mais ' + (lista.length - 7) + ' na Visão geral</a>' : '')
-      : '<p class="mut" style="margin:8px 0;font-size:14px">Nada marcado para hoje.</p>';
+    }).join('')
+      : '<p class="mut" style="margin:8px 0;font-size:14px">' + (filaVista === 'atraso' ? 'Nada atrasado. 👏' : 'Nada marcado para hoje.') + '</p>';
 
     // fila da equipe
     const fila = {};
@@ -1394,8 +1416,12 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const base = itens.filter((i) => (!cli || i.cliente === cli) && (!tp || i.tipo === tp));
     const dias = [...Array(7)].map((_, k) => somaDias(seg, k)), hs = fmt(hoje0());
     const ORDs = { 'Postado': 0, 'Não postado': 1, 'Aprovado': 2, 'Enviado': 3, 'Pronto': 4, 'Ajustar': 5, 'Produção': 6, 'Pendente': 7 };
-    const atrKs = (i) => { const d = parse(i.data); return d && d < hoje0() && !['Aprovado', 'Não postado', 'Postado'].includes(i.status) ? 1 : 0; }; // atrasadas por último
-    const doDia = (d) => base.filter((i) => i.data === fmt(d)).sort((a, b) => atrKs(a) - atrKs(b) || (ORDs[a.status] ?? 9) - (ORDs[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente)));
+    // atrasada = data já passou e não foi postada: sai do dia dela e vai para HOJE (no fim da coluna), dia após dia até ser postada
+    const atrS = (i) => { const d = parse(i.data); return !!d && d < hoje0() && !['Postado', 'Não postado'].includes(i.status); };
+    const atrKs = (i) => atrS(i) ? 1 : 0;
+    const doDia = (d) => { const f = fmt(d), h0s = hoje0();
+      const l = f === hs ? base.filter((i) => i.data === f || atrS(i)) : d < h0s ? base.filter((i) => i.data === f && !atrS(i)) : base.filter((i) => i.data === f);
+      return l.sort((a, b) => atrKs(a) - atrKs(b) || (atrS(a) && atrS(b) ? (parse(a.data) - parse(b.data)) : 0) || (ORDs[a.status] ?? 9) - (ORDs[b.status] ?? 9) || String(a.hora || '').localeCompare(String(b.hora || '')) || String(a.cliente).localeCompare(String(b.cliente))); };
     const semana = dias.flatMap(doDia);
     const pub = semana.filter((i) => i.status === 'Postado').length;
     const risco = semana.filter((i) => !ok(i.status));
@@ -1425,7 +1451,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
           const tag = 'div', href = '';
           return '<' + tag + href + ' class="post' + (i.status === 'Postado' ? ' feito' : '') + '" data-item="' + esc(i.id) + '"><span class="h">' + esc(i.hora || HORARIOS[k]) + '<i style="background:' + ponto(i.status) + ';box-shadow:0 0 8px ' + ponto(i.status) + '"></i></span>' +
             '<span class="c elip">' + esc(titulo(i.cliente)) + '</span>' + (i.titulo ? '<span class="t">' + esc(i.titulo) + '</span>' : '') +
-            '<span class="s">' + esc(i.tipo) + ' · <b style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</b></span></' + tag + '>';
+            '<span class="s">' + esc(i.tipo) + ' · <b style="color:' + (COR[i.status] || 'inherit') + '">' + esc(i.status) + '</b></span>' +
+            (atrS(i) ? '<span class="atrde">Atrasada · era ' + esc(String(i.data).slice(0, 5)) + '</span>' : '') + '</' + tag + '>';
         }).join('') || '<div class="vaz">Sem postagem</div>') + '</div>';
     }).join('');
   }
