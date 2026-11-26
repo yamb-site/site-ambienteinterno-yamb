@@ -41,12 +41,21 @@
     if (location.hash.startsWith('#demanda/')) history.replaceState(null, '', location.pathname + location.search + (hashAntes && !hashAntes.startsWith('#demanda/') ? hashAntes : '#painel'));
     if (voltaFoco && voltaFoco.focus) voltaFoco.focus();
   }
-  fundo.onclick = fecha;
+  // a demanda só fecha no X, no Esc ou arrastando para baixo no celular (tocar fora não fecha)
+  let gavId = null;
+  function refresca() { if (gav.hidden || !gavId) return; const st = gav.scrollTop, f = document.activeElement, emGav = gav.contains(f), sel = f && f.dataset && (f.dataset.etapa || f.dataset.acao); if (!abre(gavId, voltaFoco, true)) { fecha(); return; } gav.scrollTop = st; if (emGav) { const b = (sel && gav.querySelector('[data-etapa="' + sel + '"]:not(:disabled),[data-acao="' + sel + '"]')) || gav.querySelector('.gfecha'); if (b) b.focus({ preventScroll: true }); } }
+  (function () { // arrastar para baixo fecha (só no celular)
+    let y0 = null, dy = 0;
+    gav.addEventListener('touchstart', (e) => { if (!matchMedia('(max-width:760px)').matches || gav.scrollTop > 0) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+    gav.addEventListener('touchmove', (e) => { if (y0 == null) return; dy = e.touches[0].clientY - y0; if (dy > 0 && gav.scrollTop <= 0) { gav.style.transition = 'none'; gav.style.transform = 'translateY(' + dy + 'px)'; if (e.cancelable) e.preventDefault(); } else { gav.style.transform = ''; } }, { passive: false });
+    gav.addEventListener('touchend', () => { if (y0 == null) return; y0 = null; gav.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)'; if (dy > 110) { gav.style.transform = 'translateY(100%)'; setTimeout(() => { gav.style.transform = ''; gav.style.transition = ''; fecha(); }, 200); } else { gav.style.transform = ''; } dy = 0; });
+  })();
   addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!gav.hidden) fecha(); fechaPops(); } });
 
-  function abre(id, origem) {
-    const i = banco && (banco.items || []).find((x) => String(x.id) === String(id));
+  function abre(id, origem, quieto) {
+    const i = banco && (banco.items || []).find((x) => String(x.id) === String(id) && !x.excluido);
     if (!i) return false;
+    gavId = i.id;
     voltaFoco = origem || document.activeElement;
     if (!location.hash.startsWith('#demanda/')) hashAntes = location.hash;
     history.replaceState(null, '', location.pathname + location.search + '#demanda/' + encodeURIComponent(i.id));
@@ -63,12 +72,13 @@
     if (i.nota) avisos.push(['ruim', 'Ajuste: ' + esc(i.nota)]);
     gav.innerHTML =
       '<div class="gtopo">' + pill(i.status, COR[i.status] || 'var(--ink-300)') + pill(i.tipo, 'var(--gold-300)') +
-      (i.trello ? '<a class="gtrello" href="' + esc(i.trello) + '" target="_blank" rel="noopener">Abrir no Trello →</a>' : '<span class="mut" style="font-size:12px">Sem link do Trello</span>') +
       '<button class="glink" type="button" title="Copia o endereço desta demanda para mandar a alguém da equipe">' + I('M10 14a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 10a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1', 15) + '<span>Copiar link</span></button>' +
       '<button class="gfecha" type="button" aria-label="Fechar detalhes">' + I('M6 6l12 12M18 6L6 18', 18) + '</button></div>' +
       '<div><div class="gcli">' + esc(titulo(i.cliente)) + '</div><h2 id="gavTit">' + esc(i.titulo || '(sem título)') + '</h2></div>' +
-      '<section><h3>Etapa · <span>' + esc(STATUS_DESC[i.status] || '') + '</span></h3><div class="getapas">' +
-      FLUXO.map((s, j) => { const h = H[s]; return '<div class="' + (j === k ? 'on' : h ? 'feito' : '') + '"><b>' + esc(s) + '</b><span>' + (h ? esc(String(h.em || '').replace(' · ', ' ')) : '—') + (h && h.por ? '<br>' + esc(primeiro(h.por)) : '') + '</span></div>'; }).join('') + '</div></section>' +
+      (i.trello ? '<a class="gtrello2" href="' + esc(i.trello) + '" target="_blank" rel="noopener"><span class="gtic">' + I('M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zM7 7v9M14 7v5', 18) + '</span><span class="gttx"><b>Abrir no Trello</b><span>' + esc(String(i.trello).replace(/^https?:\/\//, '')) + '</span></span><span class="gtseta">↗</span></a>'
+        : '<div class="gtrello2 sem"><span class="gttx"><b>Sem link do Trello</b><span>Adicione em “Editar demanda”, lá embaixo.</span></span></div>') +
+      '<section><h3>Etapa · <span>toque na etapa para onde a demanda vai</span></h3><div class="getapas mov">' +
+      FLUXO.map((s, j) => { const h = H[s], atual = j === k, prox = s === proxima(i.status); return '<button type="button" data-etapa="' + esc(s) + '" class="' + (atual ? 'on' : h ? 'feito' : '') + (prox ? ' prox' : '') + '"' + (atual ? ' aria-current="step" disabled' : ' aria-label="Mover para ' + esc(s) + '"') + '><b><i style="background:' + (COR[s] || 'var(--ink-300)') + '"></i>' + esc(s) + '</b>' + (atual ? '<em>Está aqui</em>' : prox ? '<em class="px">Próxima →</em>' : '') + '<span>' + (h ? esc(String(h.em || '').replace(' · ', ' ')) + (h.por ? ' · ' + esc(primeiro(h.por)) : '') : '') + '</span></button>'; }).join('') + '</div><p class="gdica">Agora: ' + esc(STATUS_DESC[i.status] || i.status) + '</p></section>' +
       '<section class="ginfo">' +
       linha('Plataforma', 'Instagram') +
       linha('Data prevista', esc(i.data || '—') + (d ? ' · ' + DIAS[d.getDay()] : '')) +
@@ -85,11 +95,12 @@
       '<p class="gnota">Orientações completas, referências, arquivos e prazos estão no Trello.</p>';
     gav.querySelector('.gfecha').onclick = fecha;
     gav.querySelectorAll('[data-acao]').forEach((b) => { b.onclick = () => acao(b.dataset.acao, i); });
+    gav.querySelectorAll('[data-etapa]').forEach((b) => { b.onclick = () => { const s = b.dataset.etapa; acao(s === 'Ajustar' ? 'ajuste' : s === 'Aprovado' ? 'aprovar' : s === 'Não postado' ? 'naopostado' : s === 'Postado' ? 'checklist' : 'mover', i, s); }; });
     gav.querySelector('.glink').onclick = (e) => { const b = e.currentTarget, url = location.origin + location.pathname + '#demanda/' + encodeURIComponent(i.id);
       const ok = () => { b.querySelector('span').textContent = 'Link copiado'; setTimeout(() => { b.querySelector('span').textContent = 'Copiar link'; }, 2000); };
       if (navigator.clipboard) navigator.clipboard.writeText(url).then(ok, () => prompt('Copie o link:', url)); else prompt('Copie o link:', url); };
     gav.hidden = false; fundo.hidden = false; document.body.classList.add('gav-aberta');
-    gav.scrollTop = 0; gav.querySelector('.gfecha').focus();
+    if (!quieto) { gav.scrollTop = 0; gav.querySelector('.gfecha').focus(); }
     return true;
   }
   window.abreItem = abre;
@@ -130,7 +141,7 @@
       const er = o.valida ? o.valida(jan) : ''; if (er) { jan.querySelector('.jerro').textContent = er; return; }
       if (!o.faz) { fechaJan(); toast(o.feito || 'Feito.'); return; }
       ok.disabled = true; ok.textContent = 'Salvando…';
-      try { const salvo = await o.faz(jan); fechaJan(); if (!gav.hidden) fecha(); toast(salvo ? o.feito : 'Guardado aqui; a gravação vai tentar de novo sozinha.'); }
+      try { const salvo = await o.faz(jan); fechaJan(); refresca(); setTimeout(refresca, 400); toast(salvo ? o.feito : 'Guardado aqui; a gravação vai tentar de novo sozinha.'); }
       catch (e) { ok.disabled = false; ok.textContent = o.ok; jan.querySelector('.jerro').textContent = 'Não deu para salvar: ' + (e.message || e); }
     };
     if (o.monta) o.monta(jan);
@@ -152,8 +163,8 @@
     l.push(['formato', 'Formato'], ['editar', 'Editar demanda'], ['excluir', 'Excluir']);
     return l;
   }
-  function acao(k, i) {
-    const nx = proxima(i.status);
+  function acao(k, i, alvo) {
+    const nx = alvo || proxima(i.status);
     const J = {
       mover: () => janela({ ic: 'M5 12h14M13 6l6 6-6 6', tit: 'Mover para ' + nx, sub: 'A equipe recebe uma notificação.', corpo: resumo(i) + '<p class="jtxt">De <b>' + esc(i.status) + '</b> para <b>' + esc(nx) + '</b>.' + (precisaCapa(i) && !(i.capa && i.capa.pronta) && nx === 'Enviado' ? '<br><span style="color:var(--bad)">Este Reels precisa da capa pronta antes de ser enviado.</span>' : '') + '</p>', ok: 'Mover', feito: 'Movido para ' + nx + '.', valida: () => (nx === 'Enviado' && precisaCapa(i) && !(i.capa && i.capa.pronta)) ? 'Este Reels precisa da capa pronta antes de ser enviado.' : '', faz: () => window.Grava.moverEtapa(i.id, nx, eu()) }),
       aprovar: () => janela({ ic: IC.ok, cor: 'var(--ok)', tit: 'Aprovar material', sub: 'Aprovar libera o material para postagem.', corpo: resumo(i) + '<label class="jcampo"><span>Observações (opcional)</span><textarea rows="3" placeholder="Ex.: pode postar às 19h."></textarea></label>', ok: 'Aprovar e liberar', okCor: 'var(--ok)', feito: 'Aprovado e liberado.', faz: (j) => window.Grava.aprovar(i.id, j.querySelector('textarea').value.trim(), eu()) }),
@@ -480,7 +491,7 @@
 
   const abrePeloEndereco = () => { const m = location.hash.match(/^#demanda\/(.+)$/); if (m && banco && gav.hidden) { if (!abre(decodeURIComponent(m[1]))) history.replaceState(null, '', location.pathname + '#painel'); } };
   addEventListener('hashchange', abrePeloEndereco);
-  window.pintaExtras = (b) => { banco = b; abrePeloEndereco(); contadores(); if (!$('plTab').contains(document.activeElement)) pintaPlan(); if (!pop.hidden) pintaNotif(); if (!pAv.contains(document.activeElement)) pintaAval(); };
+  window.pintaExtras = (b) => { banco = b; abrePeloEndereco(); refresca(); contadores(); if (!$('plTab').contains(document.activeElement)) pintaPlan(); if (!pop.hidden) pintaNotif(); if (!pAv.contains(document.activeElement)) pintaAval(); };
   pintaEuBt();
   $('euSel').addEventListener('change', () => { pintaEuBt(); contadores(); pintaAval(); if (banco) ['pintaIndicadores', 'pintaPaineis', 'pintaAprov', 'pintaCadastro'].forEach((f) => window[f] && window[f](banco)); });
 

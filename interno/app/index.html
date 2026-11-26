@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Painel YAMB · prévia</title>
 <link rel="icon" href="/favicon.ico">
-<link rel="stylesheet" href="/interno/base.css?v=f82c7e62">
+<link rel="stylesheet" href="/interno/base.css?v=5e8779da">
 <style>
 @font-face{font-family:"Monument Extended";src:url("/assets/fonts/MonumentExtended-Ultrabold.otf") format("opentype");font-weight:800;font-display:swap}
 @font-face{font-family:"Sora";src:url("/assets/fonts/Sora-Light.ttf") format("truetype");font-weight:300;font-display:swap}
@@ -583,6 +583,31 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 .getapas .feito b{color:var(--bone)}
 .getapas .on{background:rgba(243,172,47,.14);border-color:rgba(243,172,47,.55);box-shadow:0 0 16px rgba(243,172,47,.22)}
 .getapas .on b{color:var(--gold-300)}
+.getapas.mov button{font:inherit;text-align:left;cursor:pointer;padding:10px 11px;border-radius:12px;border:1px solid rgba(247,228,206,.12);background:rgba(28,28,28,.6);color:inherit;display:flex;flex-direction:column;gap:4px;min-width:0;min-height:58px;transition:border-color .15s,background .15s,transform .15s}
+.getapas.mov button:hover:not(:disabled){border-color:rgba(243,172,47,.6);background:rgba(243,172,47,.08);transform:translateY(-1px)}
+.getapas.mov button:focus-visible{outline:2px solid var(--gold-300);outline-offset:2px}
+.getapas.mov button:disabled{cursor:default}
+.getapas.mov b{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--bone)}
+.getapas.mov b i{width:8px;height:8px;border-radius:50%;flex:none}
+.getapas.mov em{font-style:normal;font-size:10.5px;font-weight:600;color:var(--gold-300)}
+.getapas.mov em.px{color:#121212;background:linear-gradient(135deg,#FDEBC9,#F5C86F 55%,#E09A24);align-self:flex-start;padding:2px 8px;border-radius:999px}
+.getapas.mov .prox{border-color:rgba(243,172,47,.5)}
+.gdica{margin:8px 0 0;font-size:12px;color:var(--ink-300)}
+.gtrello2{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(0,121,191,.55);background:linear-gradient(135deg,rgba(0,121,191,.22),rgba(0,121,191,.08));color:var(--bone);text-decoration:none;transition:background .15s,border-color .15s}
+.gtrello2:hover{background:rgba(0,121,191,.32);border-color:#3ea4e6}
+.gtrello2:focus-visible{outline:2px solid #3ea4e6;outline-offset:2px}
+.gtrello2 .gtic{width:36px;height:36px;border-radius:10px;background:#0079BF;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.gtrello2 .gttx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.gtrello2 .gttx b{font-size:14px}
+.gtrello2 .gttx span{font-size:12px;color:#9fd2f2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gtrello2 .gtseta{font-size:18px;color:#9fd2f2}
+.gtrello2.sem{border-color:rgba(247,228,206,.12);background:rgba(28,28,28,.6)}
+.gtrello2.sem .gttx span{color:var(--ink-300)}
+.ktrello{margin-left:auto;font-size:11px;font-weight:600;color:#7cc2ee;text-decoration:none;padding:2px 8px;border-radius:999px;border:1px solid rgba(0,121,191,.5)}
+.ktrello:hover{background:rgba(0,121,191,.2)}
+.abas-vista .aba-atr b{color:var(--bad)}
+.abas-vista .aba.aba-atr.on{background:rgba(240,165,148,.18)!important;color:var(--bad)!important;border-color:rgba(240,165,148,.6)!important;box-shadow:none!important}
+.abas-vista .aba-atr.on b{color:var(--bad)}
 .ginfo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;border-radius:16px;overflow:hidden;background:rgba(247,228,206,.06)}
 .ginfo div{background:#141414;padding:11px 14px;display:flex;flex-direction:column;gap:3px}
 .ginfo span{font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-300)}
@@ -629,7 +654,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 .plav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(243,172,47,.14);color:var(--gold-300);font-size:12px;font-weight:700;flex:none}
 @media (max-width:1100px){.plkpi{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
-<link rel="stylesheet" href="/interno/app.css?v=f82c7e62">
+<link rel="stylesheet" href="/interno/app.css?v=5e8779da">
 </head>
 <body>
 <div class="fundo"><span class="luz1"></span><span class="luz2"></span><span class="grade"></span><img class="tex" src="/assets/bg-dark-texture-min.png" alt=""></div>
@@ -936,6 +961,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
 <div class="abas" id="paAbas"></div>
 <div class="abas" id="paSub2"></div>
+<div class="abas abas-vista" id="paVista"></div>
 </div>
 <div class="k5" id="paKpis" hidden></div>
 <div class="filtros-pa"><label class="campo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="paBusca" type="search" placeholder="Buscar cliente ou título" aria-label="Buscar"></label><label class="campo"><select id="paCli" aria-label="Cliente"><option value="">Todos os clientes</option></select></label><button type="button" class="chip" id="paParados">Só parados além do prazo</button><span class="mut" id="paResumo" style="font-size:12.5px;margin-left:auto"></span></div>
@@ -1046,8 +1072,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 </div>
 <div class="aviso" id="aviso">Carregando o ambiente interno…</div>
 
-<script src="/interno/base.js?v=f82c7e62"></script>
-<script src="/interno/grava.js?v=f82c7e62"></script>
+<script src="/interno/base.js?v=5e8779da"></script>
+<script src="/interno/grava.js?v=5e8779da"></script>
 <script>
 (() => {
   const SHEET = 'https://script.google.com/macros/s/AKfycbyPxkrBAfkxtYeqvce4heiS6zqFl6J702Ab_qR2k3EdYooglJ9ZInXmlY4Md2K4JJXi/exec';
@@ -1686,7 +1712,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
   const capaPronta = (i) => !!(i.capa && i.capa.pronta);
   const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0);
-  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null;
+  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null, vista = 'prazo';
 
   const card = (i, extra = '') => {
     const t = 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
@@ -1697,14 +1723,14 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       (at && !i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">parado ' + at + 'd</span>' : '') +
       (i.semMaterial ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">sem material · há ' + Math.max(0, Math.floor((Date.now() - i.semMaterial.desde) / 864e5)) + 'd</span>' : '') +
       (i.adiadoDe ? '<span class="tag" style="color:var(--bad);border-color:rgba(240,165,148,.4)">adiado de ' + esc(String(i.adiadoDe).slice(0, 5)) + (i.adiado > 1 ? ' · ' + i.adiado + 'x' : '') + '</span>' : '') +
-      (precisaCapa(i) && i.tipo === 'Reels' ? '<span class="tag" style="color:' + (capaPronta(i) ? 'var(--ok)' : 'var(--gold-300)') + ';border-color:currentColor">capa ' + (capaPronta(i) ? 'pronta' : 'pendente') + ' · ' + esc(((EQUIPE[capaDesigner(i)] || ['Marcus'])[0])) + '</span>' : '') + extra + '</span>' +
+      (precisaCapa(i) && i.tipo === 'Reels' ? '<span class="tag" style="color:' + (capaPronta(i) ? 'var(--ok)' : 'var(--gold-300)') + ';border-color:currentColor">capa ' + (capaPronta(i) ? 'pronta' : 'pendente') + ' · ' + esc(((EQUIPE[capaDesigner(i)] || ['Marcus'])[0])) + '</span>' : '') + extra +
+      (i.trello ? '<a class="ktrello" href="' + esc(i.trello) + '" target="_blank" rel="noopener" title="Abrir no Trello">Trello ↗</a>' : '') + '</span>' +
       (i.semMaterial ? '<span class="nt">Falta: ' + esc(i.semMaterial.falta || 'material') + '</span>' : '') +
       (i.nota && ['Ajustar', 'Produção', 'Pendente'].includes(i.status) ? '<span class="nt">Ajuste: ' + esc(i.nota) + '</span>' : '') +
       (i.status === 'Não postado' && i.naoPostado ? '<span class="nt">Não postado: ' + esc(i.naoPostado.motivo || '—') + '</span>' : '') + '</' + t + '>';
   };
   const coluna = (rot, cor, lista, lim = 12, extra) => '<div class="kcol"><div class="kcab"><span><i style="background:' + cor + ';color:' + cor + '"></i>' + rot + '</span><b>' + lista.length + '</b></div>' +
-    (lista.slice(0, lim).map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">Nada nesta etapa</div>') +
-    (lista.length > lim ? '<div class="kmais">e mais ' + (lista.length - lim) + '</div>' : '') + '</div>';
+    (lista.map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">' + (vista === 'atraso' ? 'Nada atrasado aqui' : 'Nada nesta etapa') + '</div>') + '</div>';
 
   function pintaPaineis(b) {
     if (b) banco = b; if (!banco) return;
@@ -1713,7 +1739,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     $('paCli').innerHTML = '<option value="">Todos os clientes</option>' + cl.map((c) => '<option value="' + esc(c) + '">' + esc(titulo(c)) + '</option>').join(''); $('paCli').value = cl.includes(cv) ? cv : '';
     const q = $('paBusca').value.trim().toLowerCase(), cf = $('paCli').value;
     $('paParados').classList.toggle('on', soParados);
-    const itens = todos.filter((i) => (!cf || i.cliente === cf) && (!q || (i.cliente + ' ' + (i.titulo || '')).toLowerCase().includes(q)) && (!soParados || atraso(i) > 0));
+    const itens0 = todos.filter((i) => (!cf || i.cliente === cf) && (!q || (i.cliente + ' ' + (i.titulo || '')).toLowerCase().includes(q)) && (!soParados || atraso(i) > 0));
     const eu = ($('euSel') && $('euSel').value) || 'gabriel';
     // cada pessoa cai na área dela e só vê as abas dela; a direção vê todas
     const GEST = ['gabriel', 'yasmim', 'vitoria'].includes(eu), minhasAreas = ['design', 'video', 'social'].filter((k) => PAINEIS[k].includes(eu));
@@ -1722,6 +1748,14 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     if (!areas.includes(painel)) painel = areas[0];
     if (!quem[painel]) quem[painel] = PAINEIS[painel].includes(eu) ? eu : PADRAO[painel];
     const p = quem[painel], nome = (EQUIPE[p] || [titulo(p)])[0];
+    // atrasadas = data já passou e a demanda ainda não terminou a parte desta área; ficam numa aba só delas
+    const h0p = hoje0(), FIMp = painel === 'social' ? ['Não postado', 'Postado'] : ['Aprovado', 'Não postado', 'Postado'];
+    const atrasada = (i) => { const d = parse(i.data); return !!d && d < h0p && !FIMp.includes(i.status); };
+    const minhaP = (i) => !FIMp.includes(i.status) && (painel === 'social' || (produtorDe(i.tipo) === painel && produtorPara(i.tipo, i.produtor) === p));
+    const nAtr = itens0.filter((i) => atrasada(i) && minhaP(i)).length, nDia = itens0.filter((i) => !atrasada(i) && minhaP(i)).length;
+    if (!nAtr) vista = 'prazo';
+    const itens = vista === 'atraso' ? itens0.filter(atrasada) : itens0.filter((i) => !atrasada(i));
+    $('paVista').innerHTML = [['prazo', 'Em dia', nDia], ['atraso', 'Atrasadas', nAtr]].map(([kk, n, c]) => '<button type="button" class="aba' + (kk === 'atraso' ? ' aba-atr' : '') + (vista === kk ? ' on' : '') + '" data-v="' + kk + '" aria-pressed="' + (vista === kk) + '">' + n + ' <b>' + c + '</b></button>').join('');
     $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].filter(([k]) => areas.includes(k)).map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
     $('paQuem').innerHTML = '<span>Painel de</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
 
@@ -1737,8 +1771,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       kp = k('Produção · design', 'var(--gold-400)', dep('design').length) + k('Produção · vídeo', 'var(--gold-400)', dep('video').length) + k('Prontos', 'var(--ok)', bs('Pronto').length) + k('Enviados', 'var(--gold-200)', bs('Enviado').length) + k('Aprovados', 'var(--ok)', bs('Aprovado').length, true) + k('Não postados', 'var(--bad)', bs('Não postado').length);
       const chk = (i) => '<span class="tag" style="color:var(--gold-300);border-color:rgba(243,172,47,.4)">checklist ' + (i.checklist || []).length + '/' + CHECK + '</span>';
       cols = coluna('Produção · design', 'var(--gold-400)', dep('design')) + coluna('Produção · vídeo', 'var(--gold-400)', dep('video')) + coluna('Prontos p/ enviar', 'var(--ok)', bs('Pronto')) +
-        coluna('Enviados', 'var(--gold-200)', bs('Enviado')) + coluna('Aprovados · liberados', 'var(--ok)', bs('Aprovado'), 12, chk) + coluna('Não postados', 'var(--bad)', bs('Não postado'), 12, chk) + coluna('Postados no mês', 'var(--ok)', post, 8);
-      $('paQuadro').style.setProperty('--cols', 7);
+        coluna('Enviados', 'var(--gold-200)', bs('Enviado')) + coluna('Aprovados · liberados', 'var(--ok)', bs('Aprovado'), 12, chk) + coluna('Não postados', 'var(--bad)', bs('Não postado'), 12, chk) + (vista === 'atraso' ? '' : coluna('Postados no mês', 'var(--ok)', post, 8));
+      $('paQuadro').style.setProperty('--cols', vista === 'atraso' ? 6 : 7);
     } else {
       const isD = painel === 'design';
       if (!isD) sub = 'artes';
@@ -1760,8 +1794,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
         const okRec = ok.filter((i) => { const d = parse(i.data); return d && d >= somaDias(hoje0(), -14); }).reverse();
         kp = k('Pendentes', 'var(--ink-300)', bk('Pendente').length) + k(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção').length, true) + k('Ajustar', 'var(--bad)', bk('Ajustar').length) + k('Prontos', 'var(--ok)', bk('Pronto').length) + k('Enviados', 'var(--gold-200)', bk('Enviado').length) + k('Aguardando material', 'var(--bad)', espera.length);
         cols = coluna('Pendentes', 'var(--ink-300)', bk('Pendente')) + coluna(isD ? 'Em produção' : 'Em edição', 'var(--gold-300)', bk('Produção')) + coluna('Ajustar', 'var(--bad)', bk('Ajustar')) +
-          coluna('Prontos', 'var(--ok)', bk('Pronto')) + coluna('Enviados', 'var(--gold-200)', bk('Enviado')) + coluna('Aprovados e postados · 14 dias', 'var(--ok)', okRec, 8);
-        $('paQuadro').style.setProperty('--cols', 6);
+          coluna('Prontos', 'var(--ok)', bk('Pronto')) + coluna('Enviados', 'var(--gold-200)', bk('Enviado')) + (vista === 'atraso' ? '' : coluna('Aprovados e postados · 14 dias', 'var(--ok)', okRec, 8));
+        $('paQuadro').style.setProperty('--cols', vista === 'atraso' ? 5 : 6);
       }
     }
     $('paResumo').textContent = (q || cf || soParados) ? 'Filtro ativo' : '';
@@ -1807,6 +1841,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
 
   $('paAbas').onclick = (e) => { const x = e.target.closest('[data-p]'); if (x) { painel = x.dataset.p; pintaPaineis(); } };
   $('paSub2').onclick = (e) => { const x = e.target.closest('[data-s]'); if (x) { sub = x.dataset.s; pintaPaineis(); } };
+  $('paVista').onclick = (e) => { const x = e.target.closest('[data-v]'); if (x) { vista = x.dataset.v; pintaPaineis(); } };
   $('paBusca').oninput = () => pintaPaineis(); $('paCli').onchange = () => pintaPaineis();
   $('paParados').onclick = () => { soParados = !soParados; pintaPaineis(); };
   $('paQuem').onclick = (e) => { const x = e.target.closest('[data-q]'); if (x) { quem[painel] = x.dataset.q; pintaPaineis(); } };
@@ -1918,8 +1953,8 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   addEventListener('hashchange', vai); vai();
 })();
 </script>
-<script src="/interno/extras.js?v=f82c7e62"></script>
-<script src="/interno/app.js?v=f82c7e62"></script>
+<script src="/interno/extras.js?v=5e8779da"></script>
+<script src="/interno/app.js?v=5e8779da"></script>
 <script>/* Notificações do ambiente interno no celular e no computador.
    Sem configuração: avisa enquanto o ambiente estiver aberto (mesmo em outra aba ou minimizado).
    Com ONESIGNAL_APP_ID preenchido (+ chaves no Apps Script): avisa também com o ambiente fechado. */
