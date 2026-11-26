@@ -1743,7 +1743,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
   const capaDesigner = (i) => { const id = i.capa && i.capa.designer; return PAINEIS.design.includes(id) ? id : PADRAO.design; };
   const capaPronta = (i) => !!(i.capa && i.capa.pronta);
   const porData = (a, b) => (parse(a.data) || 0) - (parse(b.data) || 0) || String(a.hora || '').localeCompare(String(b.hora || ''));
-  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null, vista = 'prazo';
+  let banco = null, painel = 'design', sub = 'artes', quem = {}, soParados = false, euAntes = null, vista = 'hoje';
 
   const card = (i, extra = '') => {
     const t = 'div', ac = COR[i.status] || 'rgba(247,228,206,.2)', at = atraso(i);
@@ -1761,7 +1761,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
       (i.status === 'Não postado' && i.naoPostado ? '<span class="nt">Não postado: ' + esc(i.naoPostado.motivo || '—') + '</span>' : '') + '</' + t + '>';
   };
   const coluna = (rot, cor, lista, lim = 12, extra) => '<div class="kcol"><div class="kcab"><span><i style="background:' + cor + ';color:' + cor + '"></i>' + rot + '</span><b>' + lista.length + '</b></div>' +
-    (lista.map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">' + (vista === 'atraso' ? 'Nada atrasado aqui' : 'Nada nesta etapa') + '</div>') + '</div>';
+    (lista.map((i) => card(i, extra ? extra(i) : '')).join('') || '<div class="kvaz">' + (vista === 'atraso' ? 'Nada atrasado aqui' : vista === 'hoje' ? 'Nada para hoje nesta etapa' : 'Nada nesta etapa') + '</div>') + '</div>';
 
   function pintaPaineis(b) {
     if (b) banco = b; if (!banco) return;
@@ -1783,10 +1783,12 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     const h0p = hoje0(), FIMp = painel === 'social' ? ['Não postado', 'Postado'] : ['Aprovado', 'Não postado', 'Postado'];
     const atrasada = (i) => { const d = parse(i.data); return !!d && d < h0p && !FIMp.includes(i.status); };
     const minhaP = (i) => !FIMp.includes(i.status) && (painel === 'social' || (produtorDe(i.tipo) === painel && produtorPara(i.tipo, i.produtor) === p));
-    const nAtr = itens0.filter((i) => atrasada(i) && minhaP(i)).length, nDia = itens0.filter((i) => !atrasada(i) && minhaP(i)).length;
-    if (!nAtr) vista = 'prazo';
-    const itens = vista === 'atraso' ? itens0.filter(atrasada) : itens0.filter((i) => !atrasada(i));
-    $('paVista').innerHTML = [['prazo', 'Em dia', nDia], ['atraso', 'Atrasadas', nAtr]].map(([kk, n, c]) => '<button type="button" class="aba' + (kk === 'atraso' ? ' aba-atr' : '') + (vista === kk ? ' on' : '') + '" data-v="' + kk + '" aria-pressed="' + (vista === kk) + '">' + n + ' <b>' + c + '</b></button>').join('');
+    const hsP = fmt(h0p), doDiaP = (i) => i.data === hsP;
+    const nAtr = itens0.filter((i) => atrasada(i) && minhaP(i)).length, nHoje = itens0.filter((i) => doDiaP(i) && minhaP(i)).length, nProx = itens0.filter((i) => !atrasada(i) && !doDiaP(i) && minhaP(i)).length;
+    if (!['hoje', 'prox', 'atraso'].includes(vista)) vista = 'hoje';
+    // Hoje = só o que é do dia · Próximos dias = de amanhã em diante · Atrasadas = data já passou
+    const itens = vista === 'atraso' ? itens0.filter(atrasada) : vista === 'hoje' ? itens0.filter(doDiaP) : itens0.filter((i) => !atrasada(i) && !doDiaP(i));
+    $('paVista').innerHTML = [['hoje', 'Hoje', nHoje], ['prox', 'Próximos dias', nProx], ['atraso', 'Atrasadas', nAtr]].map(([kk, n, c]) => '<button type="button" class="aba' + (kk === 'atraso' ? ' aba-atr' : '') + (vista === kk ? ' on' : '') + '" data-v="' + kk + '" aria-pressed="' + (vista === kk) + '">' + n + ' <b>' + c + '</b></button>').join('');
     $('paAbas').innerHTML = [['design', 'Design'], ['video', 'Vídeo'], ['social', 'Social']].filter(([k]) => areas.includes(k)).map(([k, n]) => '<button type="button" class="aba' + (painel === k ? ' on' : '') + '" data-p="' + k + '">' + n + '</button>').join('');
     $('paQuem').innerHTML = '<span>Painel de</span>' + PAINEIS[painel].map((k) => '<button type="button" class="pess' + (k === p ? ' on' : '') + '" data-q="' + k + '"><img src="/assets/team/' + EQUIPE[k][1] + '.png" alt="">' + EQUIPE[k][0] + '</button>').join('');
 

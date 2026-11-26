@@ -10,3 +10,6 @@
 /rascunhos/*  /  301
 /TRAFEGO.md  /  301
 /workers/*  /  301
+# cópias antigas do interno (piloto e prévia) levam para o interno atual
+/interno/piloto/*  /interno/  302
+/interno/novo/*  /interno/  302
