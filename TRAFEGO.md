@@ -2,6 +2,12 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-28 — visual novo é o único painel de tráfego
+- `interno/trafego/index.html` agora é o painel no visual novo (o antigo saiu; está no histórico do git). A prévia `interno/previa/trafego/` foi apagada e redireciona (302) para /interno/trafego/.
+- Fim do modo prévia: tudo grava de verdade (sugestões, edição, avisos/push com sw em /interno/trafego/, acessos).
+- Todas as telas no layout novo: Visão geral e painel do cliente já tinham; Sugestões, Clientes, Campanhas, Relatórios, Alertas, Avisos e Acessos agora abrem numa "casca" (menu lateral `railGeral` + cabeçalho de vidro). Truque: `$('conteudo')` devolve o miolo da casca enquanto ela estiver na tela.
+- Cliente entra em yamb.com.br/trafego/ (rewrite para /interno/trafego/) e só vê Painel, Contas, Campanhas e Relatórios das contas dele; sem menu do interno (`.yr` nunca aparece), sem botão Interno, sem link de volta no login. O interno embute /interno/trafego/?embed=1.
+
 ## 2026-11-28 — painel do cliente no visual novo
 - Clientes entram em **yamb.com.br/trafego/** (rewrite 200 em `_redirects` para `interno/previa/trafego/`; `X-Robots-Tag: noindex` em `_headers`). No endereço /trafego/ somem os links do interno (classe `cli-end`).
 - A aba Acessos agora abre dentro do visual novo (menu lateral + cabeçalho de vidro), sem a barra antiga de abas.

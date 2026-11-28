@@ -1978,7 +1978,7 @@ button.ico{border:0;background:none;cursor:pointer;padding:0}
     document.getElementById('tela-planejamento').hidden = t !== 'planejamento';
     document.getElementById('tela-login').hidden = t !== 'login';
     document.getElementById('tela-trafego').hidden = t !== 'trafego';
-    if (t === 'trafego') { const f = document.getElementById('trafegoFrame'); if (!f.src) f.src = '/interno/previa/trafego/?embed=1'; }
+    if (t === 'trafego') { const f = document.getElementById('trafegoFrame'); if (!f.src) f.src = '/interno/trafego/?embed=1'; }
     document.getElementById('tela-aviso').hidden = t !== 'aviso-8h';
     document.body.classList.toggle('sem-menu', t === 'login' || t === 'aviso-8h');
     document.querySelectorAll('.trilho [data-tela]').forEach((a) => { const on = a.dataset.tela === t; a.classList.toggle('on', on); on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'); });

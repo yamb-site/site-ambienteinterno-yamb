@@ -15,4 +15,6 @@
 /interno/novo/*  /interno/  302
 # painel de tráfego do cliente (visual novo)
 /trafego  /trafego/  301
-/trafego/  /interno/previa/trafego/  200
+/trafego/  /interno/trafego/  200
+# prévia antiga do tráfego virou o painel oficial
+/interno/previa/trafego/*  /interno/trafego/  302
