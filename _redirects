@@ -13,3 +13,6 @@
 # cópias antigas do interno (piloto e prévia) levam para o interno atual
 /interno/piloto/*  /interno/  302
 /interno/novo/*  /interno/  302
+# painel de tráfego do cliente (visual novo)
+/trafego  /trafego/  301
+/trafego/  /interno/previa/trafego/  200

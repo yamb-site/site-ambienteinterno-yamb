@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add("embed")</script>
+<head><script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add("embed");if(/^\/trafego\//.test(location.pathname))document.documentElement.classList.add("cli-end")</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0A0A0A">
-<title>Tráfego · YAMB (prévia)</title>
+<title>Tráfego · YAMB</title>
 <link rel="icon" href="/interno/icon.png">
 
 <link rel="apple-touch-icon" href="/interno/icon.png">
@@ -597,6 +597,7 @@ body.yr-app .wrap{max-width:1560px;padding:26px 26px 72px 136px}
 .cartao-entrar .erro{color:#F0A594}
 .cartao-entrar .volta{color:#F5C86F}
 /* aviso de só leitura */
+html.cli-end .volta,html.cli-end #ir-interno,html.cli-end .so-int{display:none!important}
 html.embed{zoom:1;background:transparent}
 html.embed body{background:transparent;min-height:0}
 html.embed body::before,html.embed body::after{display:none}
@@ -623,7 +624,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
     <div class="orbita" aria-hidden="true"></div>
     <img class="flor" src="/assets/flower-gold-512.png" alt="" width="400" height="400" aria-hidden="true">
     <div class="chamada">
-      <span class="over">Ambiente interno · Tráfego</span>
+      <span class="over"><span class="so-int">Ambiente interno · </span>Tráfego</span>
       <h1 class="titulo-luz">Cada campanha, cada cliente, <em>um número claro</em>.</h1>
       <div class="rodape"><span class="over" style="color:var(--soft)">Viva o processo</span><hr class="regua"></div>
     </div>
@@ -646,7 +647,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
       <button class="botao-ouro" type="submit" id="btn-entrar">Entrar <span aria-hidden="true">→</span></button>
       <p id="erro-senha" class="erro" role="alert" aria-live="polite"></p>
     </form>
-    <a class="volta" href="/interno/previa/">← Voltar ao ambiente interno</a>
+    <a class="volta" href="/interno/">← Voltar ao ambiente interno</a>
   </div>
 </section>
 
@@ -657,7 +658,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
     <span class="nome">Painel de Tráfego</span>
     <div class="acoes">
       <span class="quem meta" id="quem"></span>
-      <a class="icone-btn" id="ir-interno" href="/interno/previa/" aria-label="Voltar ao ambiente interno"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span class="rot">Interno</span></a>
+      <a class="icone-btn" id="ir-interno" href="/interno/#trafego" aria-label="Voltar ao ambiente interno"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg><span class="rot">Interno</span></a>
       <button class="icone-btn" id="atualizar" type="button" aria-label="Atualizar dados"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3"/></svg><span class="rot">Atualizar</span></button>
       <button class="icone-btn" id="sair" type="button" aria-label="Sair do painel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 3H3.5v10H6M10 5l3 3-3 3M13 8H6.5"/></svg><span class="rot">Sair</span></button>
     </div>
@@ -704,7 +705,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
   'use strict';
   var API = 'https://yamb-trafego.diretoria-c5d.workers.dev';
   var CHAVE = 'yamb-trafego-sessao';
-  var ENDERECO_CLIENTE = 'yamb.com.br/interno/trafego/'; // onde o cliente entra com o usuário e a senha dele
+  var ENDERECO_CLIENTE = 'yamb.com.br/trafego/'; // onde o cliente entra com o usuário e a senha dele
   var $ = function (id) { return document.getElementById(id); };
   var geral = null, clientes = {}, estado = {}, sugs = null, ig = null, igPerfis = {};
 
@@ -895,7 +896,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
 
   function render(silencioso) {
     estado = lerEstado();
-    $('painel').classList.toggle('dash-on', estado.aba === 'cliente' || estado.aba === 'geral'); if (estado.aba !== 'cliente') fecharCampanha(true);
+    $('painel').classList.toggle('dash-on', estado.aba === 'cliente' || estado.aba === 'geral' || estado.aba === 'acessos'); if (estado.aba !== 'cliente') fecharCampanha(true);
     document.querySelectorAll('#periodos [data-p]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-p') === estado.periodo)); });
     if (!silencioso) $('conteudo').innerHTML = '<p class="carregando">Carregando…</p>';
     return carregarGeral().then(function (g) {
@@ -1746,8 +1747,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
   function telaAcessos(d) {
     acessos = d;
     var nomeConta = {}; d.contas.forEach(function (c) { nomeConta[c.id] = c.nome; });
-    var h = '<div class="filtros" style="margin-bottom:10px"><a class="botao-sec" href="' + link({ aba: 'cliente' }) + '">← Voltar ao painel</a></div>' +
-      '<section class="cartao vidro"><span class="over">Acesso dos clientes</span><h2>Criar login para um cliente</h2><p class="meta" style="margin:6px 0 0">1. Clique em <b>Novo acesso</b>, escolha o tipo <b>Cliente</b> e marque as contas de anúncio dele. 2. Gere a senha. 3. Envie o endereço <b>' + ENDERECO_CLIENTE + '</b> com o usuário e a senha. O cliente só vê os números das contas marcadas.</p></section>' +
+    var h = '<section class="cartao vidro"><span class="over">Acesso dos clientes</span><h2>Criar login para um cliente</h2><p class="meta" style="margin:6px 0 0">1. Clique em <b>Novo acesso</b>, escolha o tipo <b>Cliente</b> e marque as contas de anúncio dele. 2. Gere a senha. 3. Envie o endereço <b>' + ENDERECO_CLIENTE + '</b> com o usuário e a senha. O cliente só vê os números das contas marcadas.</p></section>' +
       '<p class="meta" style="margin:0 0 14px">Cada pessoa entra com o próprio usuário. <b>Cliente</b> vê só os números das contas marcadas (sem sugestões, alertas ou edição). <b>Equipe</b> vê todos os clientes, decide as sugestões e edita campanhas. <b>Administrador</b> faz tudo e cuida desta aba.</p>';
     h += '<div class="filtros"><button type="button" class="botao-ouro p" id="ac-novo">Novo acesso</button></div>';
     h += '<div id="ac-form-caixa"></div>';
@@ -1759,7 +1759,9 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
           '<td><div class="ctrl"><button type="button" class="mini-btn" data-ac-editar="' + esc(u.login) + '">Editar</button><button type="button" class="mini-btn ' + (u.ativo ? 'pausar' : 'ativar') + '" data-ac-ativo="' + esc(u.login) + '">' + (u.ativo ? 'Bloquear' : 'Liberar') + '</button><button type="button" class="mini-btn pausar" data-ac-apagar="' + esc(u.login) + '">Apagar</button></div></td></tr>';
       }).join('') + '</tbody></table></div>' : '<p class="vazio">Nenhum acesso criado ainda. Comece criando o seu (tipo Administrador) e os da equipe.</p>') + '</section>';
     h += '<p class="meta">Entrada de emergência: usuário <b>admin</b> com a senha mestra do painel (guardada no cofre da Cloudflare).</p>';
-    $('conteudo').innerHTML = h;
+    var rail = '<nav class="dash-rail" aria-label="Seções do painel">' + DASH_SUBS.map(function (s) { return '<a href="' + link({ aba: 'cliente', sub: s[0], camp: '' }) + '">' + IC[s[0]] + '<span>' + s[1] + '</span></a>'; }).join('') +
+      '<hr><a href="' + link({ aba: 'acessos' }) + '" aria-current="page">' + IC.chave + '<span>Acessos</span></a></nav>';
+    $('conteudo').innerHTML = '<div class="dash">' + rail + '<div class="dash-main"><header class="dash-top vidro"><div class="dash-tit"><h2>Acessos <em>dos clientes</em></h2><p>Quem entra no painel de tráfego e o que cada um vê</p></div></header>' + h + '</div></div>';
     $('ac-novo').addEventListener('click', function () { formAcesso(null); });
   }
   function formAcesso(u) {

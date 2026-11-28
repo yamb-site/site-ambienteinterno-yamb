@@ -13,3 +13,7 @@
 # Ambiente interno fora dos buscadores
 /interno/*
   X-Robots-Tag: noindex, nofollow
+
+# Painel de tráfego do cliente fora dos buscadores
+/trafego/*
+  X-Robots-Tag: noindex, nofollow
