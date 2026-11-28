@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-28 — painel do cliente no visual novo
+- Clientes entram em **yamb.com.br/trafego/** (rewrite 200 em `_redirects` para `interno/previa/trafego/`; `X-Robots-Tag: noindex` em `_headers`). No endereço /trafego/ somem os links do interno (classe `cli-end`).
+- A aba Acessos agora abre dentro do visual novo (menu lateral + cabeçalho de vidro), sem a barra antiga de abas.
+- O painel antigo em /interno/trafego/ continua no ar (acesso antigo da cliente Érica segue funcionando lá e aqui).
+
 ## 2026-11-28 — acesso de clientes pela tela Tráfego do interno
 - A tela Tráfego do interno (iframe de `interno/previa/trafego/?embed=1`) bloqueava toda gravação e forçava o painel do cliente. Agora o **administrador** do Tráfego tem o botão **Acessos** no menu do painel e pode criar/editar/bloquear/apagar acessos (rotas liberadas na prévia: `/entrar`, `/sair`, `/acessos/salvar`, `/acessos/remover`; o resto segue bloqueado).
 - Ao criar, aparece a mensagem pronta (endereço, usuário, senha) com botão **Copiar mensagem**. Endereço do cliente: **yamb.com.br/interno/trafego/** (painel real; o Worker filtra as contas do cliente).
