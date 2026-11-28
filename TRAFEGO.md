@@ -2,6 +2,11 @@
 
 Memória do **YA - Tráfego**. Mais recente primeiro. **Sem tokens e sem dados de clientes** — este repositório é público.
 
+## 2026-11-28 — acesso de clientes pela tela Tráfego do interno
+- A tela Tráfego do interno (iframe de `interno/previa/trafego/?embed=1`) bloqueava toda gravação e forçava o painel do cliente. Agora o **administrador** do Tráfego tem o botão **Acessos** no menu do painel e pode criar/editar/bloquear/apagar acessos (rotas liberadas na prévia: `/entrar`, `/sair`, `/acessos/salvar`, `/acessos/remover`; o resto segue bloqueado).
+- Ao criar, aparece a mensagem pronta (endereço, usuário, senha) com botão **Copiar mensagem**. Endereço do cliente: **yamb.com.br/interno/trafego/** (painel real; o Worker filtra as contas do cliente).
+- Em 2026-11-28 só existia 1 usuário no KV (um cliente). O dono entra como `admin` + senha mestra para criar o próprio administrador.
+
 ## 2026-11-13 — Worker do tráfego movido para a conta da diretoria
 - `yamb-trafego` agora roda em **https://yamb-trafego.diretoria-c5d.workers.dev** (conta da diretoria, id c5df7978…). O da conta gmail ficou parado e pode ser apagado.
 - Novo KV `YAMB_TRAFEGO` (14ec801d…) e segredos regravados: META_TOKEN e META_TOKEN_GERENCIAR (token longo, vence 12/01/2027), PAINEL_SENHA (senha mestra do admin), VAPID_PRIVATE_JWK (par novo; chave pública em `wrangler.toml`) e AVISOS_TOKEN. Deploy: dentro de `workers/trafego`, com `CLOUDFLARE_API_TOKEN=$(cat ~/.cf-yamb-token)` e `CLOUDFLARE_ACCOUNT_ID=c5df7978f2050db99ed01c1c92d04ba6`, rode `npx wrangler@4 deploy`. Renovar o token do Meta: `./token.sh` com as mesmas duas variáveis.
