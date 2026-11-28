@@ -704,6 +704,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
   'use strict';
   var API = 'https://yamb-trafego.diretoria-c5d.workers.dev';
   var CHAVE = 'yamb-trafego-sessao';
+  var ENDERECO_CLIENTE = 'yamb.com.br/interno/trafego/'; // onde o cliente entra com o usuário e a senha dele
   var $ = function (id) { return document.getElementById(id); };
   var geral = null, clientes = {}, estado = {}, sugs = null, ig = null, igPerfis = {};
 
@@ -718,7 +719,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
   function ehAdmin() { return !!eu && eu.papel === 'admin'; }
   function cab(extra) { var h = Object.assign({}, extra); if (token) h.Authorization = 'Bearer ' + token; return h; }
   function enviar(rota, corpo) {
-    if (rota !== '/entrar') { previaAviso(); return Promise.reject(new Error('Prévia: nada é alterado aqui. Na versão final este botão funciona.')); }
+    if (['/entrar', '/sair', '/acessos/salvar', '/acessos/remover'].indexOf(rota) < 0) { previaAviso(); return Promise.reject(new Error('Prévia: nada é alterado aqui. Na versão final este botão funciona.')); }
     return fetch(API + rota, { method: 'POST', headers: cab({ 'Content-Type': 'application/json' }), body: JSON.stringify(corpo) })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.erro) { var e = new Error(j.erro || ('Erro ' + r.status)); e.status = r.status; throw e; } return j; }); });
   }
@@ -863,7 +864,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
     e.aba = e.aba || (e.cliente ? 'cliente' : 'clientes'); if (e.aba === 'geral') e.aba = 'clientes'; e.periodo = e.periodo || 'last_7d';
     if (ehCliente() && ['geral', 'clientes', 'campanhas', 'cliente', 'relatorios'].indexOf(e.aba) < 0) e.aba = 'clientes';
     if (e.aba === 'acessos' && !ehAdmin()) e.aba = 'clientes';
-    e.aba = 'cliente'; e.sub = e.sub || 'resumo'; // prévia: sempre o painel do cliente
+    if (!(e.aba === 'acessos' && ehAdmin())) { e.aba = 'cliente'; e.sub = e.sub || 'resumo'; } // prévia: painel do cliente; administrador também abre Acessos
     return e;
   }
   function link(mudar) {
@@ -1300,7 +1301,7 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
       DASH_SUBS.map(function (s) {
         var n = s[0] === 'campanhas' ? d.campanhas.length : s[0] === 'conjuntos' ? d.conjuntos.length : s[0] === 'anuncios' ? d.anuncios.length : null;
         return '<a href="' + link({ sub: s[0], camp: '' }) + '"' + (s[0] === sub ? ' aria-current="page"' : '') + '>' + IC[s[0]] + '<span>' + s[1] + '</span>' + (n != null ? '<span class="n">' + n + '</span>' : '') + '</a>';
-      }).join('') + '</nav>' +
+      }).join('') + (ehAdmin() ? '<hr><a href="' + link({ aba: 'acessos' }) + '">' + IC.chave + '<span>Acessos</span></a>' : '') + '</nav>' +
       '<div class="dash-main"><header class="dash-top vidro">' + seletorCliente(d) +
       '<div class="dash-tit"><h2>Overview <em>Meta Ads</em></h2><p>' + esc(c.empresa || c.nome) + ' · ' + (d.intervalo ? data(d.intervalo.atual.since) + (d.intervalo.dias > 1 ? ' a ' + data(d.intervalo.atual.until) : '') : '') + ' · conta ' + esc(String(c.status).toLowerCase()) + '</p></div>' +
       '<div class="dash-acoes"><div class="periodos" role="group" aria-label="Período">' +
@@ -1745,7 +1746,9 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
   function telaAcessos(d) {
     acessos = d;
     var nomeConta = {}; d.contas.forEach(function (c) { nomeConta[c.id] = c.nome; });
-    var h = '<p class="meta" style="margin:0 0 14px">Cada pessoa entra com o próprio usuário. <b>Cliente</b> vê só os números das contas marcadas (sem sugestões, alertas ou edição). <b>Equipe</b> vê todos os clientes, decide as sugestões e edita campanhas. <b>Administrador</b> faz tudo e cuida desta aba.</p>';
+    var h = '<div class="filtros" style="margin-bottom:10px"><a class="botao-sec" href="' + link({ aba: 'cliente' }) + '">← Voltar ao painel</a></div>' +
+      '<section class="cartao vidro"><span class="over">Acesso dos clientes</span><h2>Criar login para um cliente</h2><p class="meta" style="margin:6px 0 0">1. Clique em <b>Novo acesso</b>, escolha o tipo <b>Cliente</b> e marque as contas de anúncio dele. 2. Gere a senha. 3. Envie o endereço <b>' + ENDERECO_CLIENTE + '</b> com o usuário e a senha. O cliente só vê os números das contas marcadas.</p></section>' +
+      '<p class="meta" style="margin:0 0 14px">Cada pessoa entra com o próprio usuário. <b>Cliente</b> vê só os números das contas marcadas (sem sugestões, alertas ou edição). <b>Equipe</b> vê todos os clientes, decide as sugestões e edita campanhas. <b>Administrador</b> faz tudo e cuida desta aba.</p>';
     h += '<div class="filtros"><button type="button" class="botao-ouro p" id="ac-novo">Novo acesso</button></div>';
     h += '<div id="ac-form-caixa"></div>';
     h += '<section class="cartao vidro"><h2>Acessos<small>' + d.usuarios.length + '</small></h2>' + (d.usuarios.length ? '<div class="tabela"><table><thead><tr><th scope="col">Nome</th><th scope="col">Usuário</th><th scope="col">Tipo</th><th scope="col">O que vê</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead><tbody>' +
@@ -1789,7 +1792,9 @@ html.embed .cartao-entrar::before{content:"Para ver as campanhas, entre uma vez 
     var bt = $('ac-salvar'); bt.disabled = true; $('ac-erro').textContent = '';
     enviar('/acessos/salvar', corpo).then(function () { return pedir('/acessos'); }).then(function (d) {
       telaAcessos(d);
-      $('ac-form-caixa').innerHTML = '<section class="cartao vidro"><p><b>Acesso ' + (editando ? 'salvo' : 'criado') + '.</b> ' + (senha ? 'Envie para a pessoa: endereço <b>site-yamb.pages.dev/interno/trafego/</b>, usuário <b>' + esc(corpo.login) + '</b> e a senha que você definiu.' : '') + '</p></section>';
+      var msg = 'Olá, ' + corpo.nome + '! Seu acesso ao painel de tráfego da YAMB:\nEndereço: https://' + ENDERECO_CLIENTE + '\nUsuário: ' + corpo.login + '\nSenha: ' + senha;
+      $('ac-form-caixa').innerHTML = '<section class="cartao vidro"><p><b>Acesso ' + (editando ? 'salvo' : 'criado') + '.</b> ' + (senha ? 'Envie para a pessoa (a senha não aparece de novo depois que você sair desta tela):</p><pre class="ac-msg" style="white-space:pre-wrap;margin:10px 0;padding:12px 14px;border-radius:14px;background:rgba(18,18,18,.6);border:1px solid var(--edge);font:13px/1.5 inherit">' + esc(msg) + '</pre><div class="linha-botoes"><button type="button" class="botao-ouro p" id="ac-copiar">Copiar mensagem</button></div>' : '</p>') + '</section>';
+      var bc = $('ac-copiar'); if (bc) bc.addEventListener('click', function () { var ok = function () { bc.textContent = 'Mensagem copiada'; }; if (navigator.clipboard) navigator.clipboard.writeText(msg).then(ok, function () { prompt('Copie a mensagem:', msg); }); else prompt('Copie a mensagem:', msg); });
     }).catch(function (e) { $('ac-erro').textContent = e.message; bt.disabled = false; });
   }
   $('conteudo').addEventListener('click', function (e) {

@@ -1724,7 +1724,7 @@ body.fl-aberto{overflow:hidden}
     var bt = $('ac-salvar'); bt.disabled = true; $('ac-erro').textContent = '';
     enviar('/acessos/salvar', corpo).then(function () { return pedir('/acessos'); }).then(function (d) {
       telaAcessos(d);
-      $('ac-form-caixa').innerHTML = '<section class="cartao vidro"><p><b>Acesso ' + (editando ? 'salvo' : 'criado') + '.</b> ' + (senha ? 'Envie para a pessoa: endereço <b>site-yamb.pages.dev/interno/trafego/</b>, usuário <b>' + esc(corpo.login) + '</b> e a senha que você definiu.' : '') + '</p></section>';
+      $('ac-form-caixa').innerHTML = '<section class="cartao vidro"><p><b>Acesso ' + (editando ? 'salvo' : 'criado') + '.</b> ' + (senha ? 'Envie para a pessoa: endereço <b>yamb.com.br/interno/trafego/</b>, usuário <b>' + esc(corpo.login) + '</b> e a senha que você definiu.' : '') + '</p></section>';
     }).catch(function (e) { $('ac-erro').textContent = e.message; bt.disabled = false; });
   }
   $('conteudo').addEventListener('click', function (e) {
